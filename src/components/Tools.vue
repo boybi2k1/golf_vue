@@ -22,107 +22,55 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-      <!-- Filters -->
-      <div class="lg:col-span-3">
-        <div class="bg-white rounded-lg shadow p-4">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Loại thiết bị</label
-              >
-              <select
-                v-model="filters.category"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả loại</option>
-                <option value="golf-club">Gậy golf</option>
-                <option value="golf-cart">Xe điện</option>
-                <option value="maintenance">Thiết bị bảo trì</option>
-                <option value="accessories">Phụ kiện</option>
-                <option value="other">Khác</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Trạng thái</label
-              >
-              <select
-                v-model="filters.status"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="available">Sẵn sàng</option>
-                <option value="in-use">Đang sử dụng</option>
-                <option value="maintenance">Đang bảo trì</option>
-                <option value="broken">Hỏng</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Vị trí</label
-              >
-              <select
-                v-model="filters.location"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả vị trí</option>
-                <option value="clubhouse">Nhà câu lạc bộ</option>
-                <option value="pro-shop">Pro Shop</option>
-                <option value="maintenance-shed">Kho bảo trì</option>
-                <option value="course">Trên sân</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Tìm kiếm</label
-              >
-              <div class="relative">
-                <SearchIcon
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
-                />
-                <input
-                  type="text"
-                  v-model="filters.search"
-                  placeholder="Tên, mã thiết bị..."
-                  class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-            </div>
+    <!-- Filters -->
+    <div class="lg:col-span-3 mb-4">
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Loại thiết bị</label
+            >
+            <select
+              v-model="filters.category"
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Tất cả loại</option>
+              <option value="golf-club">Gậy golf</option>
+              <option value="golf-cart">Xe điện</option>
+              <option value="maintenance">Thiết bị bảo trì</option>
+              <option value="accessories">Phụ kiện</option>
+              <option value="other">Khác</option>
+            </select>
           </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow p-4">
-          <h2 class="text-sm font-medium text-gray-900 mb-3">
-            Thống kê thiết bị
-          </h2>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="bg-green-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Sẵn sàng</div>
-              <div class="text-xl font-semibold text-green-700">
-                {{ getToolsCount("available") }}
-              </div>
-            </div>
-            <div class="bg-blue-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đang sử dụng</div>
-              <div class="text-xl font-semibold text-blue-700">
-                {{ getToolsCount("in-use") }}
-              </div>
-            </div>
-            <div class="bg-yellow-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đang bảo trì</div>
-              <div class="text-xl font-semibold text-yellow-700">
-                {{ getToolsCount("maintenance") }}
-              </div>
-            </div>
-            <div class="bg-red-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Hỏng</div>
-              <div class="text-xl font-semibold text-red-700">
-                {{ getToolsCount("broken") }}
-              </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Trạng thái</label
+            >
+            <select
+              v-model="filters.status"
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value="available">Sẵn sàng</option>
+              <option value="in-use">Đang sử dụng</option>
+              <option value="maintenance">Đang bảo trì</option>
+              <option value="broken">Hỏng</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Tìm kiếm</label
+            >
+            <div class="relative">
+              <SearchIcon
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+              />
+              <input
+                type="text"
+                v-model="filters.search"
+                placeholder="Tên, mã thiết bị..."
+                class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
             </div>
           </div>
         </div>
@@ -153,22 +101,22 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Vị trí
+                Nhà cung cấp
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Số lượng
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Giá thuê
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 Trạng thái
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Ngày mua
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Bảo trì tiếp theo
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -186,7 +134,7 @@
               <td
                 class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
               >
-                {{ tool.id }}
+                {{ tool.code }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -203,11 +151,18 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ getCategoryText(tool.category) }}
+                {{ getCategoryText(tool.type) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ getLocationText(tool.location) }}
+                {{ tool.provider }}
               </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ tool.quantity }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ tool.rentPrice }}
+              </td>
+
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="{
@@ -220,23 +175,6 @@
                   }"
                 >
                   {{ getStatusText(tool.status) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ formatDate(tool.purchaseDate) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span
-                  :class="{
-                    'text-red-600 font-medium': isMaintenanceOverdue(
-                      tool.nextMaintenance
-                    ),
-                    'text-yellow-600 font-medium': isMaintenanceSoon(
-                      tool.nextMaintenance
-                    ),
-                  }"
-                >
-                  {{ formatDate(tool.nextMaintenance) }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -284,7 +222,7 @@
             <p class="text-sm text-gray-700">
               Hiển thị
               <span class="font-medium">{{ filteredTools.length }}</span> trong
-              số <span class="font-medium">{{ tools.length }}</span> kết quả
+              số <span class="font-medium">{{ toolList.length }}</span> kết quả
             </p>
           </div>
           <div>
@@ -341,9 +279,7 @@
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Tên thiết bị</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tên thiết bị</label>
             <input
               type="text"
               v-model="toolForm.name"
@@ -353,193 +289,77 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Loại thiết bị</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">Loại thiết bị</label>
               <select
-                v-model="toolForm.category"
+                v-model="toolForm.type"
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="golf-club">Gậy golf</option>
-                <option value="golf-cart">Xe điện</option>
-                <option value="maintenance">Thiết bị bảo trì</option>
-                <option value="accessories">Phụ kiện</option>
+                <option value="golf_club">Gậy golf</option>
+                <option value="golf_cart">Xe điện</option>
                 <option value="other">Khác</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Vị trí</label
-              >
-              <select
-                v-model="toolForm.location"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="clubhouse">Nhà câu lạc bộ</option>
-                <option value="pro-shop">Pro Shop</option>
-                <option value="maintenance-shed">Kho bảo trì</option>
-                <option value="course">Trên sân</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Trạng thái</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
               <select
                 v-model="toolForm.status"
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="available">Sẵn sàng</option>
-                <option value="in-use">Đang sử dụng</option>
-                <option value="maintenance">Đang bảo trì</option>
-                <option value="broken">Hỏng</option>
+                <option value="AVAILABLE">Sẵn sàng</option>
+                <option value="IN_USE">Đang sử dụng</option>
+                <option value="MAINTENANCE">Đang bảo trì</option>
               </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Số serial</label
-              >
-              <input
-                type="text"
-                v-model="toolForm.serialNumber"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Ngày mua</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">Số lượng</label>
               <input
-                type="date"
-                v-model="toolForm.purchaseDate"
+                type="number"
+                v-model="toolForm.quantity"
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Bảo trì tiếp theo</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">Giá thuê (VND)</label>
               <input
-                type="date"
-                v-model="toolForm.nextMaintenance"
+                type="number"
+                v-model="toolForm.rentPrice"
+                required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Giá mua (VND)</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nhà cung cấp</label>
               <input
-                type="number"
-                v-model="toolForm.purchasePrice"
+                type="text"
+                v-model="toolForm.provider"
+                required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Nhà cung cấp</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">Ngày tạo</label>
               <input
-                type="text"
-                v-model="toolForm.supplier"
+                type="date"
+                v-model="toolForm.createdAt"
+                disabled
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Hình ảnh URL</label
-            >
-            <input
-              type="text"
-              v-model="toolForm.image"
-              placeholder="https://example.com/image.jpg"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Mô tả</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
             <textarea
               v-model="toolForm.description"
               rows="3"
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             ></textarea>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Lịch sử bảo trì</label
-            >
-            <div
-              class="border border-gray-200 rounded-md p-3 max-h-40 overflow-y-auto"
-            >
-              <div
-                v-if="toolForm.maintenanceHistory.length === 0"
-                class="text-sm text-gray-500 text-center py-2"
-              >
-                Chưa có lịch sử bảo trì
-              </div>
-              <div v-else class="space-y-2">
-                <div
-                  v-for="(record, index) in toolForm.maintenanceHistory"
-                  :key="index"
-                  class="text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0"
-                >
-                  <div class="flex justify-between">
-                    <span class="font-medium">{{
-                      formatDate(record.date)
-                    }}</span>
-                    <span>{{ record.type }}</span>
-                  </div>
-                  <p class="text-gray-600">{{ record.notes }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            v-if="isEditMode && toolForm.status === 'in-use'"
-            class="mb-4 p-3 bg-blue-50 rounded-md"
-          >
-            <h3 class="text-sm font-medium text-blue-800 mb-2">
-              Thông tin sử dụng
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-              <div>
-                <span class="text-gray-600">Người mượn:</span>
-                <span class="ml-1">{{
-                  toolForm.usageInfo?.borrower || "N/A"
-                }}</span>
-              </div>
-              <div>
-                <span class="text-gray-600">Thời gian mượn:</span>
-                <span class="ml-1">{{
-                  formatDateTime(toolForm.usageInfo?.borrowTime) || "N/A"
-                }}</span>
-              </div>
-              <div>
-                <span class="text-gray-600">Dự kiến trả:</span>
-                <span class="ml-1">{{
-                  formatDate(toolForm.usageInfo?.expectedReturn) || "N/A"
-                }}</span>
-              </div>
-              <div>
-                <span class="text-gray-600">Ghi chú:</span>
-                <span class="ml-1">{{
-                  toolForm.usageInfo?.notes || "Không có"
-                }}</span>
-              </div>
-            </div>
           </div>
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -558,7 +378,6 @@
         </div>
       </div>
     </div>
-
     <!-- Confirmation Modal -->
     <div
       v-if="showConfirmModal"
@@ -599,274 +418,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Quick Actions Modal -->
-    <div
-      v-if="showActionsModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div class="flex justify-between items-center border-b px-6 py-4">
-          <h2 class="text-xl font-semibold text-green-800">Thao tác nhanh</h2>
-          <button
-            @click="showActionsModal = false"
-            class="text-gray-500 hover:text-gray-700"
-          >
-            <XIcon class="w-5 h-5" />
-          </button>
-        </div>
-        <div class="px-6 py-4">
-          <div class="mb-4">
-            <div class="flex items-center">
-              <div class="h-12 w-12 flex-shrink-0 mr-3">
-                <img
-                  :src="
-                    selectedTool.image || '/placeholder.svg?height=48&width=48'
-                  "
-                  class="h-12 w-12 rounded-full object-cover"
-                  alt="Tool thumbnail"
-                />
-              </div>
-              <div>
-                <div class="text-lg font-medium text-gray-900">
-                  {{ selectedTool.name }}
-                </div>
-                <div class="text-sm text-gray-500">{{ selectedTool.id }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <button
-              v-if="selectedTool.status === 'available'"
-              @click="openCheckoutModal"
-              class="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-md"
-            >
-              <div class="flex items-center">
-                <LogOutIcon class="w-5 h-5 text-blue-600 mr-2" />
-                <span class="text-blue-800">Cho mượn thiết bị</span>
-              </div>
-              <ChevronRightIcon class="w-5 h-5 text-blue-600" />
-            </button>
-
-            <button
-              v-if="selectedTool.status === 'in-use'"
-              @click="checkInTool"
-              class="w-full flex items-center justify-between p-3 bg-green-50 hover:bg-green-100 rounded-md"
-            >
-              <div class="flex items-center">
-                <LogInIcon class="w-5 h-5 text-green-600 mr-2" />
-                <span class="text-green-800">Trả thiết bị</span>
-              </div>
-              <ChevronRightIcon class="w-5 h-5 text-green-600" />
-            </button>
-
-            <button
-              v-if="selectedTool.status !== 'maintenance'"
-              @click="sendToMaintenance"
-              class="w-full flex items-center justify-between p-3 bg-yellow-50 hover:bg-yellow-100 rounded-md"
-            >
-              <div class="flex items-center">
-                <WrenchIcon class="w-5 h-5 text-yellow-600 mr-2" />
-                <span class="text-yellow-800">Gửi đi bảo trì</span>
-              </div>
-              <ChevronRightIcon class="w-5 h-5 text-yellow-600" />
-            </button>
-
-            <button
-              v-if="selectedTool.status === 'maintenance'"
-              @click="completeMaintenance"
-              class="w-full flex items-center justify-between p-3 bg-green-50 hover:bg-green-100 rounded-md"
-            >
-              <div class="flex items-center">
-                <CheckCircleIcon class="w-5 h-5 text-green-600 mr-2" />
-                <span class="text-green-800">Hoàn thành bảo trì</span>
-              </div>
-              <ChevronRightIcon class="w-5 h-5 text-green-600" />
-            </button>
-
-            <button
-              v-if="selectedTool.status !== 'broken'"
-              @click="markAsBroken"
-              class="w-full flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 rounded-md"
-            >
-              <div class="flex items-center">
-                <AlertTriangleIcon class="w-5 h-5 text-red-600 mr-2" />
-                <span class="text-red-800">Đánh dấu hỏng</span>
-              </div>
-              <ChevronRightIcon class="w-5 h-5 text-red-600" />
-            </button>
-          </div>
-        </div>
-        <div class="flex justify-end space-x-2 border-t px-6 py-4">
-          <button
-            @click="showActionsModal = false"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Đóng
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Checkout Modal -->
-    <div
-      v-if="showCheckoutModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div class="flex justify-between items-center border-b px-6 py-4">
-          <h2 class="text-xl font-semibold text-green-800">
-            Cho mượn thiết bị
-          </h2>
-          <button
-            @click="showCheckoutModal = false"
-            class="text-gray-500 hover:text-gray-700"
-          >
-            <XIcon class="w-5 h-5" />
-          </button>
-        </div>
-        <div class="px-6 py-4">
-          <div class="mb-4">
-            <div class="text-sm font-medium text-gray-900">
-              {{ selectedTool.name }}
-            </div>
-            <div class="text-sm text-gray-500">{{ selectedTool.id }}</div>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Người mượn</label
-            >
-            <input
-              type="text"
-              v-model="checkoutForm.borrower"
-              required
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Dự kiến trả</label
-            >
-            <input
-              type="date"
-              v-model="checkoutForm.expectedReturn"
-              required
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Ghi chú</label
-            >
-            <textarea
-              v-model="checkoutForm.notes"
-              rows="3"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            ></textarea>
-          </div>
-        </div>
-        <div class="flex justify-end space-x-2 border-t px-6 py-4">
-          <button
-            @click="showCheckoutModal = false"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Hủy
-          </button>
-          <button
-            @click="processCheckout"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium"
-          >
-            Xác nhận
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Maintenance Modal -->
-    <div
-      v-if="showMaintenanceModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div class="flex justify-between items-center border-b px-6 py-4">
-          <h2 class="text-xl font-semibold text-green-800">Gửi đi bảo trì</h2>
-          <button
-            @click="showMaintenanceModal = false"
-            class="text-gray-500 hover:text-gray-700"
-          >
-            <XIcon class="w-5 h-5" />
-          </button>
-        </div>
-        <div class="px-6 py-4">
-          <div class="mb-4">
-            <div class="text-sm font-medium text-gray-900">
-              {{ selectedTool.name }}
-            </div>
-            <div class="text-sm text-gray-500">{{ selectedTool.id }}</div>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Loại bảo trì</label
-            >
-            <select
-              v-model="maintenanceForm.type"
-              required
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            >
-              <option value="routine">Bảo trì định kỳ</option>
-              <option value="repair">Sửa chữa</option>
-              <option value="inspection">Kiểm tra</option>
-              <option value="upgrade">Nâng cấp</option>
-            </select>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Dự kiến hoàn thành</label
-            >
-            <input
-              type="date"
-              v-model="maintenanceForm.expectedCompletion"
-              required
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Ghi chú</label
-            >
-            <textarea
-              v-model="maintenanceForm.notes"
-              rows="3"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            ></textarea>
-          </div>
-        </div>
-        <div class="flex justify-end space-x-2 border-t px-6 py-4">
-          <button
-            @click="showMaintenanceModal = false"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Hủy
-          </button>
-          <button
-            @click="processMaintenance"
-            class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md text-sm font-medium"
-          >
-            Xác nhận
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
-
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import {
@@ -880,11 +433,9 @@ import {
   Trash2Icon,
   XIcon,
   AlertTriangleIcon,
-  LogInIcon,
-  LogOutIcon,
-  WrenchIcon,
-  CheckCircleIcon,
 } from "lucide-vue-next";
+import { useToolStore } from "../stores/tool";
+import { storeToRefs } from "pinia";
 
 // State
 const currentPage = ref(1);
@@ -892,12 +443,13 @@ const itemsPerPage = ref(10);
 const showToolModal = ref(false);
 const showConfirmModal = ref(false);
 const showActionsModal = ref(false);
-const showCheckoutModal = ref(false);
-const showMaintenanceModal = ref(false);
 const isEditMode = ref(false);
 const selectedToolId = ref(null);
 const selectedTool = ref({});
 
+const store = useToolStore();
+const {toolList} = storeToRefs(store);
+console.log("toolList", toolList.value);
 // Form and filters
 const filters = reactive({
   category: "",
@@ -908,169 +460,37 @@ const filters = reactive({
 
 const toolForm = reactive({
   id: "",
+  code: "",
   name: "",
-  category: "golf-club",
-  location: "clubhouse",
+  type: "",
+  quantity: "",
   status: "available",
-  serialNumber: "",
-  purchaseDate: "",
-  nextMaintenance: "",
-  purchasePrice: 0,
+  rentPrice: 0,
+  provider: "",
   supplier: "",
-  image: "",
-  description: "",
-  maintenanceHistory: [],
-  usageInfo: null,
+  createdAt: "",
 });
 
-const checkoutForm = reactive({
-  borrower: "",
-  expectedReturn: "",
-  notes: "",
-});
 
-const maintenanceForm = reactive({
-  type: "routine",
-  expectedCompletion: "",
-  notes: "",
-});
-
-// Mock data
-const tools = ref([
-  {
-    id: "TL001",
-    name: "Bộ gậy golf Titleist",
-    category: "golf-club",
-    location: "pro-shop",
-    status: "available",
-    serialNumber: "TS12345",
-    purchaseDate: "2024-01-15",
-    nextMaintenance: "2025-01-15",
-    purchasePrice: 25000000,
-    supplier: "Titleist Vietnam",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Bộ gậy golf Titleist AP2 mới, bao gồm đầy đủ các loại gậy.",
-    maintenanceHistory: [],
-  },
-  {
-    id: "TL002",
-    name: "Xe điện Club Car",
-    category: "golf-cart",
-    location: "course",
-    status: "in-use",
-    serialNumber: "CC78901",
-    purchaseDate: "2023-05-20",
-    nextMaintenance: "2024-05-20",
-    purchasePrice: 150000000,
-    supplier: "Club Car Vietnam",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Xe điện Club Car 2 chỗ ngồi, màu trắng.",
-    maintenanceHistory: [
-      {
-        date: "2023-11-20",
-        type: "routine",
-        notes: "Kiểm tra và thay dầu định kỳ",
-      },
-    ],
-    usageInfo: {
-      borrower: "Nguyễn Văn A",
-      borrowTime: "2025-04-22T07:30:00",
-      expectedReturn: "2025-04-22T12:00:00",
-      notes: "Sử dụng cho khách VIP",
-    },
-  },
-  {
-    id: "TL003",
-    name: "Máy cắt cỏ Toro",
-    category: "maintenance",
-    location: "maintenance-shed",
-    status: "maintenance",
-    serialNumber: "TR45678",
-    purchaseDate: "2022-08-10",
-    nextMaintenance: "2024-08-10",
-    purchasePrice: 80000000,
-    supplier: "Toro Vietnam",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Máy cắt cỏ Toro Greensmaster 1600, dùng cho green.",
-    maintenanceHistory: [
-      {
-        date: "2023-08-10",
-        type: "routine",
-        notes: "Bảo dưỡng định kỳ hàng năm",
-      },
-      {
-        date: "2024-04-15",
-        type: "repair",
-        notes: "Sửa chữa động cơ",
-      },
-    ],
-  },
-  {
-    id: "TL004",
-    name: "Bộ gậy golf Callaway",
-    category: "golf-club",
-    location: "pro-shop",
-    status: "available",
-    serialNumber: "CW34567",
-    purchaseDate: "2024-02-05",
-    nextMaintenance: "2025-02-05",
-    purchasePrice: 30000000,
-    supplier: "Callaway Vietnam",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Bộ gậy golf Callaway Mavrik, bao gồm đầy đủ các loại gậy.",
-    maintenanceHistory: [],
-  },
-  {
-    id: "TL005",
-    name: "Xe điện EZGO",
-    category: "golf-cart",
-    location: "course",
-    status: "broken",
-    serialNumber: "EZ23456",
-    purchaseDate: "2022-03-15",
-    nextMaintenance: "2024-03-15",
-    purchasePrice: 120000000,
-    supplier: "EZGO Vietnam",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Xe điện EZGO 4 chỗ ngồi, màu xanh lá.",
-    maintenanceHistory: [
-      {
-        date: "2023-03-15",
-        type: "routine",
-        notes: "Bảo dưỡng định kỳ hàng năm",
-      },
-      {
-        date: "2024-04-10",
-        type: "repair",
-        notes: "Sửa chữa hệ thống điện",
-      },
-    ],
-  },
-]);
 
 // Computed properties
 const filteredTools = computed(() => {
-  let result = tools.value;
+  let result = toolList.value; 
 
-  if (filters.category) {
-    result = result.filter((tool) => tool.category === filters.category);
+  if (filters.type) {
+    result = result.filter((tool) => tool.type === filters.type);
   }
 
   if (filters.status) {
     result = result.filter((tool) => tool.status === filters.status);
   }
-
-  if (filters.location) {
-    result = result.filter((tool) => tool.location === filters.location);
-  }
-
   if (filters.search) {
     const searchLower = filters.search.toLowerCase();
     result = result.filter(
       (tool) =>
         tool.name.toLowerCase().includes(searchLower) ||
         tool.id.toLowerCase().includes(searchLower) ||
-        tool.serialNumber?.toLowerCase().includes(searchLower)
+        tool.code?.toLowerCase().includes(searchLower)
     );
   }
 
@@ -1080,31 +500,9 @@ const filteredTools = computed(() => {
 });
 
 const totalPages = computed(() => {
-  return Math.ceil(tools.value.length / itemsPerPage.value) || 1;
+  return Math.ceil(toolList.value.length / itemsPerPage.value) || 1; // Ensure toolList is used
 });
 
-// Methods
-function formatDate(dateString) {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
-
-function formatDateTime(dateTimeString) {
-  if (!dateTimeString) return "N/A";
-  const date = new Date(dateTimeString);
-  return date.toLocaleString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function getCategoryText(category) {
   switch (category) {
@@ -1123,21 +521,6 @@ function getCategoryText(category) {
   }
 }
 
-function getLocationText(location) {
-  switch (location) {
-    case "clubhouse":
-      return "Nhà câu lạc bộ";
-    case "pro-shop":
-      return "Pro Shop";
-    case "maintenance-shed":
-      return "Kho bảo trì";
-    case "course":
-      return "Trên sân";
-    default:
-      return location;
-  }
-}
-
 function getStatusText(status) {
   switch (status) {
     case "available":
@@ -1153,29 +536,9 @@ function getStatusText(status) {
   }
 }
 
-function getToolsCount(status) {
-  return tools.value.filter((tool) => tool.status === status).length;
-}
-
-function isMaintenanceOverdue(date) {
-  if (!date) return false;
-  const today = new Date();
-  const maintenanceDate = new Date(date);
-  return maintenanceDate < today;
-}
-
-function isMaintenanceSoon(date) {
-  if (!date) return false;
-  const today = new Date();
-  const maintenanceDate = new Date(date);
-  const diffTime = maintenanceDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays > 0 && diffDays <= 30;
-}
 
 function refreshData() {
-  // In a real app, this would fetch fresh data from the server
-  console.log("Refreshing data...");
+  store.getAllTools(); // Fetch fresh data from the server
 }
 
 function openNewToolModal() {
@@ -1189,53 +552,59 @@ function closeToolModal() {
   resetToolForm();
 }
 
+// Updated `resetToolForm` to include `createdAt` initialization.
 function resetToolForm() {
   Object.assign(toolForm, {
     id: "",
+    code: "",
     name: "",
-    category: "golf-club",
-    location: "clubhouse",
+    type: "",
+    quantity: "",
     status: "available",
-    serialNumber: "",
-    purchaseDate: new Date().toISOString().split("T")[0],
-    nextMaintenance: "",
-    purchasePrice: 0,
-    supplier: "",
-    image: "",
-    description: "",
-    maintenanceHistory: [],
-    usageInfo: null,
+    rentPrice: 0,
+    provider: "",
+    createdAt: "", // Reset createdAt
   });
 }
 
+// Updated `viewToolDetails` to ensure `createdAt` is properly assigned.
 function viewToolDetails(tool) {
   selectedTool.value = JSON.parse(JSON.stringify(tool));
-  showActionsModal.value = true;
+  Object.assign(toolForm, {
+    ...selectedTool.value,
+    createdAt: selectedTool.value.createdAt.split('T')[0], // Format for date input
+  });
+  showToolModal.value = true;
+  console.log("selectedTool", selectedTool.value);
+  
 }
 
 function editTool(tool) {
   isEditMode.value = true;
   selectedToolId.value = tool.id;
-  Object.assign(toolForm, JSON.parse(JSON.stringify(tool)));
+  selectedTool.value = JSON.parse(JSON.stringify(tool));
+  Object.assign(toolForm, {
+    ...selectedTool.value,
+    createdAt: selectedTool.value.createdAt.split('T')[0], // Format for date input
+  });
   showToolModal.value = true;
 }
 
+// Updated the `saveTool` function to ensure proper handling of `createdAt` and other fields.
 function saveTool() {
   if (isEditMode.value) {
     // Update existing tool
-    const index = tools.value.findIndex((t) => t.id === selectedToolId.value);
-    if (index !== -1) {
-      tools.value[index] = { ...toolForm };
-    }
+    store.updateTool(selectedToolId.value, {
+      ...toolForm,
+      createdAt: new Date(toolForm.createdAt).toISOString(), // Ensure ISO format
+    });
   } else {
     // Create new tool
-    const newTool = {
+    store.createTool({
       ...toolForm,
-      id: `TL${String(tools.value.length + 1).padStart(3, "0")}`,
-    };
-    tools.value.push(newTool);
+      createdAt: new Date().toISOString(), // Set current date for new tools
+    });
   }
-
   closeToolModal();
 }
 
@@ -1245,99 +614,13 @@ function confirmDeleteTool(tool) {
 }
 
 function deleteTool() {
-  const index = tools.value.findIndex((t) => t.id === selectedToolId.value);
+  const index = toolList.value.findIndex((t) => t.id === selectedToolId.value);
   if (index !== -1) {
-    tools.value.splice(index, 1);
+    toolList.value.splice(index, 1);
   }
   showConfirmModal.value = false;
 }
-
-function openCheckoutModal() {
-  checkoutForm.borrower = "";
-  checkoutForm.expectedReturn = new Date(
-    new Date().setDate(new Date().getDate() + 1)
-  )
-    .toISOString()
-    .split("T")[0];
-  checkoutForm.notes = "";
-  showActionsModal.value = false;
-  showCheckoutModal.value = true;
-}
-
-function processCheckout() {
-  const index = tools.value.findIndex((t) => t.id === selectedTool.value.id);
-  if (index !== -1) {
-    tools.value[index].status = "in-use";
-    tools.value[index].usageInfo = {
-      borrower: checkoutForm.borrower,
-      borrowTime: new Date().toISOString(),
-      expectedReturn: checkoutForm.expectedReturn,
-      notes: checkoutForm.notes,
-    };
-  }
-  showCheckoutModal.value = false;
-}
-
-function checkInTool() {
-  const index = tools.value.findIndex((t) => t.id === selectedTool.value.id);
-  if (index !== -1) {
-    tools.value[index].status = "available";
-    tools.value[index].usageInfo = null;
-  }
-  showActionsModal.value = false;
-}
-
-function sendToMaintenance() {
-  maintenanceForm.type = "routine";
-  maintenanceForm.expectedCompletion = new Date(
-    new Date().setDate(new Date().getDate() + 7)
-  )
-    .toISOString()
-    .split("T")[0];
-  maintenanceForm.notes = "";
-  showActionsModal.value = false;
-  showMaintenanceModal.value = true;
-}
-
-function processMaintenance() {
-  const index = tools.value.findIndex((t) => t.id === selectedTool.value.id);
-  if (index !== -1) {
-    tools.value[index].status = "maintenance";
-    if (!tools.value[index].maintenanceHistory) {
-      tools.value[index].maintenanceHistory = [];
-    }
-    tools.value[index].maintenanceHistory.push({
-      date: new Date().toISOString().split("T")[0],
-      type: maintenanceForm.type,
-      notes: maintenanceForm.notes,
-    });
-    tools.value[index].nextMaintenance = maintenanceForm.expectedCompletion;
-  }
-  showMaintenanceModal.value = false;
-}
-
-function completeMaintenance() {
-  const index = tools.value.findIndex((t) => t.id === selectedTool.value.id);
-  if (index !== -1) {
-    tools.value[index].status = "available";
-    // Update next maintenance date to 6 months from now
-    const nextDate = new Date();
-    nextDate.setMonth(nextDate.getMonth() + 6);
-    tools.value[index].nextMaintenance = nextDate.toISOString().split("T")[0];
-  }
-  showActionsModal.value = false;
-}
-
-function markAsBroken() {
-  const index = tools.value.findIndex((t) => t.id === selectedTool.value.id);
-  if (index !== -1) {
-    tools.value[index].status = "broken";
-  }
-  showActionsModal.value = false;
-}
-
-onMounted(() => {
-  // Initialize component
-  console.log("Tools Management component mounted");
+onMounted(async () => {
+  await store.getAllTools();
 });
 </script>

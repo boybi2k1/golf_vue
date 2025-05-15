@@ -19,94 +19,68 @@
         </button>
       </div>
     </div>
+    <!-- Search Bar -->
+    <div class="lg:col-span-3">
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+          <!-- Filter by service type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Loại dịch vụ</label
+            >
+            <select
+              v-model="searchQuery.value"
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Tất cả loại</option>
+              <option value="CADDY">Thuê caddy</option>
+              <option value="GOLF_CAR">Thuê xe điện</option>
+              <option value="GOLF_CLUB">Thuê gậy</option>
+              <option value="OTHER">Khác</option>
+            </select>
+          </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-      <!-- Filters -->
-      <div class="lg:col-span-3">
-        <div class="bg-white rounded-lg shadow p-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Loại dịch vụ</label
-              >
-              <select
-                v-model="filters.category"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả loại</option>
-                <option value="lesson">Học đánh golf</option>
-                <option value="rental">Cho thuê thiết bị</option>
-                <option value="food">Ẩm thực</option>
-                <option value="spa">Spa & Massage</option>
-                <option value="transport">Đưa đón</option>
-                <option value="other">Khác</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Trạng thái</label
-              >
-              <select
-                v-model="filters.status"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Tạm ngưng</option>
-                <option value="seasonal">Theo mùa</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Tìm kiếm</label
-              >
-              <div class="relative">
-                <SearchIcon
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
-                />
-                <input
-                  type="text"
-                  v-model="filters.search"
-                  placeholder="Tên, mã dịch vụ..."
-                  class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
+          <!-- Filter key -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Tìm kiếm theo</label
+            >
+            <select
+              v-model="searchQuery.key2"
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Tất cả</option>
+              <option value="name">Tên dịch vụ</option>
+              <option value="code">Mã dịch vụ</option>
+              <option value="status">Trạng thái</option>
+            </select>
+          </div>
+
+          <!-- Input -->
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Từ khóa</label
+            >
+            <div class="relative">
+              <SearchIcon
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+              />
+              <input
+                type="text"
+                v-model="searchQuery.value2"
+                placeholder="Tên, mã dịch vụ..."
+                class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow p-4">
-          <h2 class="text-sm font-medium text-gray-900 mb-3">
-            Thống kê dịch vụ
-          </h2>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="bg-green-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đang hoạt động</div>
-              <div class="text-xl font-semibold text-green-700">
-                {{ getServicesCount("active") }}
-              </div>
-            </div>
-            <div class="bg-red-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Tạm ngưng</div>
-              <div class="text-xl font-semibold text-red-700">
-                {{ getServicesCount("inactive") }}
-              </div>
-            </div>
-            <div class="bg-yellow-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Theo mùa</div>
-              <div class="text-xl font-semibold text-yellow-700">
-                {{ getServicesCount("seasonal") }}
-              </div>
-            </div>
-            <div class="bg-blue-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Tổng doanh thu</div>
-              <div class="text-xl font-semibold text-blue-700">
-                {{ formatCurrency(getTotalRevenue()) }}
-              </div>
-            </div>
+          <!-- Search Button -->
+          <div class="flex items-end justify-end">
+            <button
+              @click="searchSevice"
+              class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 text-sm rounded-md"
+            >
+              Tìm kiếm
+            </button>
           </div>
         </div>
       </div>
@@ -144,17 +118,7 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Thời gian
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
                 Trạng thái
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Lượt đặt
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -165,55 +129,40 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr
-              v-for="service in filteredServices"
+              v-for="service in services"
               :key="service.id"
               class="hover:bg-gray-50"
             >
               <td
                 class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
               >
-                {{ service.id }}
+                {{ service.code }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="h-10 w-10 flex-shrink-0 mr-3">
-                    <img
-                      :src="
-                        service.image || '/placeholder.svg?height=40&width=40'
-                      "
-                      class="h-10 w-10 rounded-full object-cover"
-                      alt="Service thumbnail"
-                    />
-                  </div>
-                  <div class="text-sm font-medium text-gray-900">
-                    {{ service.name }}
-                  </div>
+                <div class="text-sm font-medium text-gray-900">
+                  {{ service.name }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ getCategoryText(service.category) }}
+                {{ getCategoryText(service.type) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ formatCurrency(service.price) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ service.duration }} phút
+                {{
+                  service.type === "GOLF_CLUB"
+                    ? "Giá tùy thuộc vào loại gậy"
+                    : service.price + " VND"
+                }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="{
                     'px-2 py-1 text-xs font-medium rounded-full': true,
-                    'bg-green-100 text-green-800': service.status === 'active',
-                    'bg-red-100 text-red-800': service.status === 'inactive',
-                    'bg-yellow-100 text-yellow-800':
-                      service.status === 'seasonal',
+                    'bg-green-100 text-green-800': service.status === 'ACTIVE',
+                    'bg-red-100 text-red-800': service.status === 'INACTIVE',
                   }"
                 >
                   {{ getStatusText(service.status) }}
                 </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ service.bookings }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
@@ -238,7 +187,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-if="filteredServices.length === 0">
+            <tr v-if="services.length === 0">
               <td
                 colspan="8"
                 class="px-6 py-4 text-center text-sm text-gray-500"
@@ -253,17 +202,7 @@
       <div
         class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
       >
-        <div
-          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
-        >
-          <div>
-            <p class="text-sm text-gray-700">
-              Hiển thị
-              <span class="font-medium">{{ filteredServices.length }}</span>
-              trong số
-              <span class="font-medium">{{ services.length }}</span> kết quả
-            </p>
-          </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-end">
           <div>
             <nav
               class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
@@ -296,7 +235,7 @@
       </div>
     </div>
 
-    <!-- Service Modal -->
+    <!-- add service Modal -->
     <div
       v-if="showServiceModal"
       class="fixed inset-0 flex items-center justify-center z-50"
@@ -334,16 +273,14 @@
                 >Loại dịch vụ</label
               >
               <select
-                v-model="serviceForm.category"
+                v-model="serviceForm.type"
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="lesson">Học đánh golf</option>
-                <option value="rental">Cho thuê thiết bị</option>
-                <option value="food">Ẩm thực</option>
-                <option value="spa">Spa & Massage</option>
-                <option value="transport">Đưa đón</option>
-                <option value="other">Khác</option>
+                <option value="CADDY">Thuê caddy</option>
+                <option value="GOLF_CAR">Thuê xe điện</option>
+                <option value="GOLF_CLUB">Thuê gậy</option>
+                <option value="OTHER">Khác</option>
               </select>
             </div>
             <div>
@@ -355,48 +292,31 @@
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="active">Đang hoạt động</option>
-                <option value="inactive">Tạm ngưng</option>
-                <option value="seasonal">Theo mùa</option>
+                <option value="ACTIVE">Đang hoạt động</option>
+                <option value="INACTIVE">Tạm ngưng</option>
               </select>
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Giá (VND)</label
-              >
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Giá (VND)
+              </label>
               <input
+                v-if="!(serviceForm.type === 'GOLF_CLUB')"
                 type="number"
                 v-model="serviceForm.price"
                 required
                 min="0"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Thời gian (phút)</label
+              <div
+                v-else
+                class="text-gray-500 italic px-3 py-2 border border-dashed border-gray-300 rounded-md bg-gray-50"
               >
-              <input
-                type="number"
-                v-model="serviceForm.duration"
-                required
-                min="0"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+                Giá tham khảo, vui lòng xem chi tiết từng loại gậy
+              </div>
             </div>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Hình ảnh URL</label
-            >
-            <input
-              type="text"
-              v-model="serviceForm.image"
-              placeholder="https://example.com/image.jpg"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1"
@@ -407,31 +327,6 @@
               rows="3"
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             ></textarea>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Thông tin chi tiết</label
-            >
-            <textarea
-              v-model="serviceForm.details"
-              rows="4"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            ></textarea>
-          </div>
-          <div class="mb-4">
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="isAvailableOnline"
-                v-model="serviceForm.isAvailableOnline"
-                class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label
-                for="isAvailableOnline"
-                class="ml-2 block text-sm text-gray-900"
-                >Có thể đặt trực tuyến</label
-              >
-            </div>
           </div>
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -454,6 +349,7 @@
     <!-- Service Details Modal -->
     <div
       v-if="showDetailsModal"
+      style="background-color: rgba(0, 0, 0, 0.5)"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
       <div
@@ -469,60 +365,27 @@
           </button>
         </div>
         <div class="px-6 py-4">
-          <div
-            class="relative h-48 mb-4 bg-gray-200 rounded-md overflow-hidden"
-          >
-            <img
-              :src="
-                selectedService.image || '/placeholder.svg?height=192&width=640'
-              "
-              class="w-full h-full object-cover"
-              alt="Service thumbnail"
-            />
-            <div
-              :class="{
-                'absolute top-2 right-2 px-2 py-1 text-xs font-medium rounded-full': true,
-                'bg-green-100 text-green-800':
-                  selectedService.status === 'active',
-                'bg-red-100 text-red-800':
-                  selectedService.status === 'inactive',
-                'bg-yellow-100 text-yellow-800':
-                  selectedService.status === 'seasonal',
-              }"
-            >
-              {{ getStatusText(selectedService.status) }}
-            </div>
-          </div>
-
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">
               {{ selectedService.name }}
             </h3>
             <span class="text-lg font-medium text-green-700">{{
-              formatCurrency(selectedService.price)
+              selectedService.price
             }}</span>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <h4 class="text-sm font-medium text-gray-500 mb-1">Mã dịch vụ</h4>
-              <p class="text-gray-900">{{ selectedService.id }}</p>
+              <p class="text-gray-900">{{ selectedService.code }}</p>
             </div>
             <div>
               <h4 class="text-sm font-medium text-gray-500 mb-1">
                 Loại dịch vụ
               </h4>
               <p class="text-gray-900">
-                {{ getCategoryText(selectedService.category) }}
+                {{ getCategoryText(selectedService.type) }}
               </p>
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">Thời gian</h4>
-              <p class="text-gray-900">{{ selectedService.duration }} phút</p>
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">Lượt đặt</h4>
-              <p class="text-gray-900">{{ selectedService.bookings }} lượt</p>
             </div>
           </div>
 
@@ -531,48 +394,40 @@
             <p class="text-gray-900">{{ selectedService.description }}</p>
           </div>
 
-          <div class="mb-4">
-            <h4 class="text-sm font-medium text-gray-500 mb-1">
-              Thông tin chi tiết
-            </h4>
-            <p
-              class="text-gray-900 bg-gray-50 p-3 rounded-md whitespace-pre-line"
-            >
-              {{ selectedService.details || "Không có thông tin chi tiết" }}
-            </p>
-          </div>
-
-          <div class="mb-4">
-            <div class="flex items-center">
-              <GlobeIcon class="h-4 w-4 text-gray-500 mr-2" />
-              <span class="text-sm text-gray-700">{{
-                selectedService.isAvailableOnline
-                  ? "Có thể đặt trực tuyến"
-                  : "Không thể đặt trực tuyến"
-              }}</span>
+          <!-- thêm trạng thái, thời gian tạo, thời gian chỉnh sửa, người tạo, người chỉnh sửa -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">Trạng thái</h4>
+              <p class="text-gray-900">
+                {{ getStatusText(selectedService.status) }}
+              </p>
             </div>
-          </div>
 
-          <div class="border-t pt-4 mt-4">
-            <h4 class="text-sm font-medium text-gray-900 mb-2">
-              Thống kê dịch vụ
-            </h4>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="bg-gray-50 p-3 rounded-md">
-                <div class="text-xs text-gray-500">Doanh thu</div>
-                <div class="text-lg font-semibold text-green-700">
-                  {{ formatCurrency(selectedService.revenue) }}
-                </div>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-md">
-                <div class="text-xs text-gray-500">Đánh giá trung bình</div>
-                <div class="flex items-center">
-                  <StarIcon class="h-5 w-5 text-yellow-500" />
-                  <span class="ml-1 text-lg font-semibold text-gray-900"
-                    >{{ selectedService.rating }}/5</span
-                  >
-                </div>
-              </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">Người tạo</h4>
+              <p class="text-gray-900">{{ selectedService.createdBy }}</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">
+                Thời gian tạo
+              </h4>
+              <p class="text-gray-900">
+                {{ formatLocalDateTime(selectedService.createdAt) }}
+              </p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">
+                Người chỉnh sửa
+              </h4>
+              <p class="text-gray-900">{{ selectedService.updateBy }}</p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">
+                Thời gian chỉnh sửa
+              </h4>
+              <p class="text-gray-900">
+                {{ formatLocalDateTime(selectedService.updateAt) }}
+              </p>
             </div>
           </div>
         </div>
@@ -649,9 +504,9 @@ import {
   Trash2Icon,
   XIcon,
   AlertTriangleIcon,
-  GlobeIcon,
-  StarIcon,
 } from "lucide-vue-next";
+import { useServicesStore } from "../stores/services";
+import { storeToRefs } from "pinia";
 
 // State
 const currentPage = ref(1);
@@ -663,109 +518,27 @@ const isEditMode = ref(false);
 const selectedServiceId = ref(null);
 const selectedService = ref({});
 
-// Form and filters
-const filters = reactive({
-  category: "",
-  status: "",
-  search: "",
+const searchQuery = reactive({
+  page: 1,
+  size: 10,
+  key: "type",
+  value: "",
+  key2: "",
+  value2: "",
 });
 
 const serviceForm = reactive({
   id: "",
   name: "",
-  category: "lesson",
-  status: "active",
-  price: 0,
-  duration: 60,
-  image: "",
+  code: "",
+  type: "",
   description: "",
-  details: "",
-  isAvailableOnline: true,
-  bookings: 0,
-  revenue: 0,
-  rating: 0,
+  price: 0,
+  status: "ACTIVE",
 });
 
-// Mock data
-const services = ref([
-  {
-    id: "SV001",
-    name: "Khóa học golf cơ bản",
-    category: "lesson",
-    status: "active",
-    price: 1500000,
-    duration: 60,
-    image: "/placeholder.svg?height=160&width=320",
-    description: "Khóa học golf cơ bản dành cho người mới bắt đầu.",
-    details:
-      "Khóa học bao gồm:\n- Hướng dẫn kỹ thuật cơ bản\n- Tư vấn chọn gậy\n- Thực hành tại sân tập\n- Tài liệu học tập",
-    isAvailableOnline: true,
-    bookings: 45,
-    revenue: 67500000,
-    rating: 4.7,
-  },
-  {
-    id: "SV002",
-    name: "Thuê bộ gậy golf",
-    category: "rental",
-    status: "active",
-    price: 800000,
-    duration: 240,
-    image: "/placeholder.svg?height=160&width=320",
-    description: "Cho thuê bộ gậy golf cao cấp theo giờ hoặc theo ngày.",
-    details:
-      "Bộ gậy đầy đủ bao gồm:\n- Driver\n- Fairway woods\n- Irons\n- Wedges\n- Putter\n- Túi đựng gậy",
-    isAvailableOnline: true,
-    bookings: 120,
-    revenue: 96000000,
-    rating: 4.5,
-  },
-
-  {
-    id: "SV003",
-    name: "Đưa đón sân bay - sân golf",
-    category: "transport",
-    status: "active",
-    price: 1200000,
-    duration: 60,
-    image: "/placeholder.svg?height=160&width=320",
-    description:
-      "Dịch vụ đưa đón cao cấp từ sân bay đến sân golf và ngược lại.",
-    details:
-      "Xe sang trọng, tài xế chuyên nghiệp, có thể đặt trước. Phục vụ 24/7, bao gồm dịch vụ mang vác hành lý và thiết bị golf.",
-    isAvailableOnline: true,
-    bookings: 62,
-    revenue: 74400000,
-    rating: 4.6,
-  },
-]);
-
-// Computed properties
-const filteredServices = computed(() => {
-  let result = services.value;
-
-  if (filters.category) {
-    result = result.filter((service) => service.category === filters.category);
-  }
-
-  if (filters.status) {
-    result = result.filter((service) => service.status === filters.status);
-  }
-
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    result = result.filter(
-      (service) =>
-        service.name.toLowerCase().includes(searchLower) ||
-        service.id.toLowerCase().includes(searchLower) ||
-        service.description.toLowerCase().includes(searchLower)
-    );
-  }
-
-  // Pagination
-  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-  return result.slice(startIndex, startIndex + itemsPerPage.value);
-});
+const servicesStore = useServicesStore();
+const { services, pagination } = storeToRefs(servicesStore);
 
 const totalPages = computed(() => {
   return Math.ceil(services.value.length / itemsPerPage.value) || 1;
@@ -778,45 +551,41 @@ function formatCurrency(value) {
     currency: "VND",
   }).format(value);
 }
-
-function getCategoryText(category) {
-  switch (category) {
-    case "lesson":
-      return "Học đánh golf";
-    case "rental":
-      return "Cho thuê thiết bị";
-    case "food":
-      return "Ẩm thực";
-    case "spa":
-      return "Spa & Massage";
-    case "transport":
-      return "Đưa đón";
-    case "other":
+const formatLocalDateTime = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+function getCategoryText(type) {
+  switch (type) {
+    case "CADDY":
+      return "Thuê caddy";
+    case "GOLF_CAR":
+      return "Thuê xe điện";
+    case "GOLF_CLUB":
+      return "Thuê gậy";
+    case "OTHER":
       return "Khác";
     default:
-      return category;
+      return type;
   }
 }
 
 function getStatusText(status) {
   switch (status) {
-    case "active":
+    case "ACTIVE":
       return "Đang hoạt động";
-    case "inactive":
+    case "INACTIVE":
       return "Tạm ngưng";
-    case "seasonal":
-      return "Theo mùa";
+
     default:
       return status;
   }
-}
-
-function getServicesCount(status) {
-  return services.value.filter((service) => service.status === status).length;
-}
-
-function getTotalRevenue() {
-  return services.value.reduce((total, service) => total + service.revenue, 0);
 }
 
 function refreshData() {
@@ -839,17 +608,11 @@ function resetServiceForm() {
   Object.assign(serviceForm, {
     id: "",
     name: "",
-    category: "lesson",
-    status: "active",
-    price: 0,
-    duration: 60,
-    image: "",
+    code: "",
+    type: "",
     description: "",
-    details: "",
-    isAvailableOnline: true,
-    bookings: 0,
-    revenue: 0,
-    rating: 0,
+    price: 0,
+    status: "ACTIVE",
   });
 }
 
@@ -874,36 +637,11 @@ function editFromDetails() {
 }
 
 function saveService() {
-  if (isEditMode.value) {
-    // Update existing service
-    const index = services.value.findIndex(
-      (s) => s.id === selectedServiceId.value
-    );
-    if (index !== -1) {
-      // Preserve statistics
-      const bookings = services.value[index].bookings;
-      const revenue = services.value[index].revenue;
-      const rating = services.value[index].rating;
-
-      services.value[index] = {
-        ...serviceForm,
-        bookings,
-        revenue,
-        rating,
-      };
-    }
+  if (!isEditMode.value) {
+    servicesStore.createService(serviceForm);
   } else {
-    // Create new service
-    const newService = {
-      ...serviceForm,
-      id: `SV${String(services.value.length + 1).padStart(3, "0")}`,
-      bookings: 0,
-      revenue: 0,
-      rating: 0,
-    };
-    services.value.push(newService);
+    servicesStore.updateService(selectedService.id, serviceForm);
   }
-
   closeServiceModal();
 }
 
@@ -921,9 +659,11 @@ function deleteService() {
   }
   showConfirmModal.value = false;
 }
+const searchSevice = async () => {
+  await servicesStore.searchServices(searchQuery);
+};
 
 onMounted(() => {
-  // Initialize component
-  console.log("Services Management component mounted");
+  searchSevice();
 });
 </script>

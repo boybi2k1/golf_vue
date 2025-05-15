@@ -13,5 +13,5 @@
 <script setup>
 import AppHeader from "../components/AppHeader.vue";
 import SideBar from "../components/SideBar.vue";
-import UserAccounts from "../components/UserAccounts.vue";
+import UserAccounts from "../components/User.vue";
 </script>

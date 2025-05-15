@@ -5,12 +5,13 @@ import CheckinView from '../views/CheckinView.vue';
 import CourseManagementView from '../views/CourseManagementView.vue';
 import EventManagementView from '../views/EventManagementView.vue';
 import MemberManagementView from '../views/MemberManagementView.vue';
-import UserAccountsView from '../views/UserAccountsView.vue';
+import UserAccountsView from '../views/UserView.vue';
 import ServicesView from '../views/ServicesView.vue';
 import ToolsView from '../views/ToolsView.vue';
 import PaymentsView from '../views/PaymentsView.vue';
 import ReportsView from '../views/ReportsView.vue';
 import SystemSettingsView from '../views/SystemSettingsView.vue';
+import AccountView from '../views/AccountView.vue';
 
 const routes = [
   {
@@ -49,8 +50,8 @@ const routes = [
     component: MemberManagementView,
   },
   {
-    path: '/user-accounts',
-    name: 'user-accounts',
+    path: '/user',
+    name: 'user',
     component: UserAccountsView,
   },
   {
@@ -78,6 +79,12 @@ const routes = [
     name: 'system-settings',
     component: SystemSettingsView,
   },
+   {
+    path: '/account',
+    name: 'account',
+    component: AccountView,
+  },
+
 ];
 
 const router = createRouter({

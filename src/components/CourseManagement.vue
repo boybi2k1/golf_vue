@@ -31,9 +31,9 @@
             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
           >
             <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang hoạt động</option>
-            <option value="maintenance">Đang bảo trì</option>
-            <option value="closed">Tạm đóng cửa</option>
+            <option value="ACTIVE">Đang hoạt động</option>
+            <option value="MAINTENACE">Đang bảo trì</option>
+            <option value="CLOSED">Tạm đóng cửa</option>
           </select>
         </div>
         <div>
@@ -121,7 +121,7 @@
               <td
                 class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
               >
-                {{ course.id }}
+                {{ course.code }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -153,10 +153,10 @@
                 <span
                   :class="{
                     'px-2 py-1 text-xs font-medium rounded-full': true,
-                    'bg-green-100 text-green-800': course.status === 'active',
+                    'bg-green-100 text-green-800': course.status === 'ACTIVE',
                     'bg-yellow-100 text-yellow-800':
-                      course.status === 'maintenance',
-                    'bg-red-100 text-red-800': course.status === 'closed',
+                      course.status === 'MAINTENANCE',
+                    'bg-red-100 text-red-800': course.status === 'CLOSED',
                   }"
                 >
                   {{ getStatusText(course.status) }}
@@ -202,44 +202,7 @@
       >
         <div
           class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
-        >
-          <div>
-            <p class="text-sm text-gray-700">
-              Hiển thị
-              <span class="font-medium">{{ filteredCourses.length }}</span>
-              trong số <span class="font-medium">{{ courses.length }}</span> kết
-              quả
-            </p>
-          </div>
-          <div>
-            <nav
-              class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-              aria-label="Pagination"
-            >
-              <button
-                @click="currentPage--"
-                :disabled="currentPage === 1"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span class="sr-only">Previous</span>
-                <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
-              </button>
-              <span
-                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
-              >
-                Trang {{ currentPage }} / {{ totalPages }}
-              </span>
-              <button
-                @click="currentPage++"
-                :disabled="currentPage === totalPages"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span class="sr-only">Next</span>
-                <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
-              </button>
-            </nav>
-          </div>
-        </div>
+        ></div>
       </div>
     </div>
 
@@ -323,9 +286,9 @@
               required
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             >
-              <option value="active">Đang hoạt động</option>
-              <option value="maintenance">Đang bảo trì</option>
-              <option value="closed">Tạm đóng cửa</option>
+              <option value="ACTIVE">Đang hoạt động</option>
+              <option value="MAINTAINCE">Đang bảo trì</option>
+              <option value="CLOSED">Tạm đóng cửa</option>
             </select>
           </div>
           <div class="mb-4">
@@ -341,11 +304,11 @@
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Giá cơ bản (VND)</label
+              >Thời gian</label
             >
             <input
               type="number"
-              v-model="courseForm.basePrice"
+              v-model="courseForm.duration"
               required
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
@@ -359,87 +322,6 @@
               rows="3"
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             ></textarea>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Tiện ích</label
-            >
-            <div class="grid grid-cols-2 gap-2 mt-2">
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="hasRestaurant"
-                  v-model="courseForm.facilities.restaurant"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  for="hasRestaurant"
-                  class="ml-2 block text-sm text-gray-900"
-                  >Nhà hàng</label
-                >
-              </div>
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="hasProShop"
-                  v-model="courseForm.facilities.proShop"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label for="hasProShop" class="ml-2 block text-sm text-gray-900"
-                  >Pro Shop</label
-                >
-              </div>
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="hasDrivingRange"
-                  v-model="courseForm.facilities.drivingRange"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  for="hasDrivingRange"
-                  class="ml-2 block text-sm text-gray-900"
-                  >Sân tập</label
-                >
-              </div>
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="hasLockerRoom"
-                  v-model="courseForm.facilities.lockerRoom"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  for="hasLockerRoom"
-                  class="ml-2 block text-sm text-gray-900"
-                  >Phòng thay đồ</label
-                >
-              </div>
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="hasGolfCart"
-                  v-model="courseForm.facilities.golfCart"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  for="hasGolfCart"
-                  class="ml-2 block text-sm text-gray-900"
-                  >Xe điện</label
-                >
-              </div>
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="hasCaddy"
-                  v-model="courseForm.facilities.caddy"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label for="hasCaddy" class="ml-2 block text-sm text-gray-900"
-                  >Caddy</label
-                >
-              </div>
-            </div>
           </div>
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -508,14 +390,14 @@ import {
   PlusIcon,
   RefreshCwIcon,
   SearchIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   EyeIcon,
   EditIcon,
   Trash2Icon,
   XIcon,
   AlertTriangleIcon,
 } from "lucide-vue-next";
+import { useGolfCourseStore } from "../stores/golf_course"; // Nhớ cập nhật đúng đường dẫn tới store của bạn
+import { storeToRefs } from "pinia";
 
 // State
 const currentPage = ref(1);
@@ -528,22 +410,15 @@ const selectedCourseId = ref(null);
 // Form and filters
 const courseForm = reactive({
   id: "",
+  code: "",
   name: "",
   location: "",
-  holes: "18",
+  holds: "",
   length: 0,
-  status: "active",
+  status: "ACTIVE",
   image: "",
-  basePrice: 0,
+  duration: 0,
   description: "",
-  facilities: {
-    restaurant: false,
-    proShop: false,
-    drivingRange: false,
-    lockerRoom: false,
-    golfCart: false,
-    caddy: false,
-  },
 });
 
 const filters = reactive({
@@ -552,113 +427,13 @@ const filters = reactive({
   search: "",
 });
 
-// Mock data
-const courses = ref([
-  {
-    id: "GC001",
-    name: "Sân Golf Hồ Tây",
-    location: "Hà Nội",
-    holes: 18,
-    length: 7200,
-    status: "active",
-    image:
-      "https://img.lovepik.com/png/20231114/golf-course-clipart-golf-course-isometric-icon-with-river-and_586078_wh860.png",
-    basePrice: 1500000,
-    description: "Sân golf đẳng cấp quốc tế với tầm nhìn ra hồ Tây.",
-    facilities: {
-      restaurant: true,
-      proShop: true,
-      drivingRange: true,
-      lockerRoom: true,
-      golfCart: true,
-      caddy: true,
-    },
-  },
-  {
-    id: "GC002",
-    name: "Sân Golf Long Thành",
-    location: "Đồng Nai",
-    holes: 36,
-    length: 14400,
-    status: "active",
-    image:
-      "https://img.lovepik.com/png/20231114/golf-course-clipart-golf-course-isometric-icon-with-river-and_586078_wh860.png",
-    basePrice: 2000000,
-    description: "Khu phức hợp sân golf 36 hố với thiết kế hiện đại.",
-    facilities: {
-      restaurant: true,
-      proShop: true,
-      drivingRange: true,
-      lockerRoom: true,
-      golfCart: true,
-      caddy: true,
-    },
-  },
-  {
-    id: "GC003",
-    name: "Sân Golf Đà Nẵng",
-    location: "Đà Nẵng",
-    holes: 18,
-    length: 7160,
-    status: "maintenance",
-    image:
-      "https://img.lovepik.com/png/20231114/golf-course-clipart-golf-course-isometric-icon-with-river-and_586078_wh860.png",
-    basePrice: 1800000,
-    description: "Sân golf ven biển với cảnh quan tuyệt đẹp.",
-    facilities: {
-      restaurant: true,
-      proShop: true,
-      drivingRange: true,
-      lockerRoom: true,
-      golfCart: true,
-      caddy: true,
-    },
-  },
-  {
-    id: "GC004",
-    name: "Sân Golf Tân Sơn Nhất",
-    location: "TP. Hồ Chí Minh",
-    holes: 36,
-    length: 14000,
-    status: "active",
-    image:
-      "https://img.lovepik.com/png/20231114/golf-course-clipart-golf-course-isometric-icon-with-river-and_586078_wh860.png",
-    basePrice: 2200000,
-    description: "Sân golf hiện đại ngay trung tâm thành phố.",
-    facilities: {
-      restaurant: true,
-      proShop: true,
-      drivingRange: true,
-      lockerRoom: true,
-      golfCart: true,
-      caddy: true,
-    },
-  },
-  {
-    id: "GC005",
-    name: "Sân Golf Phú Quốc",
-    location: "Kiên Giang",
-    holes: 27,
-    length: 10800,
-    status: "closed",
-    image:
-      "https://img.lovepik.com/png/20231114/golf-course-clipart-golf-course-isometric-icon-with-river-and_586078_wh860.png",
-    basePrice: 1700000,
-    description: "Sân golf nghỉ dưỡng trên đảo Phú Quốc.",
-    facilities: {
-      restaurant: true,
-      proShop: false,
-      drivingRange: true,
-      lockerRoom: true,
-      golfCart: true,
-      caddy: true,
-    },
-  },
-]);
+// Tạo store
+const store = useGolfCourseStore();
+const {golfCourses} = storeToRefs(store)// Lấy danh sách sân golf từ store
 
 // Computed properties
 const filteredCourses = computed(() => {
-  let result = courses.value;
+  const result = golfCourses.value || [];
 
   if (filters.status) {
     result = result.filter((course) => course.status === filters.status);
@@ -684,18 +459,14 @@ const filteredCourses = computed(() => {
   return result.slice(startIndex, startIndex + itemsPerPage.value);
 });
 
-const totalPages = computed(() => {
-  return Math.ceil(courses.value.length / itemsPerPage.value) || 1;
-});
-
 // Methods
 function getStatusText(status) {
   switch (status) {
-    case "active":
+    case "ACTIVE":
       return "Đang hoạt động";
-    case "maintenance":
+    case "MAINTENANCE":
       return "Đang bảo trì";
-    case "closed":
+    case "CLOSED":
       return "Tạm đóng cửa";
     default:
       return status;
@@ -703,8 +474,7 @@ function getStatusText(status) {
 }
 
 function refreshData() {
-  // In a real app, this would fetch fresh data from the server
-  console.log("Refreshing data...");
+  store.getAllGolfCourses(); // Refresh dữ liệu từ API
 }
 
 function openNewCourseModal() {
@@ -721,22 +491,15 @@ function closeCourseModal() {
 function resetCourseForm() {
   Object.assign(courseForm, {
     id: "",
+    code: "",
     name: "",
     location: "",
     holes: "18",
     length: 0,
     status: "active",
     image: "",
-    basePrice: 0,
+    duration: 0,
     description: "",
-    facilities: {
-      restaurant: false,
-      proShop: false,
-      drivingRange: false,
-      lockerRoom: false,
-      golfCart: false,
-      caddy: false,
-    },
   });
 }
 
@@ -754,21 +517,11 @@ function editCourse(course) {
 function saveCourse() {
   if (isEditMode.value) {
     // Update existing course
-    const index = courses.value.findIndex(
-      (c) => c.id === selectedCourseId.value
-    );
-    if (index !== -1) {
-      courses.value[index] = { ...courseForm };
-    }
+    store.updateGolfCourse(courseForm.id, courseForm); // Gọi store để update
   } else {
     // Create new course
-    const newCourse = {
-      ...courseForm,
-      id: `GC${String(courses.value.length + 1).padStart(3, "0")}`,
-    };
-    courses.value.push(newCourse);
+    store.createGolfCourse(courseForm); // Gọi store để tạo mới
   }
-
   closeCourseModal();
 }
 
@@ -778,15 +531,10 @@ function confirmDeleteCourse(course) {
 }
 
 function deleteCourse() {
-  const index = courses.value.findIndex((c) => c.id === selectedCourseId.value);
-  if (index !== -1) {
-    courses.value.splice(index, 1);
-  }
-  showConfirmModal.value = false;
+  // store.(selectedCourseId.value); // Xóa sân golf thông qua store
 }
 
-onMounted(() => {
-  // Initialize component
-  console.log("Course Management component mounted");
+onMounted(async () => {
+  await store.getAllGolfCourses();
 });
 </script>
