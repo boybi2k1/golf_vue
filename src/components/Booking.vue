@@ -211,7 +211,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
                   <button
-                    @click="viewBookingDetails(booking)"
+                    @click="viewBooking(booking)"
                     class="text-gray-500 hover:text-gray-700"
                   >
                     <EyeIcon class="w-5 h-5" />
@@ -283,15 +283,17 @@
 
     <!-- Booking Modal: Thêm mới -->
     <div
-      v-if="showBookingModal && !isEditMode"
+      v-if="showBookingModal"
       class="fixed inset-0 flex items-center justify-center z-50"
       :style="{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }"
     >
       <div
-        class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[85vh] overflow-y-auto"
       >
         <div class="flex justify-between items-center border-b px-6 py-4">
-          <h2 class="text-xl font-semibold text-green-800">Đặt lịch mới</h2>
+          <h2 class="text-xl font-semibold text-green-800">
+            {{ isEditMode ? "Chỉnh sửa đặt lịch" : "Đặt lịch mới" }}
+          </h2>
           <button
             @click="closeBookingModal"
             class="text-gray-500 hover:text-gray-700"
@@ -411,6 +413,25 @@
               />
             </div>
           </div>
+
+          <!--  thêm status -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Trạng thái</label
+              >
+              <select
+                v-model="bookingForm.status"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="PENDING">Chờ xác nhận</option>
+                <option value="CONFIRMED">Đã xác nhận</option>
+                <option value="PLAYING">Đang chơi</option>
+                <option value="COMPLETED">Hoàn thành</option>
+                <option value="CANCELED">Đã hủy</option>
+              </select>
+            </div>
+          </div>
           <!-- Bảng dịch vụ đi kèm -->
           <div class="mb-6">
             <label
@@ -433,7 +454,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(item, index) in bookingForm.services"
+                    v-for="(item, index) in bookingDetailData"
                     :key="index"
                     class="border-t hover:bg-gray-50"
                   >
@@ -441,12 +462,16 @@
                     <td class="px-4 py-2">
                       <select
                         v-model="item.serviceId"
-                        @change="onServiceChange(index)"
+                        @change="
+                          isEditMode
+                            ? onServiceChangeEdit(index)
+                            : onServiceChange(index)
+                        "
                         class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-green-500 focus:border-green-500"
                       >
                         <option value="">Chọn dịch vụ</option>
                         <option
-                          v-for="service in services"
+                          v-for="service in allServices"
                           :key="service.id"
                           :value="service.id"
                         >
@@ -462,11 +487,16 @@
                       <select
                         v-if="getServiceType(item.serviceId) === 'GOLF_CLUB'"
                         v-model="item.toolId"
+                        @change="
+                          isEditMode
+                            ? onToolChangeEdit(index)
+                            : onToolChange(index)
+                        "
                         class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-green-500 focus:border-green-500"
                       >
                         <option value="">Chọn gậy</option>
                         <option
-                          v-for="tool in tools"
+                          v-for="tool in golfClubs"
                           :key="tool.id"
                           :value="tool.id"
                         >
@@ -484,7 +514,11 @@
                         type="number"
                         min="1"
                         v-model.number="item.quantity"
-                        @input="updateTotalPrice(index)"
+                        @input="
+                          isEditMode
+                            ? updateTotalPriceEdit(index)
+                            : updateTotalPrice(index)
+                        "
                         class="w-16 text-center border border-gray-300 rounded-md py-1 focus:ring-green-500 focus:border-green-500"
                       />
                     </td>
@@ -495,8 +529,7 @@
                         type="number"
                         min="0"
                         step="1000"
-                        v-model.number="item.unitPrice"
-                        @input="updateTotalPrice(index)"
+                        v-model="item.unitPrice"
                         class="w-24 text-center border border-gray-300 rounded-md py-1 focus:ring-green-500 focus:border-green-500"
                       />
                     </td>
@@ -505,7 +538,7 @@
                     <td
                       class="px-4 py-2 text-center font-semibold text-green-700"
                     >
-                      {{ formatCurrency(item.totalPrice || 0) }}
+                      {{ item.totalPrice || 0 }}
                     </td>
 
                     <!-- Nút xóa -->
@@ -556,24 +589,24 @@
             @click="saveBooking"
             class="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-md text-sm font-medium"
           >
-            Đặt lịch
+            {{ isEditMode ? "Lưu lại" : "Đặt lịch" }}
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Booking Modal: Chỉnh sửa -->
+    <!-- Booking Modal: Xem chi tiết -->
     <div
-      v-if="showBookingModal && isEditMode"
+      v-if="isViewMode"
       class="fixed inset-0 flex items-center justify-center z-50"
       :style="{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }"
     >
       <div
-        class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[85vh] overflow-y-auto"
       >
         <div class="flex justify-between items-center border-b px-6 py-4">
           <h2 class="text-xl font-semibold text-green-800">
-            Chỉnh sửa đặt lịch
+            Xem chi tiết đặt lịch
           </h2>
           <button
             @click="closeBookingModal"
@@ -583,85 +616,71 @@
           </button>
         </div>
         <div class="px-6 py-4">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Sân Golf</label
-            >
-            <select
-              v-model="bookingForm.golfCourseId"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            >
-              <option value="">Chọn sân golf</option>
-              <option
-                v-for="course in golfCourses"
-                :key="course.id"
-                :value="course.id"
-              >
-                {{ course.name }}
-              </option>
-            </select>
-          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Sân Golf</label
+              >
+              <input
+                type="text"
+                :value="bookingSelected.golfCourse.name"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+              />
+            </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Ngày</label
               >
               <input
                 type="date"
-                v-model="bookingForm.bookingDate"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                :value="bookingSelected.bookingDate"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Giờ</label
               >
-              <select
-                v-model="bookingForm.teeTimeId"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option v-if="timeSlots.length === 0" disabled>
-                  Không có giờ khả dụng
-                </option>
-                <option
-                  v-for="time in timeSlots"
-                  :key="time.id"
-                  :value="time.id"
-                >
-                  {{ time.startTime }}
-                </option>
-              </select>
-              <p
-                v-if="timeSlots.length === 0"
-                class="text-sm text-red-500 mt-1"
-              >
-                Không có giờ khả dụng. Vui lòng thử lại sau.
-              </p>
+              <input
+                type="text"
+                :value="bookingSelected.teeTime.startTime"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+              />
             </div>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Tên khách hàng</label
-            >
-            <input
-              type="text"
-              v-model="bookingForm.fullName"
-              required
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Trạng thái</label
+              >
+              <input
+                type="text"
+                :value="getStatusText(bookingSelected.status)"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Tên khách hàng</label
+              >
+              <input
+                type="text"
+                :value="bookingSelected.fullName"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+              />
+            </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Số điện thoại</label
               >
               <input
-                type="tel"
-                v-model="bookingForm.phone"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                type="text"
+                :value="bookingSelected.phone"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
             <div>
@@ -669,55 +688,32 @@
                 >Email</label
               >
               <input
-                type="email"
-                v-model="bookingForm.email"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                type="text"
+                :value="bookingSelected.email"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Số người chơi</label
               >
               <input
                 type="number"
-                v-model="bookingForm.numPlayers"
-                min="1"
-                max="4"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                :value="bookingSelected.numPlayers"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
-            <div v-if="isEditMode">
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Trạng thái</label
-              >
-              <select
-                v-model="bookingForm.status"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="PENDING">Chờ xác nhận</option>
-                <option value="CONFIRMED">Đã xác nhận</option>
-                <option value="PLAYING">Đang chơi</option>
-                <option value="COMPLETED">Hoàn thành</option>
-                <option value="CANCELED">Đã hủy</option>
-              </select>
-            </div>
-          </div>
-          <div
-            v-if="isEditMode"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-          >
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Check-in Time</label
               >
               <input
                 type="datetime-local"
-                v-model="bookingForm.checkInTime"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                :value="bookingSelected.checkInTime"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
             <div>
@@ -726,23 +722,20 @@
               >
               <input
                 type="datetime-local"
-                v-model="bookingForm.checkOutTime"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                :value="bookingSelected.checkOutTime"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
-          </div>
-          <div
-            v-if="isEditMode"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-          >
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Deposit Amount</label
               >
               <input
                 type="number"
-                v-model="bookingForm.depositAmount"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                :value="bookingSelected.depositAmount"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
             <div>
@@ -751,137 +744,106 @@
               >
               <input
                 type="number"
-                v-model="bookingForm.totalCost"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                :value="bookingSelected.totalCost"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Checked Out By</label
+              >
+              <input
+                type="text"
+                :value="bookingSelected.checkOutBy"
+                disabled
+                class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
               />
             </div>
           </div>
-          <div v-if="isEditMode" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Checked Out By</label
+          <!-- Bảng dịch vụ đi kèm -->
+          <div class="mb-6">
+            <label
+              class="block text-sm font-semibold text-gray-700 mb-3 text-green-700 text-lg"
+              >Dịch vụ đi kèm</label
             >
-            <input
-              type="text"
-              v-model="bookingForm.checkOutBy"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
+            <div class="overflow-x-auto rounded-md border border-gray-300">
+              <table class="min-w-full text-sm">
+                <thead class="bg-green-100 text-gray-700">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Dịch vụ</th>
+                    <th class="px-4 py-3 text-left">Gậy</th>
+                    <th class="px-4 py-3 text-center">Số lượng</th>
+                    <th class="px-4 py-3 text-center">Đơn giá</th>
+                    <th class="px-4 py-3 text-center">Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(item, index) in bookingDetailSelected"
+                    :key="index"
+                    class="border-t hover:bg-gray-50"
+                  >
+                    <td class="px-4 py-2">
+                      <input
+                        type="text"
+                        :value="item.service.name"
+                        disabled
+                        class="w-full border-none bg-transparent"
+                      />
+                    </td>
+                    <td class="px-4 py-2">
+                      <input
+                        type="text"
+                        :value="
+                          item.service.type === 'GOLF_CLUB'
+                            ? item.tool.name
+                            : '---'
+                        "
+                        disabled
+                        class="w-full border-none bg-transparent"
+                      />
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                      <input
+                        type="number"
+                        :value="item.quantity"
+                        disabled
+                        class="w-16 text-center border-none bg-transparent"
+                      />
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                      <input
+                        type="number"
+                        :value="
+                          item.service.type === 'GOLF_CLUB'
+                            ? item.tool.rentPrice
+                            : item.service.price
+                        "
+                        disabled
+                        class="w-24 text-center border-none bg-transparent"
+                      />
+                    </td>
+                    <td
+                      class="px-4 py-2 text-center font-semibold text-green-700"
+                    >
+                      {{ item.totalPrice || 0 }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1"
               >Ghi chú</label
             >
             <textarea
-              v-model="bookingForm.note"
+              :value="bookingForm.note"
               rows="3"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              disabled
+              class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100"
             ></textarea>
-          </div>
-          <!-- Bảng dịch vụ đi kèm -->
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Dịch vụ đi kèm</label
-            >
-            <table class="min-w-full border border-gray-300 rounded-md">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-3 py-2 text-left">Dịch vụ</th>
-                  <th class="px-3 py-2 text-left">Gậy</th>
-                  <th class="px-3 py-2 text-center">Số lượng</th>
-                  <th class="px-3 py-2 text-center">Đơn giá</th>
-                  <th class="px-3 py-2 text-center">Thành tiền</th>
-                  <th class="px-3 py-2 text-center">Xoá</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(item, index) in bookingForm.services"
-                  :key="index"
-                  class="border-t"
-                >
-                  <!-- Chọn dịch vụ -->
-                  <td class="px-3 py-2">
-                    <select
-                      v-model="item.serviceId"
-                      @change="onServiceChange(index)"
-                      class="w-full border border-gray-300 rounded-md px-2 py-1"
-                    >
-                      <option value="">Chọn dịch vụ</option>
-                      <option
-                        v-for="service in services"
-                        :key="service.id"
-                        :value="service.id"
-                      >
-                        {{ service.name }} ({{ getCategoryText(service.type) }})
-                      </option>
-                    </select>
-                  </td>
-
-                  <!-- Chọn gậy nếu là GOLF_CLUB -->
-                  <td class="px-3 py-2">
-                    <select
-                      v-if="getServiceType(item.serviceId) === 'GOLF_CLUB'"
-                      v-model="item.toolId"
-                      class="w-full border border-gray-300 rounded-md px-2 py-1"
-                    >
-                      <option value="">Chọn gậy</option>
-                      <option
-                        v-for="tool in tools"
-                        :key="tool.id"
-                        :value="tool.id"
-                      >
-                        {{ tool.name }}
-                      </option>
-                    </select>
-                    <span v-else class="text-gray-400">---</span>
-                  </td>
-
-                  <!-- Nhập số lượng -->
-                  <td class="px-3 py-2 text-center">
-                    <input
-                      type="number"
-                      min="1"
-                      v-model.number="item.quantity"
-                      @input="updateTotalPrice(index)"
-                      class="w-16 border border-gray-300 rounded-md text-center px-1"
-                    />
-                  </td>
-
-                  <!-- Nhập đơn giá -->
-                  <td class="px-3 py-2 text-center">
-                    <input
-                      type="number"
-                      min="0"
-                      step="1000"
-                      v-model.number="item.unitPrice"
-                      @input="updateTotalPrice(index)"
-                      class="w-24 border border-gray-300 rounded-md text-center px-1"
-                    />
-                  </td>
-
-                  <!-- Hiển thị tổng -->
-                  <td class="px-3 py-2 text-center font-semibold">
-                    {{ formatCurrency(item.totalPrice || 0) }}
-                  </td>
-
-                  <!-- Nút xóa -->
-                  <td class="px-3 py-2 text-center">
-                    <button @click="removeService(index)" class="text-red-500">
-                      X
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- Nút thêm dịch vụ -->
-            <div class="mt-3">
-              <button
-                @click="addService"
-                class="px-3 py-1 bg-green-600 text-white text-sm rounded-md"
-              >
-                + Thêm dịch vụ
-              </button>
-            </div>
           </div>
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -889,13 +851,7 @@
             @click="closeBookingModal"
             class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Hủy
-          </button>
-          <button
-            @click="saveBooking"
-            class="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-md text-sm font-medium"
-          >
-            Cập nhật
+            Đóng
           </button>
         </div>
       </div>
@@ -977,9 +933,14 @@ const toolStore = useToolStore();
 const itemsPerPage = ref(10);
 const currentPage = ref(1);
 const showBookingModal = ref(false);
+const bookingSelected = reactive({});
+const bookingDetailSelected = reactive([]);
 const showConfirmModal = ref(false);
+const isViewMode = ref(false);
 const isEditMode = ref(false);
 const selectedBookingId = ref(null);
+const bookingDetails = reactive([]);
+const editBookingDetails = reactive([]);
 
 // Form and filters
 const filters = reactive({
@@ -1008,25 +969,21 @@ const bookingForm = reactive({
   email: "",
   golferId: null,
   golfCourseId: "", // ID of the selected golf course
-  golfCourse: null, // Object to hold golf course details
   bookingDate: new Date().toISOString().split("T")[0],
-  teeTime: null, // Object to hold tee time details
   numPlayers: 1,
   teeTimeId: null, // ID of the selected tee time
+  teeTime: null,
+  golfCourse: null,
   status: "PENDING",
-  checkInTime: null,
-  checkOutTime: null,
   depositAmount: 0,
-  isDeposit: 0,
   totalCost: 0,
-  checkOutBy: "",
-  createdAt: null,
-  updatedAt: null,
 });
 
 const { bookings, pagination } = storeToRefs(bookingStore);
 const { golfCourses } = storeToRefs(courseStore);
 const { availableTeeTimes } = storeToRefs(teeTimeStore);
+const { allServices } = storeToRefs(serviceStore);
+const { golfClubs } = storeToRefs(toolStore);
 
 const timeSlots = computed(() =>
   availableTeeTimes.value.map((time) => ({
@@ -1034,7 +991,10 @@ const timeSlots = computed(() =>
     startTime: time.startTime,
   }))
 );
-console.log("Available Tee Times:", timeSlots);
+
+const bookingDetailData = computed(() => {
+  return isEditMode.value ? editBookingDetails : bookingDetails;
+});
 
 const filteredBookings = computed(() => bookings.value);
 
@@ -1065,7 +1025,6 @@ function getStatusText(status) {
   }
 }
 
-
 function openNewBookingModal() {
   isEditMode.value = false;
   resetBookingForm();
@@ -1075,6 +1034,8 @@ function openNewBookingModal() {
 
 function closeBookingModal() {
   showBookingModal.value = false;
+  isEditMode.value = false;
+  isViewMode.value = false;
   resetBookingForm();
 }
 
@@ -1093,57 +1054,70 @@ function resetBookingForm() {
     teeTime: null,
     numPlayers: 1,
     status: "PENDING",
-    checkInTime: null,
-    checkOutTime: null,
     depositAmount: 0,
     isDeposit: 0,
     totalCost: 0,
-    checkOutBy: "",
-    createdAt: null,
-    updatedAt: null,
   });
 }
 
-function viewBookingDetails(booking) {
+async function viewBooking(booking) {
+  isViewMode.value = true;
+  selectedBookingId.value = booking.id;
+  Object.assign(bookingSelected, booking);
+  const detail = await bookingStore.getBookingDetailByBookingId(booking.id);
+  Object.assign(bookingDetailSelected, detail);
+}
+
+async function editBooking(booking) {
   isEditMode.value = true;
   selectedBookingId.value = booking.id;
-  Object.assign(bookingForm, {
-    id: booking.id,
-    bookingCode: booking.bookingCode,
-    phone: booking.phone,
-    fullName: booking.fullName,
-    email: booking.email,
-    golferId: booking.golferId,
-    golfCourse: booking.golfCourse,
-    golfCourseId: booking.golfCourse.id,
-    bookingDate: booking.bookingDate,
-    teeTime: booking.teeTime,
-    teeTimeId: booking.teeTime.id,
-    numPlayers: booking.numPlayers,
-    status: booking.status,
-    checkInTime: booking.checkInTime,
-    checkOutTime: booking.checkOutTime,
-    depositAmount: booking.depositAmount,
-    isDeposit: booking.isDeposit,
-    totalCost: booking.totalCost,
-    checkOutBy: booking.checkOutBy,
-    createdAt: booking.createdAt,
-    updatedAt: booking.updatedAt,
-  });
-  teeTimeStore.getAvailableTeeTimes(
-    bookingForm.golfCourseId,
-    bookingForm.bookingDate
-  );
+  Object.assign(bookingForm, booking);
+  const detail = await bookingStore.getBookingDetailByBookingId(booking.id);
+  Object.assign(editBookingDetails, detail);
   showBookingModal.value = true;
+  teeTimeStore.getAvailableTeeTimes(booking.golfCourse.id, booking.bookingDate);
+  if (!timeSlots.value.some((t) => t.id === bookingForm.teeTime.id)) {
+    timeSlots.value.push({
+      id: bookingForm.teeTime.id,
+      startTime: bookingForm.teeTime.startTime || "Giờ đã đặt", // cần có trường này từ server
+    });
+  }
 }
 
-function saveBooking() {
+async function saveBooking() {
   if (isEditMode.value && selectedBookingId.value) {
-    bookingStore.updateBooking(selectedBookingId.value, { ...bookingForm });
+    await bookingStore.updateBooking(selectedBookingId.value, {
+      ...bookingForm,
+    });
   } else {
-    bookingStore.createBooking({ ...bookingForm, status: "PENDING" });
+    const newBooking = await bookingStore.createBooking(bookingForm);
+    addBookingDetailToBooking(newBooking.id);
   }
   closeBookingModal();
+}
+
+function addService() {
+  isEditMode.value
+    ? editBookingDetails.push({
+        serviceId: "",
+        toolId: null,
+        quantity: 1,
+        unitPrice: 0,
+        totalPrice: 0,
+      })
+    : bookingDetails.push({
+        serviceId: "",
+        toolId: null,
+        quantity: 1,
+        unitPrice: 0,
+        totalPrice: 0,
+      });
+}
+
+function removeService(index) {
+  isEditMode.value
+    ? editBookingDetails.splice(index, 1)
+    : bookingDetails.splice(index, 1);
 }
 
 function confirmDeleteBooking(booking) {
@@ -1169,20 +1143,40 @@ function refreshData() {
   bookingStore.searchBooking(searchQuery);
 }
 
+const getServiceType = (serviceId) => {
+  const service = allServices.value.find((s) => s.id === serviceId);
+  return service ? service.type : null;
+};
+function getCategoryText(type) {
+  switch (type) {
+    case "CADDY":
+      return "Thuê caddy";
+    case "GOLF_CAR":
+      return "Thuê xe điện";
+    case "GOLF_CLUB":
+      return "Thuê gậy";
+    case "OTHER":
+      return "Khác";
+    default:
+      return type;
+  }
+}
+
+function addBookingDetailToBooking(bookingId) {
+  bookingStore.addBookingDetailToBooking(bookingId, bookingDetails);
+}
+
+// lấy ra danh sách tee time theo sân và ngày
 let previousCourseId = null;
 let previousDate = null;
-
 watch(
   () => [bookingForm.golfCourseId, bookingForm.bookingDate],
   ([courseId, date]) => {
-    console.log("Giá trị mới:", { courseId, date }); // Log giá trị mới
-    console.log("Giá trị trước:", { previousCourseId, previousDate }); // Log giá trị trước
     // Chỉ gọi API nếu giá trị thay đổi
     if (courseId !== previousCourseId || date !== previousDate) {
       previousCourseId = courseId;
       previousDate = date;
       if (courseId && date) {
-        console.log("Gọi API với:", { courseId, date }); // Log khi gọi API
         teeTimeStore.getAvailableTeeTimes(courseId, date);
       }
     }
@@ -1195,14 +1189,81 @@ watch(currentPage, (newPage) => {
   refreshData();
 });
 
+// hàm search booking
 const onSearch = () => {
   currentPage.value = 1;
   refreshData();
 };
-// goi lai ham search khi thay doi gia tri filter
 
+// lam sao chon dich vu xong thi don gia tu dien
+
+function onServiceChange(index) {
+  const selectedServiceId = bookingDetails[index].serviceId;
+  const selectedService = allServices.value.find(
+    (service) => service.id === selectedServiceId
+  );
+  if (selectedService.type === "GOLF_CLUB") {
+    bookingDetails[index].unitPrice = 0;
+  }
+  if (selectedService) {
+    bookingDetails[index].unitPrice = selectedService.price;
+    bookingDetails[index].totalPrice =
+      bookingDetails[index].unitPrice * bookingDetails[index].quantity;
+  }
+}
+function onToolChange(index) {
+  const selectedToolId = bookingDetails[index].toolId;
+  const selectedTool = golfClubs.value.find(
+    (tool) => tool.id === selectedToolId
+  );
+  if (selectedTool) {
+    bookingDetails[index].unitPrice = selectedTool.rentPrice;
+    bookingDetails[index].totalPrice =
+      bookingDetails[index].unitPrice * bookingDetails[index].quantity;
+  }
+}
+
+function updateTotalPrice(index) {
+  const quantity = bookingDetails[index].quantity || 0;
+  const unitPrice = bookingDetails[index].unitPrice || 0;
+  bookingDetails[index].totalPrice = quantity * unitPrice;
+}
+
+function onServiceChangeEdit(index) {
+  const selectedServiceId = editBookingDetails[index].serviceId;
+  const selectedService = allServices.value.find(
+    (service) => service.id === selectedServiceId
+  );
+  if (selectedService.type === "GOLF_CLUB") {
+    editBookingDetails[index].unitPrice = 0;
+  }
+  if (selectedService) {
+    editBookingDetails[index].unitPrice = selectedService.price;
+    editBookingDetails[index].totalPrice =
+      editBookingDetails[index].unitPrice * editBookingDetails[index].quantity;
+  }
+}
+function onToolChangeEdit(index) {
+  editBookingDetails[index].totalPrice =
+    editBookingDetails[index].quantity * editBookingDetails[index].unitPrice;
+  const selectedToolId = editBookingDetails[index].toolId;
+  const selectedTool = golfClubs.value.find(
+    (tool) => tool.id === selectedToolId
+  );
+  if (selectedTool) {
+    editBookingDetails[index].unitPrice = selectedTool.rentPrice;
+    editBookingDetails[index].totalPrice =
+      editBookingDetails[index].unitPrice * editBookingDetails[index].quantity;
+  }
+}
+function updateTotalPriceEdit(index) {
+  editBookingDetails[index].totalPrice =
+    editBookingDetails[index].quantity * editBookingDetails[index].unitPrice;
+}
 onMounted(async () => {
   await courseStore.getAllGolfCourses();
   refreshData();
+  serviceStore.getAllServices();
+  toolStore.getAllGolfClub();
 });
 </script>

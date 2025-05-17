@@ -6,12 +6,6 @@
       <h1 class="text-xl font-semibold text-green-800">Quản Lý Thanh Toán</h1>
       <div class="flex gap-2">
         <button
-          @click="openNewPaymentModal"
-          class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md"
-        >
-          <PlusIcon class="w-4 h-4" /> Thêm thanh toán mới
-        </button>
-        <button
           @click="refreshData"
           class="flex items-center gap-2 border border-green-700 text-green-700 hover:bg-green-50 px-4 py-2 rounded-md"
         >
@@ -22,7 +16,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
       <!-- Filters -->
-      <div class="lg:col-span-3">
+      <div class="lg:col-span-full">
         <div class="bg-white rounded-lg shadow p-4">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -108,41 +102,6 @@
                 v-model="filters.dateTo"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow p-4">
-          <h2 class="text-sm font-medium text-gray-900 mb-3">
-            Thống kê thanh toán
-          </h2>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="bg-green-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đã thanh toán</div>
-              <div class="text-xl font-semibold text-green-700">
-                {{ getPaymentsCount("completed") }}
-              </div>
-            </div>
-            <div class="bg-yellow-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Chờ thanh toán</div>
-              <div class="text-xl font-semibold text-yellow-700">
-                {{ getPaymentsCount("pending") }}
-              </div>
-            </div>
-            <div class="bg-red-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đã hủy</div>
-              <div class="text-xl font-semibold text-red-700">
-                {{ getPaymentsCount("cancelled") }}
-              </div>
-            </div>
-            <div class="bg-blue-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Tổng doanh thu</div>
-              <div class="text-xl font-semibold text-blue-700">
-                {{ formatCurrency(getTotalRevenue()) }}
-              </div>
             </div>
           </div>
         </div>
@@ -265,12 +224,6 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                   <button
-                    @click="editPayment(payment)"
-                    class="text-blue-500 hover:text-blue-700"
-                  >
-                    <EditIcon class="w-5 h-5" />
-                  </button>
-                  <button
                     @click="printInvoice(payment)"
                     class="text-green-500 hover:text-green-700"
                   >
@@ -333,230 +286,6 @@
               </button>
             </nav>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Payment Modal -->
-    <div
-      v-if="showPaymentModal"
-      class="fixed inset-0 flex items-center justify-center z-50"
-      style="background-color: rgba(0, 0, 0, 0.5)"
-    >
-      <div
-        class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-      >
-        <div class="flex justify-between items-center border-b px-6 py-4">
-          <h2 class="text-xl font-semibold text-green-800">
-            {{ isEditMode ? "Chỉnh sửa thanh toán" : "Thêm thanh toán mới" }}
-          </h2>
-          <button
-            @click="closePaymentModal"
-            class="text-gray-500 hover:text-gray-700"
-          >
-            <XIcon class="w-5 h-5" />
-          </button>
-        </div>
-        <div class="px-6 py-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Loại thanh toán</label
-              >
-              <select
-                v-model="paymentForm.type"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="membership">Phí hội viên</option>
-                <option value="booking">Đặt sân</option>
-                <option value="service">Dịch vụ</option>
-                <option value="event">Sự kiện</option>
-                <option value="other">Khác</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Trạng thái</label
-              >
-              <select
-                v-model="paymentForm.status"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="completed">Đã thanh toán</option>
-                <option value="pending">Chờ thanh toán</option>
-                <option value="cancelled">Đã hủy</option>
-                <option value="refunded">Đã hoàn tiền</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Mã khách hàng</label
-              >
-              <select
-                v-model="paymentForm.customerId"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                @change="updateCustomerName"
-              >
-                <option
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  :value="customer.id"
-                >
-                  {{ customer.id }} - {{ customer.name }}
-                </option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Tên khách hàng</label
-              >
-              <input
-                type="text"
-                v-model="paymentForm.customerName"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Số tiền (VND)</label
-              >
-              <input
-                type="number"
-                v-model="paymentForm.amount"
-                required
-                min="0"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Phương thức thanh toán</label
-              >
-              <select
-                v-model="paymentForm.method"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="cash">Tiền mặt</option>
-                <option value="card">Thẻ tín dụng/ghi nợ</option>
-                <option value="transfer">Chuyển khoản</option>
-                <option value="ewallet">Ví điện tử</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Ngày thanh toán</label
-              >
-              <input
-                type="date"
-                v-model="paymentForm.date"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Mã tham chiếu</label
-              >
-              <input
-                type="text"
-                v-model="paymentForm.referenceId"
-                placeholder="Mã đặt sân, mã hội viên, v.v."
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-          </div>
-          <div
-            v-if="paymentForm.method === 'card'"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-          >
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Số thẻ (4 số cuối)</label
-              >
-              <input
-                type="text"
-                v-model="paymentForm.cardLastFour"
-                maxlength="4"
-                placeholder="1234"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Loại thẻ</label
-              >
-              <select
-                v-model="paymentForm.cardType"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="visa">Visa</option>
-                <option value="mastercard">Mastercard</option>
-                <option value="amex">American Express</option>
-                <option value="jcb">JCB</option>
-                <option value="other">Khác</option>
-              </select>
-            </div>
-          </div>
-          <div v-if="paymentForm.method === 'transfer'" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Thông tin chuyển khoản</label
-            >
-            <input
-              type="text"
-              v-model="paymentForm.transferInfo"
-              placeholder="Ngân hàng, số tài khoản, v.v."
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div v-if="paymentForm.method === 'ewallet'" class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Ví điện tử</label
-            >
-            <select
-              v-model="paymentForm.ewalletType"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            >
-              <option value="momo">MoMo</option>
-              <option value="zalopay">ZaloPay</option>
-              <option value="vnpay">VNPay</option>
-              <option value="other">Khác</option>
-            </select>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Ghi chú</label
-            >
-            <textarea
-              v-model="paymentForm.notes"
-              rows="3"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            ></textarea>
-          </div>
-        </div>
-        <div class="flex justify-end space-x-2 border-t px-6 py-4">
-          <button
-            @click="closePaymentModal"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Hủy
-          </button>
-          <button
-            @click="savePayment"
-            class="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-md text-sm font-medium"
-          >
-            {{ isEditMode ? "Cập nhật" : "Thêm mới" }}
-          </button>
         </div>
       </div>
     </div>
@@ -759,12 +488,6 @@
             Đóng
           </button>
           <button
-            @click="editFromDetails"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium"
-          >
-            Chỉnh sửa
-          </button>
-          <button
             @click="printInvoice(selectedPayment)"
             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium"
           >
@@ -918,26 +641,20 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import {
-  PlusIcon,
   RefreshCwIcon,
   SearchIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   EyeIcon,
-  EditIcon,
   PrinterIcon,
   XIcon,
-  AlertTriangleIcon,
 } from "lucide-vue-next";
 
 // State
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-const showPaymentModal = ref(false);
 const showDetailsModal = ref(false);
 const showInvoiceModal = ref(false);
-const isEditMode = ref(false);
-const selectedPaymentId = ref(null);
 const selectedPayment = ref({});
 const invoicePayment = ref({});
 
@@ -949,24 +666,6 @@ const filters = reactive({
   search: "",
   dateFrom: "",
   dateTo: "",
-});
-
-const paymentForm = reactive({
-  id: "",
-  type: "booking",
-  status: "completed",
-  customerId: "",
-  customerName: "",
-  amount: 0,
-  method: "cash",
-  date: "",
-  referenceId: "",
-  notes: "",
-  cardLastFour: "",
-  cardType: "visa",
-  transferInfo: "",
-  ewalletType: "momo",
-  createdBy: "Admin",
 });
 
 // Mock data for customers (members)
@@ -1291,73 +990,9 @@ function refreshData() {
   console.log("Refreshing data...");
 }
 
-function updateCustomerName() {
-  const customer = customers.value.find((c) => c.id === paymentForm.customerId);
-  if (customer) {
-    paymentForm.customerName = customer.name;
-  }
-}
-
-function openNewPaymentModal() {
-  isEditMode.value = false;
-  resetPaymentForm();
-  showPaymentModal.value = true;
-}
-
-function closePaymentModal() {
-  showPaymentModal.value = false;
-  resetPaymentForm();
-}
-
-function resetPaymentForm() {
-  const today = new Date().toISOString().split("T")[0];
-
-  Object.assign(paymentForm, {
-    id: "",
-    type: "booking",
-    status: "completed",
-    customerId: customers.value.length > 0 ? customers.value[0].id : "",
-    customerName: customers.value.length > 0 ? customers.value[0].name : "",
-    amount: 0,
-    method: "cash",
-    date: today,
-    referenceId: "",
-    notes: "",
-    cardLastFour: "",
-    cardType: "visa",
-    transferInfo: "",
-    ewalletType: "momo",
-    createdBy: "Admin",
-  });
-}
-
-function savePayment() {
-  if (isEditMode.value) {
-    const index = payments.value.findIndex((p) => p.id === paymentForm.id);
-    if (index !== -1) {
-      payments.value[index] = { ...paymentForm };
-    }
-  } else {
-    paymentForm.id = `PAY${String(payments.value.length + 1).padStart(3, "0")}`;
-    payments.value.push({ ...paymentForm });
-  }
-  closePaymentModal();
-}
-
 function viewPaymentDetails(payment) {
   selectedPayment.value = { ...payment };
   showDetailsModal.value = true;
-}
-
-function editPayment(payment) {
-  isEditMode.value = true;
-  Object.assign(paymentForm, { ...payment });
-  showPaymentModal.value = true;
-}
-
-function editFromDetails() {
-  editPayment(selectedPayment.value);
-  showDetailsModal.value = false;
 }
 
 function printInvoice(payment) {

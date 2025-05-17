@@ -4,14 +4,14 @@
     <div class="flex flex-1 overflow-hidden">
       <SideBar />
       <main class="flex-1 p-6 overflow-y-auto bg-green-100">
-        <Reports />
+        <Tools />
       </main>
     </div>
   </div>
 </template>
 
 <script setup>
-import AppHeader from "../components/AppHeader.vue";
-import Reports from "../components/Reports.vue";
-import SideBar from "../components/SideBar.vue";
+import AppHeader from "../../components/AppHeader.vue";
+import SideBar from "../../components/SideBar.vue";
+import Tools from "../../components/Tools.vue"; // Import Tools component
 </script>

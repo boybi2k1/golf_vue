@@ -4,14 +4,14 @@
     <div class="flex flex-1 overflow-hidden">
       <SideBar />
       <main class="flex-1 p-6 overflow-y-auto bg-green-100">
-        <UserAccounts />
+        <EventManagement />
       </main>
     </div>
   </div>
 </template>
 
 <script setup>
-import AppHeader from "../components/AppHeader.vue";
-import SideBar from "../components/SideBar.vue";
-import UserAccounts from "../components/User.vue";
+import AppHeader from "../../components/AppHeader.vue";
+import EventManagement from "../../components/EventManagement.vue";
+import SideBar from "../../components/SideBar.vue";
 </script>

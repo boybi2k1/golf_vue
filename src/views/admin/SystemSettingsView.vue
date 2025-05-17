@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import AppHeader from "../components/AppHeader.vue";
-import SideBar from "../components/SideBar.vue";
-import SystemSettings from "../components/SystemSettings.vue";
+import AppHeader from "../../components/AppHeader.vue";
+import SideBar from "../../components/SideBar.vue";
+import SystemSettings from "../../components/SystemSettings.vue";
 </script>

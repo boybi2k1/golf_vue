@@ -80,7 +80,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Upcoming Bookings -->
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-full">
         <div class="bg-white rounded-lg shadow overflow-hidden">
           <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
             <h2 class="text-lg font-medium text-gray-900">
@@ -260,218 +260,6 @@
                     <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
                   </button>
                 </nav>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Check-in Form -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-          <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Check-in nhanh</h2>
-          </div>
-          <div class="p-4">
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Mã đặt lịch</label
-              >
-              <div class="flex">
-                <input
-                  type="text"
-                  v-model="quickCheckIn.bookingId"
-                  placeholder="Nhập mã đặt lịch"
-                  class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-                <button
-                  @click="findBooking"
-                  class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-r-md"
-                >
-                  <SearchIcon class="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div
-              v-if="quickCheckIn.booking"
-              class="border border-gray-200 rounded-md p-4 mb-4"
-            >
-              <div class="flex justify-between items-start mb-2">
-                <div>
-                  <h3 class="font-medium text-gray-900">
-                    {{ quickCheckIn.booking.customerName }}
-                  </h3>
-                  <p class="text-sm text-gray-500">
-                    {{ quickCheckIn.booking.phone }}
-                  </p>
-                </div>
-                <span
-                  :class="{
-                    'px-2 py-1 text-xs font-medium rounded-full': true,
-                    'bg-yellow-100 text-yellow-800':
-                      quickCheckIn.booking.checkInStatus === 'pending',
-                    'bg-green-100 text-green-800':
-                      quickCheckIn.booking.checkInStatus === 'checked-in',
-                    'bg-blue-100 text-blue-800':
-                      quickCheckIn.booking.checkInStatus === 'completed',
-                    'bg-red-100 text-red-800':
-                      quickCheckIn.booking.checkInStatus === 'no-show',
-                  }"
-                >
-                  {{ getStatusText(quickCheckIn.booking.checkInStatus) }}
-                </span>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-                <div>
-                  <span class="text-gray-500">Sân:</span>
-                  <span class="ml-1 text-gray-900">{{
-                    getCourseNameById(quickCheckIn.booking.courseId)
-                  }}</span>
-                </div>
-                <div>
-                  <span class="text-gray-500">Giờ:</span>
-                  <span class="ml-1 text-gray-900">{{
-                    quickCheckIn.booking.time
-                  }}</span>
-                </div>
-                <div>
-                  <span class="text-gray-500">Ngày:</span>
-                  <span class="ml-1 text-gray-900">{{
-                    formatDate(quickCheckIn.booking.date)
-                  }}</span>
-                </div>
-                <div>
-                  <span class="text-gray-500">Số người:</span>
-                  <span class="ml-1 text-gray-900">{{
-                    quickCheckIn.booking.players
-                  }}</span>
-                </div>
-              </div>
-
-              <div v-if="quickCheckIn.booking.checkInStatus === 'pending'">
-                <div class="mb-3">
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Caddy</label
-                  >
-                  <select
-                    v-model="quickCheckIn.caddyId"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">Chọn caddy</option>
-                    <option
-                      v-for="caddy in availableCaddies"
-                      :key="caddy.id"
-                      :value="caddy.id"
-                    >
-                      {{ caddy.name }} - {{ caddy.id }}
-                    </option>
-                  </select>
-                </div>
-
-                <div class="mb-3">
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Xe điện</label
-                  >
-                  <div class="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="needsCart"
-                      v-model="quickCheckIn.needsCart"
-                      class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                    />
-                    <label
-                      for="needsCart"
-                      class="ml-2 block text-sm text-gray-900"
-                      >Cần xe điện</label
-                    >
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Ghi chú</label
-                  >
-                  <textarea
-                    v-model="quickCheckIn.notes"
-                    rows="2"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  ></textarea>
-                </div>
-
-                <button
-                  @click="processQuickCheckIn"
-                  class="w-full bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md"
-                >
-                  Check-in
-                </button>
-              </div>
-
-              <div
-                v-else-if="quickCheckIn.booking.checkInStatus === 'checked-in'"
-                class="flex justify-between"
-              >
-                <button
-                  @click="processQuickComplete"
-                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md mr-2"
-                >
-                  Hoàn thành
-                </button>
-                <button
-                  @click="viewBookingDetails(quickCheckIn.booking)"
-                  class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
-                >
-                  Chi tiết
-                </button>
-              </div>
-
-              <div v-else class="text-center py-2">
-                <p class="text-gray-500">Không thể check-in cho lịch đặt này</p>
-              </div>
-            </div>
-
-            <div
-              v-if="!quickCheckIn.booking"
-              class="border border-gray-200 border-dashed rounded-md p-4 flex flex-col items-center justify-center text-center"
-            >
-              <ClipboardCheckIcon class="h-12 w-12 text-gray-400 mb-2" />
-              <h3 class="text-sm font-medium text-gray-900">
-                Nhập mã đặt lịch để check-in
-              </h3>
-              <p class="text-xs text-gray-500 mt-1">
-                Hoặc tìm kiếm lịch đặt trong danh sách bên trái
-              </p>
-            </div>
-
-            <div class="mt-4">
-              <h3 class="text-sm font-medium text-gray-900 mb-2">
-                Thống kê hôm nay
-              </h3>
-              <div class="grid grid-cols-2 gap-2">
-                <div class="bg-green-50 p-3 rounded-md">
-                  <div class="text-xs text-gray-500">Đã check-in</div>
-                  <div class="text-xl font-semibold text-green-700">
-                    {{ getCheckInCount("checked-in") }}
-                  </div>
-                </div>
-                <div class="bg-yellow-50 p-3 rounded-md">
-                  <div class="text-xs text-gray-500">Chờ check-in</div>
-                  <div class="text-xl font-semibold text-yellow-700">
-                    {{ getCheckInCount("pending") }}
-                  </div>
-                </div>
-                <div class="bg-blue-50 p-3 rounded-md">
-                  <div class="text-xs text-gray-500">Đã hoàn thành</div>
-                  <div class="text-xl font-semibold text-blue-700">
-                    {{ getCheckInCount("completed") }}
-                  </div>
-                </div>
-                <div class="bg-red-50 p-3 rounded-md">
-                  <div class="text-xs text-gray-500">Không đến</div>
-                  <div class="text-xl font-semibold text-red-700">
-                    {{ getCheckInCount("no-show") }}
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -838,7 +626,7 @@ const bookings = ref([
   {
     id: "BK001",
     courseId: "1",
-    date: "2025-04-23",
+    date: "2025-05-17",
     time: "07:00",
     customerName: "Nguyễn Văn A",
     phone: "0901234567",
@@ -848,7 +636,7 @@ const bookings = ref([
     checkInStatus: "checked-in",
     notes: "Khách VIP, chuẩn bị xe điện",
     checkInInfo: {
-      checkInTime: "2025-04-23T06:45:00",
+      checkInTime: "2025-05-17T06:45:00",
       staffName: "Admin",
       caddyId: "CD001",
       needsCart: true,
@@ -858,7 +646,7 @@ const bookings = ref([
   {
     id: "BK002",
     courseId: "1",
-    date: "2025-04-23",
+    date: "2025-05-17",
     time: "08:30",
     customerName: "Trần Thị B",
     phone: "0909876543",
@@ -871,7 +659,7 @@ const bookings = ref([
   {
     id: "BK003",
     courseId: "2",
-    date: "2025-04-23",
+    date: "2025-05-17",
     time: "09:00",
     customerName: "Lê Văn C",
     phone: "0912345678",
@@ -881,21 +669,21 @@ const bookings = ref([
     checkInStatus: "completed",
     notes: "Đã thanh toán trước",
     checkInInfo: {
-      checkInTime: "2025-04-23T08:50:00",
+      checkInTime: "2025-05-17T08:50:00",
       staffName: "Admin",
       caddyId: "CD002",
       needsCart: true,
       notes: "",
     },
     completionInfo: {
-      completionTime: "2025-04-23T12:30:00",
+      completionTime: "2025-05-17T12:30:00",
       playTime: 220,
     },
   },
   {
     id: "BK004",
     courseId: "3",
-    date: "2025-04-23",
+    date: "2025-05-17",
     time: "14:00",
     customerName: "Phạm Thị D",
     phone: "0987654321",
@@ -908,7 +696,7 @@ const bookings = ref([
   {
     id: "BK005",
     courseId: "2",
-    date: "2025-04-23",
+    date: "2025-05-17",
     time: "15:30",
     customerName: "Hoàng Văn E",
     phone: "0978123456",

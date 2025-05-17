@@ -2,7 +2,7 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-export const URL_IMAGE = "http://localhost:8080/uploads/";
+export const URL_IMAGE = "http://192.130.38.101:8080/uploads/";
 
 const checkExpiredToken = (token) => {
   if (!token) return false;
@@ -12,7 +12,7 @@ const checkExpiredToken = (token) => {
 };
 
 const instance = axios.create({
-  baseURL: "http://localhost:8080/api/v1",
+  baseURL: "http://192.130.38.101:8080/api/v1",
   headers: {
     "Content-Type": "application/json",
   },

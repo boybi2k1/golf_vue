@@ -304,7 +304,7 @@ const openNewUserModal = () => {
 
 const editUser = (user) => {
   Object.assign(modalUser, user);
-  selectedUserId.value= user.id;
+  selectedUserId.value = user.id;
   showEditUserModal.value = true;
 };
 
@@ -328,7 +328,7 @@ const saveUser = () => {
 
 //viet ham update
 const refreshData = async () => {
-  searchQuery.page = currentPage.value ;
+  searchQuery.page = currentPage.value;
   searchQuery.size = itemsPerPage.value;
   searchQuery.key = searchQuery.key;
   searchQuery.value = searchQuery.value;

@@ -22,7 +22,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
       <!-- Filters -->
-      <div class="lg:col-span-3">
+      <div class="lg:col-span-full">
         <div class="bg-white rounded-lg shadow p-4">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -34,11 +34,10 @@
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Tất cả loại</option>
-                <option value="tournament">Giải đấu</option>
-                <option value="corporate">Sự kiện doanh nghiệp</option>
-                <option value="private">Sự kiện tư nhân</option>
-                <option value="charity">Sự kiện từ thiện</option>
-                <option value="other">Khác</option>
+                <option value="PROMOTION">Khuyến mãi</option>
+                <option value="TOURNAMENT">Giải đấu</option>
+                <option value="EVENT">Sự kiện</option>
+                <option value="HOLIDAY">Ngày lễ</option>
               </select>
             </div>
             <div>
@@ -50,10 +49,8 @@
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Tất cả trạng thái</option>
-                <option value="upcoming">Sắp diễn ra</option>
-                <option value="ongoing">Đang diễn ra</option>
-                <option value="completed">Đã hoàn thành</option>
-                <option value="cancelled">Đã hủy</option>
+                <option value="ACTIVE">Đang hoạt động</option>
+                <option value="INACTIVE">Không hoạt động</option>
               </select>
             </div>
             <div>
@@ -85,41 +82,6 @@
                   placeholder="Tên, mã sự kiện..."
                   class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow p-4">
-          <h2 class="text-sm font-medium text-gray-900 mb-3">
-            Thống kê sự kiện
-          </h2>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="bg-green-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Sắp diễn ra</div>
-              <div class="text-xl font-semibold text-green-700">
-                {{ getEventsCount("upcoming") }}
-              </div>
-            </div>
-            <div class="bg-blue-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đang diễn ra</div>
-              <div class="text-xl font-semibold text-blue-700">
-                {{ getEventsCount("ongoing") }}
-              </div>
-            </div>
-            <div class="bg-gray-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đã hoàn thành</div>
-              <div class="text-xl font-semibold text-gray-700">
-                {{ getEventsCount("completed") }}
-              </div>
-            </div>
-            <div class="bg-red-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đã hủy</div>
-              <div class="text-xl font-semibold text-red-700">
-                {{ getEventsCount("cancelled") }}
               </div>
             </div>
           </div>
@@ -164,7 +126,7 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Số người
+                Giảm giá
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -191,17 +153,8 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="h-10 w-10 flex-shrink-0 mr-3">
-                    <img
-                      :src="
-                        event.image || '/placeholder.svg?height=40&width=40'
-                      "
-                      class="h-10 w-10 rounded-full object-cover"
-                      alt="Event thumbnail"
-                    />
-                  </div>
                   <div class="text-sm font-medium text-gray-900">
-                    {{ event.name }}
+                    {{ event.title }}
                   </div>
                 </div>
               </td>
@@ -215,16 +168,16 @@
                 {{ formatDate(event.endDate) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ event.participants }}
+                {{
+                  event.discountPercent ? event.discountPercent + "%" : "Không"
+                }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="{
                     'px-2 py-1 text-xs font-medium rounded-full': true,
-                    'bg-green-100 text-green-800': event.status === 'upcoming',
-                    'bg-blue-100 text-blue-800': event.status === 'ongoing',
-                    'bg-gray-100 text-gray-800': event.status === 'completed',
-                    'bg-red-100 text-red-800': event.status === 'cancelled',
+                    'bg-green-100 text-green-800': event.status === 'ACTIVE',
+                    'bg-gray-100 text-gray-800': event.status === 'INACTIVE',
                   }"
                 >
                   {{ getStatusText(event.status) }}
@@ -337,7 +290,7 @@
             >
             <input
               type="text"
-              v-model="eventForm.name"
+              v-model="eventForm.title"
               required
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
@@ -352,11 +305,10 @@
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="tournament">Giải đấu</option>
-                <option value="corporate">Sự kiện doanh nghiệp</option>
-                <option value="private">Sự kiện tư nhân</option>
-                <option value="charity">Sự kiện từ thiện</option>
-                <option value="other">Khác</option>
+                <option value="PROMOTION">Khuyến mãi</option>
+                <option value="TOURNAMENT">Giải đấu</option>
+                <option value="EVENT">Sự kiện</option>
+                <option value="HOLIDAY">Ngày lễ</option>
               </select>
             </div>
             <div>
@@ -368,10 +320,8 @@
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="upcoming">Sắp diễn ra</option>
-                <option value="ongoing">Đang diễn ra</option>
-                <option value="completed">Đã hoàn thành</option>
-                <option value="cancelled">Đã hủy</option>
+                <option value="ACTIVE">Đang hoạt động</option>
+                <option value="INACTIVE">Không hoạt động</option>
               </select>
             </div>
           </div>
@@ -402,46 +352,23 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Giờ bắt đầu</label
-              >
-              <input
-                type="time"
-                v-model="eventForm.startTime"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Giờ kết thúc</label
-              >
-              <input
-                type="time"
-                v-model="eventForm.endTime"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Số người tham gia</label
+                >Phần trăm giảm giá (%)</label
               >
               <input
                 type="number"
-                v-model="eventForm.participants"
-                required
-                min="1"
+                v-model="eventForm.discountPercent"
+                min="0"
+                max="100"
+                step="0.1"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Sân</label
+                >Sân Golf</label
               >
               <select
-                v-model="eventForm.courseId"
+                v-model="eventForm.golfCourseId"
                 required
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
@@ -455,36 +382,38 @@
               </select>
             </div>
           </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Người tổ chức</label
-            >
-            <input
-              type="text"
-              v-model="eventForm.organizer"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Liên hệ</label
-            >
-            <input
-              type="text"
-              v-model="eventForm.contact"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Hình ảnh URL</label
-            >
-            <input
-              type="text"
-              v-model="eventForm.image"
-              placeholder="https://example.com/image.jpg"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Loại dịch vụ</label
+              >
+              <select
+                v-model="eventForm.serviceType"
+                required
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="TEE_TIME">Đặt giờ chơi</option>
+                <option value="CADDIE">Caddie</option>
+                <option value="TOOL">Dụng cụ</option>
+                <option value="FOOD">Đồ ăn & Thức uống</option>
+                <option value="ALL">Tất cả dịch vụ</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Đối tượng người dùng</label
+              >
+              <select
+                v-model="eventForm.targetUserType"
+                required
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="MEMBER">Thành viên</option>
+                <option value="GUEST">Khách</option>
+                <option value="STAFF">Nhân viên</option>
+                <option value="ALL">Tất cả</option>
+              </select>
+            </div>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1"
@@ -495,29 +424,6 @@
               rows="3"
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             ></textarea>
-          </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Ghi chú</label
-            >
-            <textarea
-              v-model="eventForm.notes"
-              rows="2"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            ></textarea>
-          </div>
-          <div class="mb-4">
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="isPrivate"
-                v-model="eventForm.isPrivate"
-                class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label for="isPrivate" class="ml-2 block text-sm text-gray-900"
-                >Sự kiện riêng tư</label
-              >
-            </div>
           </div>
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -556,18 +462,9 @@
         </div>
         <div class="px-6 py-4">
           <div class="flex items-center mb-4">
-            <div class="h-16 w-16 flex-shrink-0 mr-4">
-              <img
-                :src="
-                  selectedEvent.image || '/placeholder.svg?height=64&width=64'
-                "
-                class="h-16 w-16 rounded-full object-cover"
-                alt="Event thumbnail"
-              />
-            </div>
             <div>
               <h3 class="text-lg font-medium text-gray-900">
-                {{ selectedEvent.name }}
+                {{ selectedEvent.title }}
               </h3>
               <p class="text-sm text-gray-500">
                 {{ getEventTypeText(selectedEvent.type) }}
@@ -577,11 +474,9 @@
               :class="{
                 'ml-auto px-2 py-1 text-xs font-medium rounded-full': true,
                 'bg-green-100 text-green-800':
-                  selectedEvent.status === 'upcoming',
-                'bg-blue-100 text-blue-800': selectedEvent.status === 'ongoing',
+                  selectedEvent.status === 'ACTIVE',
                 'bg-gray-100 text-gray-800':
-                  selectedEvent.status === 'completed',
-                'bg-red-100 text-red-800': selectedEvent.status === 'cancelled',
+                  selectedEvent.status === 'INACTIVE',
               }"
             >
               {{ getStatusText(selectedEvent.status) }}
@@ -594,9 +489,9 @@
               <p class="text-gray-900">{{ selectedEvent.id }}</p>
             </div>
             <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">Sân</h4>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">Sân Golf</h4>
               <p class="text-gray-900">
-                {{ getCourseNameById(selectedEvent.courseId) }}
+                {{ getCourseNameById(selectedEvent.golfCourseId) }}
               </p>
             </div>
             <div>
@@ -617,37 +512,32 @@
             </div>
             <div>
               <h4 class="text-sm font-medium text-gray-500 mb-1">
-                Giờ bắt đầu
-              </h4>
-              <p class="text-gray-900">{{ selectedEvent.startTime }}</p>
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">
-                Giờ kết thúc
-              </h4>
-              <p class="text-gray-900">{{ selectedEvent.endTime }}</p>
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">
-                Số người tham gia
-              </h4>
-              <p class="text-gray-900">{{ selectedEvent.participants }}</p>
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">
-                Người tổ chức
+                Phần trăm giảm giá
               </h4>
               <p class="text-gray-900">
-                {{ selectedEvent.organizer || "Không có" }}
+                {{
+                  selectedEvent.discountPercent
+                    ? selectedEvent.discountPercent + "%"
+                    : "Không có giảm giá"
+                }}
               </p>
             </div>
-          </div>
-
-          <div class="mb-4">
-            <h4 class="text-sm font-medium text-gray-500 mb-1">Liên hệ</h4>
-            <p class="text-gray-900">
-              {{ selectedEvent.contact || "Không có" }}
-            </p>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">
+                Loại dịch vụ
+              </h4>
+              <p class="text-gray-900">
+                {{ getServiceTypeText(selectedEvent.serviceType) }}
+              </p>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">
+                Đối tượng người dùng
+              </h4>
+              <p class="text-gray-900">
+                {{ getTargetUserTypeText(selectedEvent.targetUserType) }}
+              </p>
+            </div>
           </div>
 
           <div class="mb-4">
@@ -655,24 +545,6 @@
             <p class="text-gray-900 bg-gray-50 p-3 rounded-md">
               {{ selectedEvent.description || "Không có mô tả" }}
             </p>
-          </div>
-
-          <div class="mb-4">
-            <h4 class="text-sm font-medium text-gray-500 mb-1">Ghi chú</h4>
-            <p class="text-gray-900 bg-gray-50 p-3 rounded-md">
-              {{ selectedEvent.notes || "Không có ghi chú" }}
-            </p>
-          </div>
-
-          <div class="mb-4">
-            <div class="flex items-center">
-              <LockIcon class="h-4 w-4 text-gray-500 mr-2" />
-              <span class="text-sm text-gray-700">{{
-                selectedEvent.isPrivate
-                  ? "Sự kiện riêng tư"
-                  : "Sự kiện công khai"
-              }}</span>
-            </div>
           </div>
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -748,7 +620,6 @@ import {
   Trash2Icon,
   XIcon,
   AlertTriangleIcon,
-  LockIcon,
 } from "lucide-vue-next";
 
 // State
@@ -771,21 +642,16 @@ const filters = reactive({
 
 const eventForm = reactive({
   id: "",
-  name: "",
-  type: "tournament",
-  status: "upcoming",
+  title: "",
+  description: "",
+  type: "PROMOTION",
+  discountPercent: 0,
   startDate: "",
   endDate: "",
-  startTime: "08:00",
-  endTime: "17:00",
-  participants: 0,
-  courseId: "",
-  organizer: "",
-  contact: "",
-  image: "",
-  description: "",
-  notes: "",
-  isPrivate: false,
+  golfCourseId: "",
+  serviceType: "TEE_TIME",
+  targetUserType: "ALL",
+  status: "ACTIVE",
 });
 
 // Mock data
@@ -798,95 +664,69 @@ const courses = ref([
 const events = ref([
   {
     id: "EV001",
-    name: "Giải Golf Mùa Xuân",
-    type: "tournament",
-    status: "upcoming",
-    startDate: "2025-05-15",
-    endDate: "2025-05-16",
-    startTime: "07:00",
-    endTime: "17:00",
-    participants: 64,
-    courseId: "1",
-    organizer: "Hiệp hội Golf Việt Nam",
-    contact: "contact@vga.com",
-    image: "/placeholder.svg?height=40&width=40",
-    description:
-      "Giải đấu golf thường niên mùa xuân với sự tham gia của các golfer chuyên nghiệp.",
-    notes: "Cần chuẩn bị khu vực lễ trao giải",
-    isPrivate: false,
+    title: "Khuyến mãi mùa hè",
+    description: "Giảm giá đặc biệt cho các đặt sân trong tháng 6",
+    type: "PROMOTION",
+    discountPercent: 15,
+    startDate: "2025-06-01",
+    endDate: "2025-06-30",
+    golfCourseId: "1",
+    serviceType: "TEE_TIME",
+    targetUserType: "ALL",
+    status: "ACTIVE",
   },
   {
     id: "EV002",
-    name: "Sự kiện doanh nghiệp ABC",
-    type: "corporate",
-    status: "upcoming",
-    startDate: "2025-05-20",
-    endDate: "2025-05-20",
-    startTime: "08:00",
-    endTime: "16:00",
-    participants: 32,
-    courseId: "2",
-    organizer: "Công ty ABC",
-    contact: "event@abc.com",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Sự kiện giao lưu golf của công ty ABC.",
-    notes: "Yêu cầu dịch vụ ăn uống đầy đủ",
-    isPrivate: true,
+    title: "Giải Golf Mùa Xuân",
+    description:
+      "Giải đấu golf thường niên mùa xuân với sự tham gia của các golfer chuyên nghiệp.",
+    type: "TOURNAMENT",
+    discountPercent: null,
+    startDate: "2025-05-15",
+    endDate: "2025-05-16",
+    golfCourseId: "1",
+    serviceType: "ALL",
+    targetUserType: "MEMBER",
+    status: "ACTIVE",
   },
   {
     id: "EV003",
-    name: "Giải đấu từ thiện",
-    type: "charity",
-    status: "ongoing",
-    startDate: "2025-04-22",
-    endDate: "2025-04-23",
-    startTime: "07:30",
-    endTime: "17:30",
-    participants: 48,
-    courseId: "1",
-    organizer: "Quỹ từ thiện XYZ",
-    contact: "charity@xyz.org",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Giải đấu gây quỹ từ thiện cho trẻ em vùng cao.",
-    notes: "Cần bố trí khu vực quyên góp",
-    isPrivate: false,
+    title: "Khuyến mãi Caddie",
+    description: "Giảm giá dịch vụ caddie cho thành viên",
+    type: "PROMOTION",
+    discountPercent: 10,
+    startDate: "2025-05-01",
+    endDate: "2025-05-31",
+    golfCourseId: "2",
+    serviceType: "CADDIE",
+    targetUserType: "MEMBER",
+    status: "ACTIVE",
   },
   {
     id: "EV004",
-    name: "Tiệc cưới & Golf",
-    type: "private",
-    status: "completed",
-    startDate: "2025-04-10",
-    endDate: "2025-04-10",
-    startTime: "09:00",
-    endTime: "20:00",
-    participants: 24,
-    courseId: "3",
-    organizer: "Gia đình Nguyễn Văn A",
-    contact: "nguyenvana@email.com",
-    image: "/placeholder.svg?height=40&width=40",
-    description: "Sự kiện kết hợp giữa tiệc cưới và chơi golf.",
-    notes: "Đã thanh toán đầy đủ",
-    isPrivate: true,
+    title: "Sự kiện doanh nghiệp ABC",
+    description: "Sự kiện giao lưu golf của công ty ABC.",
+    type: "EVENT",
+    discountPercent: 5,
+    startDate: "2025-05-20",
+    endDate: "2025-05-20",
+    golfCourseId: "2",
+    serviceType: "ALL",
+    targetUserType: "GUEST",
+    status: "ACTIVE",
   },
   {
     id: "EV005",
-    name: "Giải Golf Quốc tế",
-    type: "tournament",
-    status: "cancelled",
-    startDate: "2025-06-05",
-    endDate: "2025-06-07",
-    startTime: "06:30",
-    endTime: "18:00",
-    participants: 96,
-    courseId: "1",
-    organizer: "Liên đoàn Golf Quốc tế",
-    contact: "international@golf.org",
-    image: "/placeholder.svg?height=40&width=40",
-    description:
-      "Giải đấu golf quốc tế với sự tham gia của các golfer từ nhiều quốc gia.",
-    notes: "Hủy do tình hình dịch bệnh",
-    isPrivate: false,
+    title: "Khuyến mãi dụng cụ",
+    description: "Giảm giá thuê dụng cụ golf",
+    type: "PROMOTION",
+    discountPercent: 20,
+    startDate: "2025-04-01",
+    endDate: "2025-04-30",
+    golfCourseId: "3",
+    serviceType: "TOOL",
+    targetUserType: "ALL",
+    status: "INACTIVE",
   },
 ]);
 
@@ -954,9 +794,10 @@ const filteredEvents = computed(() => {
     const searchLower = filters.search.toLowerCase();
     result = result.filter(
       (event) =>
-        event.name.toLowerCase().includes(searchLower) ||
+        event.title.toLowerCase().includes(searchLower) ||
         event.id.toLowerCase().includes(searchLower) ||
-        event.organizer?.toLowerCase().includes(searchLower)
+        (event.description &&
+          event.description.toLowerCase().includes(searchLower))
     );
   }
 
@@ -979,7 +820,6 @@ function formatDate(dateString) {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
   return date.toLocaleDateString("vi-VN", {
-    weekday: "long",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -988,16 +828,14 @@ function formatDate(dateString) {
 
 function getEventTypeText(type) {
   switch (type) {
-    case "tournament":
+    case "PROMOTION":
+      return "Khuyến mãi";
+    case "TOURNAMENT":
       return "Giải đấu";
-    case "corporate":
-      return "Sự kiện doanh nghiệp";
-    case "private":
-      return "Sự kiện tư nhân";
-    case "charity":
-      return "Sự kiện từ thiện";
-    case "other":
-      return "Khác";
+    case "EVENT":
+      return "Sự kiện";
+    case "HOLIDAY":
+      return "Ngày lễ";
     default:
       return type;
   }
@@ -1005,26 +843,50 @@ function getEventTypeText(type) {
 
 function getStatusText(status) {
   switch (status) {
-    case "upcoming":
-      return "Sắp diễn ra";
-    case "ongoing":
-      return "Đang diễn ra";
-    case "completed":
-      return "Đã hoàn thành";
-    case "cancelled":
-      return "Đã hủy";
+    case "ACTIVE":
+      return "Đang hoạt động";
+    case "INACTIVE":
+      return "Không hoạt động";
     default:
       return status;
+  }
+}
+
+function getServiceTypeText(serviceType) {
+  switch (serviceType) {
+    case "TEE_TIME":
+      return "Đặt giờ chơi";
+    case "CADDIE":
+      return "Caddie";
+    case "TOOL":
+      return "Dụng cụ";
+    case "FOOD":
+      return "Đồ ăn & Thức uống";
+    case "ALL":
+      return "Tất cả dịch vụ";
+    default:
+      return serviceType;
+  }
+}
+
+function getTargetUserTypeText(targetUserType) {
+  switch (targetUserType) {
+    case "MEMBER":
+      return "Thành viên";
+    case "GUEST":
+      return "Khách";
+    case "STAFF":
+      return "Nhân viên";
+    case "ALL":
+      return "Tất cả";
+    default:
+      return targetUserType;
   }
 }
 
 function getCourseNameById(id) {
   const course = courses.value.find((c) => c.id === id);
   return course ? course.name : "Không xác định";
-}
-
-function getEventsCount(status) {
-  return events.value.filter((event) => event.status === status).length;
 }
 
 function refreshData() {
@@ -1047,21 +909,16 @@ function resetEventForm() {
   const today = new Date().toISOString().split("T")[0];
   Object.assign(eventForm, {
     id: "",
-    name: "",
-    type: "tournament",
-    status: "upcoming",
+    title: "",
+    description: "",
+    type: "PROMOTION",
+    discountPercent: 0,
     startDate: today,
     endDate: today,
-    startTime: "08:00",
-    endTime: "17:00",
-    participants: 0,
-    courseId: courses.value.length > 0 ? courses.value[0].id : "",
-    organizer: "",
-    contact: "",
-    image: "",
-    description: "",
-    notes: "",
-    isPrivate: false,
+    golfCourseId: courses.value.length > 0 ? courses.value[0].id : "",
+    serviceType: "TEE_TIME",
+    targetUserType: "ALL",
+    status: "ACTIVE",
   });
 }
 
@@ -1093,7 +950,7 @@ function saveEvent() {
       events.value[index] = { ...eventForm };
     }
   } else {
-    // Create new event
+    // Create new event with UUID-like ID
     const newEvent = {
       ...eventForm,
       id: `EV${String(events.value.length + 1).padStart(3, "0")}`,
@@ -1118,7 +975,9 @@ function deleteEvent() {
 }
 
 onMounted(() => {
-  // Initialize component
-  console.log("Event Management component mounted");
+  // Initialize component with current date
+  const today = new Date().toISOString().split("T")[0];
+  eventForm.startDate = today;
+  eventForm.endDate = today;
 });
 </script>

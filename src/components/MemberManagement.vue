@@ -22,7 +22,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
       <!-- Filters -->
-      <div class="lg:col-span-3">
+      <div class="lg:col-span-full">
         <div class="bg-white rounded-lg shadow p-4">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -90,41 +90,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Stats -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow p-4">
-          <h2 class="text-sm font-medium text-gray-900 mb-3">
-            Thống kê hội viên
-          </h2>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="bg-green-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Đang hoạt động</div>
-              <div class="text-xl font-semibold text-green-700">
-                {{ getMembersCount("active") }}
-              </div>
-            </div>
-            <div class="bg-red-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Hết hạn</div>
-              <div class="text-xl font-semibold text-red-700">
-                {{ getMembersCount("expired") }}
-              </div>
-            </div>
-            <div class="bg-yellow-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Chờ duyệt</div>
-              <div class="text-xl font-semibold text-yellow-700">
-                {{ getMembersCount("pending") }}
-              </div>
-            </div>
-            <div class="bg-blue-50 p-3 rounded-md">
-              <div class="text-xs text-gray-500">Tổng hội viên</div>
-              <div class="text-xl font-semibold text-blue-700">
-                {{ members.length }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Members List -->
@@ -161,11 +126,7 @@
               >
                 Ngày hết hạn
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Handicap
-              </th>
+
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
@@ -217,9 +178,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ formatDate(member.expiryDate) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ member.handicap || "N/A" }}
-              </td>
+
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="{
@@ -456,19 +415,6 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Handicap</label
-              >
-              <input
-                type="number"
-                v-model="memberForm.handicap"
-                min="0"
-                max="54"
-                step="0.1"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Phí hội viên (VND)</label
               >
               <input
@@ -614,12 +560,7 @@
                 {{ getGenderText(selectedMember.gender) }}
               </p>
             </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">Handicap</h4>
-              <p class="text-gray-900">
-                {{ selectedMember.handicap || "N/A" }}
-              </p>
-            </div>
+
             <div>
               <h4 class="text-sm font-medium text-gray-500 mb-1">
                 Ngày gia nhập
@@ -791,7 +732,6 @@ const memberForm = reactive({
   expiryDate: "",
   birthDate: "",
   gender: "male",
-  handicap: null,
   fee: 0,
   address: "",
   avatar: "",
@@ -812,7 +752,6 @@ const members = ref([
     expiryDate: "2025-01-15",
     birthDate: "1985-05-20",
     gender: "male",
-    handicap: 12.5,
     fee: 25000000,
     address: "123 Đường Lê Lợi, Quận 1, TP.HCM",
     avatar: "/placeholder.svg?height=80&width=80",
@@ -846,7 +785,6 @@ const members = ref([
     expiryDate: "2025-02-10",
     birthDate: "1990-08-15",
     gender: "female",
-    handicap: 18.2,
     fee: 10000000,
     address: "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
     avatar: "/placeholder.svg?height=80&width=80",
@@ -875,7 +813,6 @@ const members = ref([
     expiryDate: "2024-05-20",
     birthDate: "1978-12-03",
     gender: "male",
-    handicap: 8.7,
     fee: 15000000,
     address: "789 Đường Hai Bà Trưng, Quận 3, TP.HCM",
     avatar: "/placeholder.svg?height=80&width=80",
@@ -909,7 +846,6 @@ const members = ref([
     expiryDate: "2025-08-05",
     birthDate: "1982-04-25",
     gender: "female",
-    handicap: 22.1,
     fee: 30000000,
     address: "101 Đường Nguyễn Du, Quận 1, TP.HCM",
     avatar: "/placeholder.svg?height=80&width=80",
@@ -938,7 +874,6 @@ const members = ref([
     expiryDate: "2026-04-01",
     birthDate: "1975-11-10",
     gender: "male",
-    handicap: 15.3,
     fee: 50000000,
     address: "202 Đường Điện Biên Phủ, Quận 3, TP.HCM",
     avatar: "/placeholder.svg?height=80&width=80",
@@ -956,7 +891,6 @@ const members = ref([
     expiryDate: "2025-03-15",
     birthDate: "1988-07-22",
     gender: "female",
-    handicap: 25.8,
     fee: 10000000,
     address: "303 Đường Cách Mạng Tháng 8, Quận 10, TP.HCM",
     avatar: "/placeholder.svg?height=80&width=80",
@@ -1193,7 +1127,6 @@ function resetMemberForm() {
     expiryDate: nextYear.toISOString().split("T")[0],
     birthDate: "",
     gender: "male",
-    handicap: null,
     fee: 0,
     address: "",
     avatar: "",
