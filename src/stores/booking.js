@@ -21,7 +21,9 @@ export const useBookingStore = defineStore("booking", {
       try {
         this.loading = true;
         const res = await api.post("/booking/create", payload);
-        this.bookings.push(res.data.data);
+        const booking = res.data.data;
+        this.bookings.push(booking);
+        return booking;
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -83,6 +85,31 @@ export const useBookingStore = defineStore("booking", {
         if (index !== -1) {
           this.bookings[index] = updated;
         }
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    // add bookingdetail to booking
+    async addBookingDetailToBooking(bookingId, data) {
+      try {
+        this.loading = true;
+        const res = await api.post(`/booking-detail/booking/${bookingId}`, data);
+        return res.data.data;
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    //get booking detail by booking id
+    async getBookingDetailByBookingId(bookingId) {
+      try {
+        this.loading = true;
+        const res = await api.get(`/booking-detail/booking/${bookingId}`);
+        const bookingDetails = res.data.data;
+        return bookingDetails;
       } catch (err) {
         this.error = err.message;
       } finally {

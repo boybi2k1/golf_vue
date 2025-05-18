@@ -21,7 +21,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     const url = config.url || "";
-    if (url.includes("check")) {
+    if (!url.includes("auth")) {
       const token = localStorage.getItem("token");
 
       if (!token) {

@@ -20,16 +20,7 @@
             <div class="px-4 py-2 text-sm text-gray-700 border-b">
               <p class="font-semibold text-gray-900">Notifications</p>
             </div>
-            <Message
-              title="New Booking"
-              content="John Doe booked a tee time for tomorrow at 10:00 AM"
-            />
-            <Message
-              title="Course Maintenance"
-              content="Hole 7 will be under maintenance on Friday"
-              :hasBorder="true"
-            />
-          </div>
+          s</div>
         </div>
         <div class="relative">
           <button
@@ -58,7 +49,7 @@
               >Settings</a
             >
             <a
-              href="#"
+              @click="logout($event)"
               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >Sign out</a
             >
@@ -71,12 +62,12 @@
 
 <script setup>
 import { ref } from "vue";
-import Message from "./Message.vue";
 import { Flag, Bell } from "lucide-vue-next";
+import { useAuthStore } from "../stores/auth";
 
 const showNotifications = ref(false);
 const showUserMenu = ref(false);
-
+const authStore = useAuthStore();
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value;
   if (showNotifications.value) {
@@ -89,5 +80,11 @@ const toggleUserMenu = () => {
   if (showUserMenu.value) {
     showNotifications.value = false;
   }
+};
+
+const logout = (e) => {
+  e.preventDefault();
+  authStore.logout();
+  window.location.href = "/login";
 };
 </script>
