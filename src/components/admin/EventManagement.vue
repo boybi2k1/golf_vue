@@ -24,13 +24,13 @@
       <!-- Filters -->
       <div class="lg:col-span-full">
         <div class="bg-white rounded-lg shadow p-4">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Loại sự kiện</label
               >
               <select
-                v-model="filters.type"
+                v-model="filters.value"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Tất cả loại</option>
@@ -42,46 +42,44 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Trạng thái</label
+                >Từ ngày</label
               >
-              <select
-                v-model="filters.status"
+              <input
+                type="date"
+                v-model="filters.startDate"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="ACTIVE">Đang hoạt động</option>
-                <option value="INACTIVE">Không hoạt động</option>
-              </select>
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Thời gian</label
+                >Đến ngày</label
               >
-              <select
-                v-model="filters.timeframe"
+              <input
+                type="date"
+                v-model="filters.endDate"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="all">Tất cả thời gian</option>
-                <option value="upcoming">Sắp tới</option>
-                <option value="past">Đã qua</option>
-                <option value="thisMonth">Tháng này</option>
-                <option value="nextMonth">Tháng sau</option>
-              </select>
+              />
             </div>
-            <div>
+            <div class="col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Tìm kiếm</label
               >
-              <div class="relative">
+              <div class="relative flex gap-2 items-center">
                 <SearchIcon
                   class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
                 />
                 <input
                   type="text"
-                  v-model="filters.search"
+                  v-model="filters.value2"
                   placeholder="Tên, mã sự kiện..."
                   class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
+                <button
+                  @click="searchEvent"
+                  class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium whitespace-nowrap"
+                >
+                  Tìm kiếm
+                </button>
               </div>
             </div>
           </div>
@@ -98,11 +96,6 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Mã sự kiện
-              </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
@@ -146,11 +139,6 @@
               :key="event.id"
               class="hover:bg-gray-50"
             >
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-              >
-                {{ event.id }}
-              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="text-sm font-medium text-gray-900">
@@ -363,42 +351,9 @@
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Sân Golf</label
-              >
-              <select
-                v-model="eventForm.golfCourseId"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option
-                  v-for="course in courses"
-                  :key="course.id"
-                  :value="course.id"
-                >
-                  {{ course.name }}
-                </option>
-              </select>
-            </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Loại dịch vụ</label
-              >
-              <select
-                v-model="eventForm.serviceType"
-                required
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="TEE_TIME">Đặt giờ chơi</option>
-                <option value="CADDIE">Caddie</option>
-                <option value="TOOL">Dụng cụ</option>
-                <option value="FOOD">Đồ ăn & Thức uống</option>
-                <option value="ALL">Tất cả dịch vụ</option>
-              </select>
-            </div>
+            <!-- Bỏ phần chọn loại dịch vụ, chỉ cần biết là app dựng khuyến mãi -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Đối tượng người dùng</label
@@ -447,6 +402,7 @@
     <div
       v-if="showDetailsModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      style="background-color: rgba(0, 0, 0, 0.5)"
     >
       <div
         class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
@@ -488,12 +444,7 @@
               <h4 class="text-sm font-medium text-gray-500 mb-1">Mã sự kiện</h4>
               <p class="text-gray-900">{{ selectedEvent.id }}</p>
             </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">Sân Golf</h4>
-              <p class="text-gray-900">
-                {{ getCourseNameById(selectedEvent.golfCourseId) }}
-              </p>
-            </div>
+
             <div>
               <h4 class="text-sm font-medium text-gray-500 mb-1">
                 Ngày bắt đầu
@@ -520,14 +471,6 @@
                     ? selectedEvent.discountPercent + "%"
                     : "Không có giảm giá"
                 }}
-              </p>
-            </div>
-            <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-1">
-                Loại dịch vụ
-              </h4>
-              <p class="text-gray-900">
-                {{ getServiceTypeText(selectedEvent.serviceType) }}
               </p>
             </div>
             <div>
@@ -622,11 +565,10 @@ import {
   AlertTriangleIcon,
 } from "lucide-vue-next";
 
-
 import { useEventStore } from "../../stores/event";
 import { storeToRefs } from "pinia";
 const eventStore = useEventStore();
-const { events, courses, pagination } = storeToRefs(eventStore);
+const { events, pagination } = storeToRefs(eventStore);
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -638,10 +580,12 @@ const selectedEventId = ref(null);
 const selectedEvent = ref({});
 
 const filters = reactive({
-  type: "",
-  status: "",
-  timeframe: "all",
-  search: "",
+  key: "type",
+  value: "",
+  startDate: "",
+  endDate: "",
+  key2: "title",
+  value2: "",
   page: 1,
   size: 10,
 });
@@ -654,8 +598,6 @@ const eventForm = reactive({
   discountPercent: 0,
   startDate: "",
   endDate: "",
-  golfCourseId: "",
-  serviceType: "TEE_TIME",
   targetUserType: "ALL",
   status: "ACTIVE",
 });
@@ -699,22 +641,6 @@ function getStatusText(status) {
   }
 }
 
-function getServiceTypeText(serviceType) {
-  switch (serviceType) {
-    case "TEE_TIME":
-      return "Đặt giờ chơi";
-    case "CADDIE":
-      return "Caddie";
-    case "TOOL":
-      return "Dụng cụ";
-    case "FOOD":
-      return "Đồ ăn & Thức uống";
-    case "ALL":
-      return "Tất cả dịch vụ";
-    default:
-      return serviceType;
-  }
-}
 
 function getTargetUserTypeText(targetUserType) {
   switch (targetUserType) {
@@ -731,12 +657,8 @@ function getTargetUserTypeText(targetUserType) {
   }
 }
 
-function getCourseNameById(id) {
-  const course = courses.value.find((c) => c.id === id);
-  return course ? course.name : "Không xác định";
-}
-
 function refreshData() {
+  filfil;
   searchEvent();
 }
 
@@ -761,8 +683,6 @@ function resetEventForm() {
     discountPercent: 0,
     startDate: today,
     endDate: today,
-    golfCourseId: courses.value.length > 0 ? courses.value[0].id : "",
-    serviceType: "TEE_TIME",
     targetUserType: "ALL",
     status: "ACTIVE",
   });
@@ -818,7 +738,6 @@ async function searchEvent() {
 watch([currentPage, itemsPerPage], searchEvent);
 
 onMounted(async () => {
-  await eventStore.getAllCourses();
   await searchEvent();
 });
 </script>

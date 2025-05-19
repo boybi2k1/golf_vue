@@ -1,3 +1,99 @@
+<script setup>
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+
+// Form state
+const email = ref("");
+const password = ref("");
+const showPassword = ref(false);
+const isLoading = ref(false);
+
+// Error handling
+const errorMessage = ref("");
+const emailError = ref("");
+const passwordError = ref("");
+
+// Store & router
+const authStore = useAuthStore();
+const router = useRouter();
+
+// Login handler
+const handleLogin = async () => {
+  // Reset lỗi
+  errorMessage.value = "";
+  emailError.value = "";
+  passwordError.value = "";
+
+  // Validate input
+  let isValid = true;
+
+  if (!email.value) {
+    emailError.value = "Vui lòng nhập email hoặc tên đăng nhập";
+    isValid = false;
+  }
+
+  if (!password.value) {
+    passwordError.value = "Vui lòng nhập mật khẩu";
+    isValid = false;
+  } else if (password.value.length < 1) {
+    passwordError.value = "Mật khẩu phải có ít nhất 6 ký tự";
+    isValid = false;
+  }
+
+  if (!isValid) return;
+
+  try {
+    isLoading.value = true;
+    await authStore.login(email.value, password.value);
+    const role = authStore.user.role;
+    if (role === "ADMIN") {
+      router.push("/admin"); // Đăng nhập thành công → về trang admin
+    } else if (role === "MEMBER") {
+      console.log("Đăng nhập thành công với vai trò MEMBER");
+      router.push("/booking"); // Đăng nhập thành công → về trang user
+    } else {
+      throw new Error("Vai trò không hợp lệ");
+    }
+  } catch (error) {
+    errorMessage.value = error.message || "Đăng nhập thất bại";
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+//login voi google
+const handleGoogleLogin = async () => {
+  try {
+    await authStore.loginWithGoogle(); // sẽ tự redirect
+  } catch (error) {
+    errorMessage.value = error.message || "Không thể đăng nhập với Google";
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  const url = new URL(window.location.href);
+  const token = url.searchParams.get("token");
+  const role = url.searchParams.get("role");
+
+  if (token && role) {
+    authStore.token = token;
+    authStore.role = role;
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    
+    authStore.fetchUser().then(() => {
+      if (role === "ADMIN") router.push("/admin");
+      else if (role === "MEMBER") router.push("/booking");
+      else router.push("/");
+    });
+  }
+});
+
+</script>
+
 <template>
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Phần hình ảnh bên trái (ẩn trên mobile) -->
@@ -265,6 +361,7 @@
         <!-- Google login button (Facebook removed) -->
         <div class="flex justify-center">
           <button
+            @click="handleGoogleLogin"
             type="button"
             class="flex items-center justify-center py-2.5 px-6 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
@@ -309,67 +406,4 @@
       </div>
     </div>
   </div>
-</template><script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthStore } from "../stores/auth";
-
-// Form state
-const email = ref("");
-const password = ref("");
-const showPassword = ref(false);
-const isLoading = ref(false);
-
-// Error handling
-const errorMessage = ref("");
-const emailError = ref("");
-const passwordError = ref("");
-
-// Store & router
-const authStore = useAuthStore();
-const router = useRouter();
-
-// Login handler
-const handleLogin = async () => {
-  // Reset lỗi
-  errorMessage.value = "";
-  emailError.value = "";
-  passwordError.value = "";
-
-  // Validate input
-  let isValid = true;
-
-  if (!email.value) {
-    emailError.value = "Vui lòng nhập email hoặc tên đăng nhập";
-    isValid = false;
-  }
-
-  if (!password.value) {
-    passwordError.value = "Vui lòng nhập mật khẩu";
-    isValid = false;
-  } else if (password.value.length < 1) {
-    passwordError.value = "Mật khẩu phải có ít nhất 6 ký tự";
-    isValid = false;
-  }
-
-  if (!isValid) return;
-
-  try {
-    isLoading.value = true;
-    await authStore.login(email.value, password.value);
-    const role = authStore.user.role;
-    if (role === "ADMIN") {
-      router.push("/admin"); // Đăng nhập thành công → về trang admin
-    } else if (role === "MEMBER") {
-      console.log("Đăng nhập thành công với vai trò MEMBER");
-      router.push("/booking"); // Đăng nhập thành công → về trang user
-    } else {
-      throw new Error("Vai trò không hợp lệ");
-    }
-  } catch (error) {
-    errorMessage.value = error.message || "Đăng nhập thất bại";
-  } finally {
-    isLoading.value = false;
-  }
-};
-</script>
+</template>

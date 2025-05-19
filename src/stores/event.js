@@ -5,7 +5,6 @@ import api from "../api";
 export const useEventStore = defineStore("event", {
   state: () => ({
     events: [],
-    courses: [],
     pagination: { page: 1, size: 10, totalPages: 1, totalElements: 0 },
     loading: false,
     error: null,
@@ -26,7 +25,8 @@ export const useEventStore = defineStore("event", {
     async createEvent(payload) {
       this.loading = true;
       try {
-        await api.post("/event", payload);
+        const res = await api.post("/event/create", payload);
+        this.events.push(res.data.data);
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -36,7 +36,7 @@ export const useEventStore = defineStore("event", {
     async updateEvent(id, payload) {
       this.loading = true;
       try {
-        await api.put(`/event/${id}`, payload);
+        await api.put(`/event/update/${id}`, payload);
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -46,12 +46,24 @@ export const useEventStore = defineStore("event", {
     async deleteEvent(id) {
       this.loading = true;
       try {
-        await api.delete(`/event/${id}`);
+        await api.delete(`/event/delete/${id}`);
       } catch (err) {
         this.error = err.message;
       } finally {
         this.loading = false;
       }
-    }
+    },
+    // get event for user
+    async getEventForUser(request) {
+      this.loading = true;
+      try {
+        const res = await api.post("/event/for-user", request);
+        this.eventForUser = res.data.data;
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });

@@ -27,7 +27,14 @@ export const useAuthStore = defineStore("auth", {
         throw new Error("Đăng nhập thất bại");
       }
     },
-
+    async loginWithGoogle() {
+      try {
+        const res = await api.get("/auth/google-url");
+        window.location.href = res.data; // <-- redirect đến Google login
+      } catch (err) {
+        throw new Error("Không thể chuyển hướng đến Google");
+      }
+    },
     async fetchUser() {
       try {
         const res = await api.get("/user/me");

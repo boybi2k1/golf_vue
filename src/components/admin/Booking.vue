@@ -329,12 +329,14 @@
                 type="date"
                 v-model="bookingForm.bookingDate"
                 required
+                :min="minBookingDate"
+                :max="maxBookingDate"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Giờ</label
+                >Tee Time</label
               >
               <select
                 v-model="bookingForm.teeTimeId"
@@ -414,8 +416,43 @@
             </div>
           </div>
 
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Tiền cọc (VND)</label
+              >
+              <input
+                type="number"
+                v-model="bookingForm.depositAmount"
+                required
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Tổng tiền (VND)</label
+              >
+              <input
+                type="number"
+                v-model="bookingForm.totalCost"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+          </div>
           <!--  thêm status -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Giá giờ chơi</label
+              >
+              <input
+                type="number"
+                v-model="bookingForm.priceByTeeTime"
+                min="0"
+                step="1000"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Trạng thái</label
@@ -641,7 +678,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Giờ</label
+                >Tee time</label
               >
               <input
                 type="text"
@@ -900,6 +937,19 @@
   </div>
 </template>
 <script setup>
+// Không cho chọn ngày đã qua cho bookingForm.bookingDate
+const minBookingDate = computed(() => {
+  const today = new Date();
+  // Đảm bảo lấy đúng ngày theo local time, không bị lệch múi giờ
+  today.setHours(0, 0, 0, 0);
+  console.log(today);
+  return today.toISOString().split("T")[0];
+});
+const maxBookingDate = computed(() => {
+  const today = new Date();
+  today.setDate(today.getDate() + 3); // Thay đổi số ngày theo yêu cầu
+  return today.toISOString().split("T")[0];
+});
 import { ref, reactive, computed, onMounted, watch } from "vue";
 import {
   PlusIcon,
@@ -912,7 +962,6 @@ import {
   Trash2Icon,
   XIcon,
   AlertTriangleIcon,
-  Code,
 } from "lucide-vue-next";
 
 import { useBookingStore } from "../../stores/booking";
@@ -977,7 +1026,31 @@ const bookingForm = reactive({
   status: "PENDING",
   depositAmount: 0,
   totalCost: 0,
+  priceByTeeTime: 0,
 });
+// Lấy giá giờ chơi theo teeTime đã chọn
+const selectedTeeTimePrice = computed(() => {
+  if (!bookingForm.teeTimeId) return 0;
+  const teeTime = availableTeeTimes.value.find(
+    (t) => t.id === bookingForm.teeTimeId
+  );
+  return teeTime ? teeTime.price : 0;
+});
+
+// Tự động cập nhật giá khi chọn teeTime mới
+watch(
+  () => bookingForm.teeTimeId,
+  (newVal) => {
+    bookingForm.priceByTeeTime = selectedTeeTimePrice.value;
+  }
+);
+// Tự động cập nhật giá khi nhập số lượng người chơi va dich vụ
+watch(
+  () => bookingForm.numPlayers,
+  (newVal) => {
+    bookingForm.totalCost = selectedTeeTimePrice.value * newVal;
+  }
+);
 
 const { bookings, pagination } = storeToRefs(bookingStore);
 const { golfCourses } = storeToRefs(courseStore);
@@ -989,6 +1062,7 @@ const timeSlots = computed(() =>
   availableTeeTimes.value.map((time) => ({
     id: time.id,
     startTime: time.startTime,
+    price: time.price,
   }))
 );
 
@@ -1261,9 +1335,11 @@ function updateTotalPriceEdit(index) {
     editBookingDetails[index].quantity * editBookingDetails[index].unitPrice;
 }
 onMounted(async () => {
-  await courseStore.getAllGolfCourses();
+  await Promise.all([
+    courseStore.getAllGolfCourses(),
+    serviceStore.getAllServices(),
+    toolStore.getAllGolfClub(),
+  ]);
   refreshData();
-  serviceStore.getAllServices();
-  toolStore.getAllGolfClub();
 });
 </script>

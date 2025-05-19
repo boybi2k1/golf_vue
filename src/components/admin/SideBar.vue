@@ -55,6 +55,7 @@ const navItems = [
   { id: "services", label: "Quản Lý Dịch Vụ", icon: ShoppingBag },
   { id: "tools", label: "Quản Lý Trang Thiết Bị", icon: Hammer },
   { id: "payments", label: "Quản Lý Thanh Toán", icon: CreditCard },
+  { id: "tee-time", label: "Quản Lý Thời Gian Đặt", icon: CalendarCheck },
   { id: "account", label: "Quản Lý Tài Khoản", icon: Users },
   { id: "reports", label: "Báo Cáo Thống Kê", icon: BarChart2 },
   { id: "system-settings", label: "Cài Đặt Hệ Thống", icon: Wrench },

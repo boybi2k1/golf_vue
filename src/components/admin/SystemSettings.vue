@@ -36,7 +36,7 @@
 
       <!-- Settings Content -->
       <div class="lg:col-span-3">
-        <div class="bg-white rounded-lg shadow p-4">
+        <div class="bg-white rounded-lg shadow p-4 h-[80vh] overflow-y-auto">
           <div v-if="!selectedCategory" class="text-center py-8 text-gray-500">
             <CogIcon class="w-16 h-16 mx-auto text-gray-300 mb-4" />
             <h3 class="text-lg font-medium text-gray-900 mb-2">
@@ -170,143 +170,157 @@
             </div>
 
             <!-- Booking Settings -->
-            <div v-if="selectedCategory.id === 'booking'" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Giờ mở cửa</label
-                  >
-                  <input
-                    type="time"
-                    v-model="settings.booking.openingTime"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Giờ đóng cửa</label
-                  >
-                  <input
-                    type="time"
-                    v-model="settings.booking.closingTime"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Thời gian đặt trước tối thiểu (giờ)</label
-                  >
-                  <input
-                    type="number"
-                    v-model="settings.booking.minAdvanceHours"
-                    min="0"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Thời gian đặt trước tối đa (ngày)</label
-                  >
-                  <input
-                    type="number"
-                    v-model="settings.booking.maxAdvanceDays"
-                    min="1"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Khoảng thời gian đặt sân (phút)</label
-                  >
-                  <select
-                    v-model="settings.booking.timeSlotInterval"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="15">15 phút</option>
-                    <option value="30">30 phút</option>
-                    <option value="60">60 phút</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Thời gian chơi mặc định (phút)</label
-                  >
-                  <select
-                    v-model="settings.booking.defaultPlayTime"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="120">2 giờ (9 hố)</option>
-                    <option value="240">4 giờ (18 hố)</option>
-                  </select>
-                </div>
-              </div>
-
+            <div v-if="selectedCategory.id === 'booking'" class="space-y-8">
+              <!-- Tee Time Configs -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Chính sách hủy đặt sân</label
+                <label class="block text-lg font-bold text-green-800 mb-4"
+                  >Cấu hình Tee Time</label
                 >
-                <select
-                  v-model="settings.booking.cancellationPolicy"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                >
-                  <option value="free_24h">Miễn phí trước 24 giờ</option>
-                  <option value="free_48h">Miễn phí trước 48 giờ</option>
-                  <option value="charge_50_24h">
-                    Phí 50% nếu hủy trong vòng 24 giờ
-                  </option>
-                  <option value="charge_100_24h">
-                    Phí 100% nếu hủy trong vòng 24 giờ
-                  </option>
-                </select>
-              </div>
 
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="allowOnlineBooking"
-                  v-model="settings.booking.allowOnlineBooking"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  for="allowOnlineBooking"
-                  class="ml-2 block text-sm text-gray-900"
+                <div
+                  v-for="(config, idx) in listTeeTimeConfigs"
+                  :key="config?.id || idx"
+                  class="border border-green-200 rounded-xl p-6 mb-6 bg-white shadow-md space-y-4"
                 >
-                  Cho phép đặt sân trực tuyến
-                </label>
-              </div>
+                  <div
+                    class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
+                  >
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Sân</label
+                      >
+                      <select
+                        v-model="config.golfCourseId"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      >
+                        <option value="">Tất cả sân</option>
+                        <option
+                          v-for="course in golfCourses"
+                          :key="course.id"
+                          :value="course.id"
+                        >
+                          {{ course.name }}
+                        </option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Loại ngày</label
+                      >
+                      <select
+                        v-model="config.dateType"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      >
+                        <option value="WEEKDAY">Ngày thường</option>
+                        <option value="WEEKEND">Cuối tuần</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Giờ bắt đầu</label
+                      >
+                      <input
+                        type="time"
+                        v-model="config.startTime"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Giờ kết thúc</label
+                      >
+                      <input
+                        type="time"
+                        v-model="config.endTime"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Khoảng cách (phút)</label
+                      >
+                      <input
+                        type="number"
+                        min="1"
+                        v-model.number="config.duration"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Giá (VND)</label
+                      >
+                      <input
+                        type="number"
+                        min="0"
+                        v-model.number="config.price"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Số người tối đa</label
+                      >
+                      <input
+                        type="number"
+                        min="1"
+                        v-model.number="config.maxPlayers"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Trạng thái</label
+                      >
+                      <select
+                        v-model="config.status"
+                        class="w-full border border-green-300 rounded-md px-3 py-2 focus:ring-green-500"
+                      >
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Không hoạt động</option>
+                      </select>
+                    </div>
+                  </div>
 
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="requireDeposit"
-                  v-model="settings.booking.requireDeposit"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  for="requireDeposit"
-                  class="ml-2 block text-sm text-gray-900"
-                >
-                  Yêu cầu đặt cọc khi đặt sân
-                </label>
-              </div>
+                  <div class="flex justify-end gap-2">
+                    <button
+                      @click="saveTeeTimeConfig(config, idx)"
+                      class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+                    >
+                      {{ config.id ? "Lưu" : "Thêm mới" }}
+                    </button>
+                    <button
+                      v-if="config.id"
+                      @click="deleteTeeTimeConfig(config.id)"
+                      class="flex items-center text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                      <XIcon class="w-4 h-4 mr-1" /> Xóa cấu hình
+                    </button>
+                    <button
+                      v-else
+                      @click="removeNewTeeTimeConfig(idx)"
+                      class="flex items-center text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                      <XIcon class="w-4 h-4 mr-1" /> Hủy
+                    </button>
+                  </div>
+                </div>
 
-              <div v-if="settings.booking.requireDeposit">
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Tỷ lệ đặt cọc (%)</label
+                <!-- Nút thêm -->
+                <button
+                  @click="addNewTeeTimeConfig"
+                  class="inline-flex items-center text-green-700 hover:text-green-800 mt-2 font-semibold"
                 >
-                <input
-                  type="number"
-                  v-model="settings.booking.depositPercentage"
-                  min="0"
-                  max="100"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
+                  <PlusIcon class="w-5 h-5 mr-1" /> Thêm cấu hình Tee Time
+                </button>
               </div>
             </div>
 
@@ -318,8 +332,8 @@
                 </h3>
                 <div class="space-y-4">
                   <div
-                    v-for="(type, index) in settings.membership.membershipTypes"
-                    :key="index"
+                    v-for="(type, index) in listMembershipTypes"
+                    :key="type.id || index"
                     class="border rounded-md p-4"
                   >
                     <div class="flex justify-between items-center mb-3">
@@ -342,11 +356,11 @@
                       <div>
                         <label
                           class="block text-xs font-medium text-gray-500 mb-1"
-                          >Phí (VND)</label
+                          >Giá (USD)</label
                         >
                         <input
                           type="number"
-                          v-model="type.fee"
+                          v-model="type.price"
                           min="0"
                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
@@ -358,22 +372,48 @@
                         >
                         <input
                           type="number"
-                          v-model="type.durationMonths"
+                          v-model="type.duration"
                           min="1"
                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
                       </div>
-                    </div>
-                    <div class="mt-3">
-                      <label
-                        class="block text-xs font-medium text-gray-500 mb-1"
-                        >Mô tả</label
-                      >
-                      <textarea
-                        v-model="type.description"
-                        rows="2"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                      ></textarea>
+                      <div>
+                        <label
+                          class="block text-xs font-medium text-gray-500 mb-1"
+                          >Số lượt đặt tối đa/tháng</label
+                        >
+                        <input
+                          type="number"
+                          v-model="type.maxBookingPerMonth"
+                          min="0"
+                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          class="block text-xs font-medium text-gray-500 mb-1"
+                          >Số ngày được đặt trước</label
+                        >
+                        <input
+                          type="number"
+                          v-model="type.bookingBeforeDay"
+                          min="0"
+                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          class="block text-xs font-medium text-gray-500 mb-1"
+                          >Giảm giá (%)</label
+                        >
+                        <input
+                          type="number"
+                          v-model="type.discount"
+                          min="0"
+                          max="100"
+                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                      </div>
                     </div>
                     <div class="mt-3">
                       <label
@@ -404,6 +444,14 @@
                         <PlusIcon class="w-4 h-4 mr-1" /> Thêm quyền lợi
                       </button>
                     </div>
+                    <div class="flex justify-end mt-4">
+                      <button
+                        @click="saveMembershipType(type, index)"
+                        class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+                      >
+                        {{ type.id ? "Lưu" : "Thêm mới" }}
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <button
@@ -411,15 +459,6 @@
                   class="mt-3 flex items-center text-green-700 hover:text-green-800"
                 >
                   <PlusIcon class="w-5 h-5 mr-1" /> Thêm loại hội viên
-                </button>
-              </div>
-              <!--  thêm button lưu thay đổi -->
-              <div class="flex justify-end mt-4">
-                <button
-                  @click="saveMembershipType"
-                  class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
-                >
-                  Lưu thay đổi
                 </button>
               </div>
             </div>
@@ -431,191 +470,164 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import {
-  SaveIcon,
-  RefreshCwIcon,
   CogIcon,
   GlobeIcon,
   CalendarIcon,
   UsersIcon,
-  BellIcon,
-  CreditCardIcon,
-  ShieldIcon,
   PlusIcon,
   TrashIcon,
   XIcon,
 } from "lucide-vue-next";
+import { useGolfCourseStore } from "../../stores/golf_course";
+import { useTeeTimeConfigStore } from "../../stores/tee_time_config";
+import { useMembershipTypeStore } from "../../stores/membership_type";
+import { storeToRefs } from "pinia";
 
 // State
 const selectedCategoryId = ref(null);
 const selectedCategory = ref(null);
-const settingsChanged = ref(false);
+const listTeeTimeConfigs = ref([]);
+const listMembershipTypes = ref([]);
 
 // Settings categories
 const settingCategories = [
   { id: "general", name: "Cài đặt chung", icon: GlobeIcon },
-  { id: "booking", name: "Đặt sân", icon: CalendarIcon },
+  { id: "booking", name: "Tee time", icon: CalendarIcon },
   { id: "membership", name: "Hội viên", icon: UsersIcon },
 ];
 
+const teeTimeConfigStore = useTeeTimeConfigStore();
+const { teeTimeConfigs } = storeToRefs(teeTimeConfigStore);
+const golfCourseStore = useGolfCourseStore();
+const { golfCourses } = storeToRefs(golfCourseStore);
 // Mock settings data
-const settings = reactive({
-  general: {
-    courseName: "Golf Course Management",
-    address: "123 Đường Golf, Quận 1, TP.HCM",
-    phone: "028 1234 5678",
-    email: "info@golfcourse.com",
-    website: "https://golfcourse.com",
-    logoUrl: "/logo.png",
-    timezone: "Asia/Ho_Chi_Minh",
-    dateFormat: "DD/MM/YYYY",
-    currency: "VND",
-  },
-  booking: {
-    openingTime: "06:00",
-    closingTime: "18:00",
-    minAdvanceHours: 2,
-    maxAdvanceDays: 30,
-    timeSlotInterval: "30",
-    defaultPlayTime: "240",
-    cancellationPolicy: "free_24h",
-    allowOnlineBooking: true,
-    requireDeposit: true,
-    depositPercentage: 30,
-  },
-  membership: {
-    membershipTypes: [
-      {
-        name: "Tiêu chuẩn",
-        fee: 10000000,
-        durationMonths: 12,
-        description: "Gói hội viên tiêu chuẩn với các quyền lợi cơ bản.",
-        benefits: ["Đặt sân ưu tiên", "Giảm 10% phí sân", "Giảm 5% dịch vụ"],
-      },
-      {
-        name: "Cao cấp",
-        fee: 20000000,
-        durationMonths: 12,
-        description: "Gói hội viên cao cấp với nhiều quyền lợi hơn.",
-        benefits: [
-          "Đặt sân ưu tiên",
-          "Giảm 20% phí sân",
-          "Giảm 10% dịch vụ",
-          "Miễn phí thuê xe điện",
-        ],
-      },
-      {
-        name: "VIP",
-        fee: 50000000,
-        durationMonths: 12,
-        description: "Gói hội viên VIP với đầy đủ quyền lợi cao cấp.",
-        benefits: [
-          "Đặt sân ưu tiên tuyệt đối",
-          "Giảm 30% phí sân",
-          "Giảm 20% dịch vụ",
-          "Miễn phí thuê xe điện",
-          "Miễn phí thuê caddy",
-          "Phòng chờ VIP",
-        ],
-      },
-    ],
-    autoRenewalReminders: true,
-    renewalReminderDays: 30,
-    offerRenewalDiscount: true,
-    renewalDiscountPercentage: 10,
-  },
-  notifications: {
-    senderEmail: "noreply@golfcourse.com",
-    senderName: "Golf Course Management",
-    notifyNewBooking: true,
-    notifyBookingCancellation: true,
-    notifyNewMember: true,
-    notifyPayment: true,
-    sendBookingConfirmation: true,
-    sendBookingReminder: true,
-    bookingReminderHours: 24,
-    sendPaymentReceipt: true,
-    sendMembershipCard: true,
-  },
-  payment: {
-    acceptCash: true,
-    acceptCreditCard: true,
-    acceptBankTransfer: true,
-    bankAccountInfo:
-      "Ngân hàng VCB\nSố tài khoản: 1234567890\nChủ tài khoản: Golf Course Management",
-    acceptEWallet: true,
-    enableOnlinePayment: true,
-    paymentGateway: "vnpay",
-    apiKey: "test_api_key",
-    apiSecret: "test_api_secret",
-    invoicePrefix: "INV-",
-    invoiceFooter:
-      "Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi.\nMọi thắc mắc xin liên hệ: 028 1234 5678",
-    autoSendInvoice: true,
-  },
-  system: {
-    sessionTimeout: 30,
-    passwordComplexity: "medium",
-    enableTwoFactorAuth: false,
-    enableAutoBackup: true,
-    backupFrequency: "daily",
-    maxBackups: 7,
-    enableActivityLog: true,
-    logRetentionDays: 90,
-    enableErrorLog: true,
-  },
-});
-
-// Original settings for reset
-const originalSettings = JSON.parse(JSON.stringify(settings));
-
 // Methods
 function selectCategory(category) {
   selectedCategoryId.value = category.id;
   selectedCategory.value = category;
 }
-
+const membershipTypeStore = useMembershipTypeStore();
+const { membershipTypes } = storeToRefs(membershipTypeStore);
+console.log("check", membershipTypes.value);
 function addMembershipType() {
-  settings.membership.membershipTypes.push({
-    name: "Loại hội viên mới",
-    fee: 0,
-    durationMonths: 12,
-    description: "",
-    benefits: ["Quyền lợi mới"],
+  // Chỉ cho phép 1 dòng trống (chưa có id)
+  const hasEmpty = membershipTypes.value.some((type) => !type.id);
+  if (hasEmpty) return;
+  membershipTypes.value.push({
+    name: "",
+    price: 0,
+    duration: 1,
+    maxBookingPerMonth: 0,
+    bookingBeforeDay: 0,
+    discount: 0,
+    benefits: [],
   });
 }
 
 function removeMembershipType(index) {
-  if (confirm("Bạn có chắc chắn muốn xóa loại hội viên này không?")) {
-    settings.membership.membershipTypes.splice(index, 1);
+  if (membershipTypes.value[index]?.id) {
+    if (confirm("Bạn có chắc chắn muốn xóa loại hội viên này?")) {
+      membershipTypeStore.deleteMembershipType(membershipTypes.value[index].id);
+      membershipTypes.value.splice(index, 1);
+    }
+  } else {
+    membershipTypes.value.splice(index, 1);
   }
 }
 
 function addBenefit(typeIndex) {
-  settings.membership.membershipTypes[typeIndex].benefits.push("Quyền lợi mới");
+  membershipTypes.value[typeIndex].benefits.push("");
 }
 
 function removeBenefit(typeIndex, benefitIndex) {
-  settings.membership.membershipTypes[typeIndex].benefits.splice(
-    benefitIndex,
-    1
-  );
+  membershipTypes.value[typeIndex].benefits.splice(benefitIndex, 1);
 }
 
-onMounted(() => {
-  // Select the first category by default
-  if (settingCategories.length > 0) {
-    selectCategory(settingCategories[0]);
+async function saveMembershipType(type, index) {
+  try {
+    if (type.id) {
+      await membershipTypeStore.updateMembershipType(type.id, type);
+      alert("Cập nhật loại hội viên thành công!");
+    } else {
+      await membershipTypeStore.createMembershipType(type);
+      membershipTypes.value.splice(index, 1);
+      alert("Thêm mới loại hội viên thành công!");
+    }
+    await membershipTypeStore.getAllMembershipTypes();
+  } catch (e) {
+    alert("Có lỗi khi lưu loại hội viên: " + (e?.message || e));
   }
-});
+}
+function addNewTeeTimeConfig() {
+  // Chỉ cho phép 1 dòng trống (chưa có id)
+  const hasEmpty = listTeeTimeConfigs.value.some((cfg) => !cfg.id);
+  if (hasEmpty) return;
+  listTeeTimeConfigs.value.push({
+    golfCourseId: "",
+    dateType: "WEEKDAY",
+    startTime: "06:00",
+    endTime: "18:00",
+    duration: 30,
+    price: 0,
+    maxPlayers: 4,
+    status: "active",
+  });
+}
 
-const formMemberShipType = ref({
-  name: "",
-  description: "",
-  price: 0,
-  duration: 0,
-  benefits: "",
-});
+function removeNewTeeTimeConfig(idx) {
+  // Xóa dòng trống (chưa có id)
+  if (!listTeeTimeConfigs.value[idx]?.id) {
+    listTeeTimeConfigs.value.splice(idx, 1);
+  }
+}
 
+async function saveTeeTimeConfig(config, idx) {
+  try {
+    if (config.id) {
+      await teeTimeConfigStore.updateConfig(config.id, config);
+      alert("Cập nhật cấu hình thành công!");
+    } else {
+      await teeTimeConfigStore.createConfig(config);
+      // Xóa dòng trống sau khi thêm mới thành công
+      listTeeTimeConfigs.value.splice(idx, 1);
+      alert("Thêm mới cấu hình thành công!");
+    }
+    // Luôn fetch lại danh sách để đồng bộ
+    await teeTimeConfigStore.fetchTeeTimeConfigActive();
+  } catch (e) {
+    alert("Có lỗi khi lưu cấu hình: " + (e?.message || e));
+  }
+}
+
+async function deleteTeeTimeConfig(id) {
+  if (confirm("Bạn có chắc chắn muốn xóa cấu hình này?")) {
+    try {
+      await teeTimeConfigStore.deleteConfig(id);
+      await teeTimeConfigStore.fetchTeeTimeConfigActive();
+      alert("Đã xóa cấu hình!");
+    } catch (e) {
+      alert("Có lỗi khi xóa: " + (e?.message || e));
+    }
+  }
+}
+
+onMounted(async () => {
+  await golfCourseStore.getAllGolfCourses();
+  await teeTimeConfigStore.fetchTeeTimeConfigActive();
+  await membershipTypeStore.getAllMembershipTypes();
+});
+watch(
+  () => teeTimeConfigStore.teeTimeConfigs,
+  (newValue) => {
+    listTeeTimeConfigs.value = newValue;
+  }
+);
+watch(
+  () => membershipTypeStore.membershipTypes,
+  (newValue) => {
+    listMembershipTypes.value = newValue;
+  }
+);
 </script>

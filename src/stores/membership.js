@@ -107,6 +107,7 @@ export const useMembershipStore = defineStore('membership', {
       try {
         const res = await api.post('/membership/search', payload);
         this.memberships = res.data.data.data;
+        console.log(this.memberships);
         this.pagination = res.data.data.pagination;
         return this.memberships;
       } catch (err) {

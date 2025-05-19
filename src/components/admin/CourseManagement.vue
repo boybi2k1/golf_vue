@@ -69,8 +69,13 @@
         </div>
       </div>
     </div>
-
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <!-- Loading State -->
+    <div v-if="loading" class="flex justify-center items-center p-8">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"
+      ></div>
+    </div>
+    <div v-else class="bg-white rounded-lg shadow overflow-hidden">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -429,7 +434,7 @@ const filters = reactive({
 
 // Tạo store
 const store = useGolfCourseStore();
-const {golfCourses} = storeToRefs(store)// Lấy danh sách sân golf từ store
+const { golfCourses, loading } = storeToRefs(store); // Lấy danh sách sân golf từ store
 
 // Computed properties
 const filteredCourses = computed(() => {

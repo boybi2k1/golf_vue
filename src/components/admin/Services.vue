@@ -1,3 +1,184 @@
+<script setup>
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import {
+  PlusIcon,
+  RefreshCwIcon,
+  SearchIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EyeIcon,
+  EditIcon,
+  Trash2Icon,
+  XIcon,
+  AlertTriangleIcon,
+} from "lucide-vue-next";
+import { useServicesStore } from "../../stores/services";
+import { storeToRefs } from "pinia";
+
+// State
+const showServiceModal = ref(false);
+const showDetailsModal = ref(false);
+const showConfirmModal = ref(false);
+const isEditMode = ref(false);
+const selectedServiceId = ref(null);
+const selectedService = ref({});
+
+const searchQuery = reactive({
+  page: 1,
+  size: 10,
+  key: "type",
+  value: "",
+  key2: "",
+  value2: "",
+});
+
+const serviceForm = reactive({
+  id: "",
+  name: "",
+  code: "",
+  type: "",
+  description: "",
+  price: 0,
+  status: "ACTIVE",
+});
+
+const servicesStore = useServicesStore();
+const { services, pagination } = storeToRefs(servicesStore);
+
+// Methods
+function formatCurrency(value) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
+}
+const formatLocalDateTime = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+function getCategoryText(type) {
+  switch (type) {
+    case "CADDY":
+      return "Thuê caddy";
+    case "GOLF_CAR":
+      return "Thuê xe điện";
+    case "GOLF_CLUB":
+      return "Thuê gậy";
+    case "OTHER":
+      return "Khác";
+    default:
+      return type;
+  }
+}
+
+function getStatusText(status) {
+  switch (status) {
+    case "ACTIVE":
+      return "Đang hoạt động";
+    case "INACTIVE":
+      return "Tạm ngưng";
+
+    default:
+      return status;
+  }
+}
+
+function refreshData() {
+  // In a real app, this would fetch fresh data from the server
+  console.log("Refreshing data...");
+}
+
+function openNewServiceModal() {
+  isEditMode.value = false;
+  resetServiceForm();
+  showServiceModal.value = true;
+}
+
+function closeServiceModal() {
+  showServiceModal.value = false;
+  resetServiceForm();
+}
+
+function resetServiceForm() {
+  Object.assign(serviceForm, {
+    id: "",
+    name: "",
+    code: "",
+    type: "",
+    description: "",
+    price: 0,
+    status: "ACTIVE",
+  });
+}
+
+function viewServiceDetails(service) {
+  selectedService.value = JSON.parse(JSON.stringify(service));
+  showDetailsModal.value = true;
+}
+
+function editService(service) {
+  isEditMode.value = true;
+  selectedServiceId.value = service.id;
+  Object.assign(serviceForm, JSON.parse(JSON.stringify(service)));
+  showServiceModal.value = true;
+}
+
+function editFromDetails() {
+  isEditMode.value = true;
+  selectedServiceId.value = selectedService.value.id;
+  Object.assign(serviceForm, JSON.parse(JSON.stringify(selectedService.value)));
+  showDetailsModal.value = false;
+  showServiceModal.value = true;
+}
+
+function saveService() {
+  if (!isEditMode.value) {
+    servicesStore.createService(serviceForm);
+  } else {
+    servicesStore.updateService(selectedService.id, serviceForm);
+  }
+  closeServiceModal();
+}
+
+function confirmDeleteService(service) {
+  selectedServiceId.value = service.id;
+  showConfirmModal.value = true;
+}
+
+function deleteService() {
+  const index = services.value.findIndex(
+    (s) => s.id === selectedServiceId.value
+  );
+  if (index !== -1) {
+    services.value.splice(index, 1);
+  }
+  showConfirmModal.value = false;
+}
+const searchSevice = async () => {
+  await servicesStore.searchServices(searchQuery);
+};
+
+// goij laij search neu chuyen trang
+watch(
+  () => searchQuery.page,
+  (newPage) => {
+    if (newPage !== 1) {
+      searchQuery.page = newPage;
+      searchSevice();
+    }
+  }
+);
+onMounted(() => {
+  searchSevice();
+});
+</script>
+
 <template>
   <div class="bg-green-50 min-h-screen p-4">
     <div
@@ -209,8 +390,8 @@
               aria-label="Pagination"
             >
               <button
-                @click="currentPage--"
-                :disabled="currentPage === 1"
+                @click="searchQuery.page--"
+                :disabled="pagination.page + 1 === 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span class="sr-only">Previous</span>
@@ -219,11 +400,11 @@
               <span
                 class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
               >
-                Trang {{ currentPage }} / {{ totalPages }}
+                Trang {{ pagination.page + 1 }} / {{ pagination.totalPages }}
               </span>
               <button
-                @click="currentPage++"
-                :disabled="currentPage === totalPages"
+                @click="searchQuery.page++"
+                :disabled="pagination.page + 1 === pagination.totalPages"
                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span class="sr-only">Next</span>
@@ -490,180 +671,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, reactive, computed, onMounted } from "vue";
-import {
-  PlusIcon,
-  RefreshCwIcon,
-  SearchIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  EyeIcon,
-  EditIcon,
-  Trash2Icon,
-  XIcon,
-  AlertTriangleIcon,
-} from "lucide-vue-next";
-import { useServicesStore } from "../../stores/services";
-import { storeToRefs } from "pinia";
-
-// State
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const showServiceModal = ref(false);
-const showDetailsModal = ref(false);
-const showConfirmModal = ref(false);
-const isEditMode = ref(false);
-const selectedServiceId = ref(null);
-const selectedService = ref({});
-
-const searchQuery = reactive({
-  page: 1,
-  size: 10,
-  key: "type",
-  value: "",
-  key2: "",
-  value2: "",
-});
-
-const serviceForm = reactive({
-  id: "",
-  name: "",
-  code: "",
-  type: "",
-  description: "",
-  price: 0,
-  status: "ACTIVE",
-});
-
-const servicesStore = useServicesStore();
-const { services, pagination } = storeToRefs(servicesStore);
-
-const totalPages = computed(() => {
-  return Math.ceil(services.value.length / itemsPerPage.value) || 1;
-});
-
-// Methods
-function formatCurrency(value) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(value);
-}
-const formatLocalDateTime = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-function getCategoryText(type) {
-  switch (type) {
-    case "CADDY":
-      return "Thuê caddy";
-    case "GOLF_CAR":
-      return "Thuê xe điện";
-    case "GOLF_CLUB":
-      return "Thuê gậy";
-    case "OTHER":
-      return "Khác";
-    default:
-      return type;
-  }
-}
-
-function getStatusText(status) {
-  switch (status) {
-    case "ACTIVE":
-      return "Đang hoạt động";
-    case "INACTIVE":
-      return "Tạm ngưng";
-
-    default:
-      return status;
-  }
-}
-
-function refreshData() {
-  // In a real app, this would fetch fresh data from the server
-  console.log("Refreshing data...");
-}
-
-function openNewServiceModal() {
-  isEditMode.value = false;
-  resetServiceForm();
-  showServiceModal.value = true;
-}
-
-function closeServiceModal() {
-  showServiceModal.value = false;
-  resetServiceForm();
-}
-
-function resetServiceForm() {
-  Object.assign(serviceForm, {
-    id: "",
-    name: "",
-    code: "",
-    type: "",
-    description: "",
-    price: 0,
-    status: "ACTIVE",
-  });
-}
-
-function viewServiceDetails(service) {
-  selectedService.value = JSON.parse(JSON.stringify(service));
-  showDetailsModal.value = true;
-}
-
-function editService(service) {
-  isEditMode.value = true;
-  selectedServiceId.value = service.id;
-  Object.assign(serviceForm, JSON.parse(JSON.stringify(service)));
-  showServiceModal.value = true;
-}
-
-function editFromDetails() {
-  isEditMode.value = true;
-  selectedServiceId.value = selectedService.value.id;
-  Object.assign(serviceForm, JSON.parse(JSON.stringify(selectedService.value)));
-  showDetailsModal.value = false;
-  showServiceModal.value = true;
-}
-
-function saveService() {
-  if (!isEditMode.value) {
-    servicesStore.createService(serviceForm);
-  } else {
-    servicesStore.updateService(selectedService.id, serviceForm);
-  }
-  closeServiceModal();
-}
-
-function confirmDeleteService(service) {
-  selectedServiceId.value = service.id;
-  showConfirmModal.value = true;
-}
-
-function deleteService() {
-  const index = services.value.findIndex(
-    (s) => s.id === selectedServiceId.value
-  );
-  if (index !== -1) {
-    services.value.splice(index, 1);
-  }
-  showConfirmModal.value = false;
-}
-const searchSevice = async () => {
-  await servicesStore.searchServices(searchQuery);
-};
-
-onMounted(() => {
-  searchSevice();
-});
-</script>
