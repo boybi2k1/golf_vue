@@ -275,7 +275,9 @@
         </div>
         <div class="px-6 py-4">
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tên thiết bị</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Tên thiết bị</label
+            >
             <input
               type="text"
               v-model="toolForm.name"
@@ -285,7 +287,9 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Loại thiết bị</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Loại thiết bị</label
+              >
               <select
                 v-model="toolForm.type"
                 required
@@ -297,7 +301,9 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Trạng thái</label
+              >
               <select
                 v-model="toolForm.status"
                 required
@@ -310,7 +316,9 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Số lượng</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Số lượng</label
+              >
               <input
                 type="number"
                 v-model="toolForm.quantity"
@@ -319,7 +327,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Giá thuê (VND)</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Giá thuê (VND)</label
+              >
               <input
                 type="number"
                 v-model="toolForm.rentPrice"
@@ -330,7 +340,9 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Nhà cung cấp</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Nhà cung cấp</label
+              >
               <input
                 type="text"
                 v-model="toolForm.provider"
@@ -340,7 +352,9 @@
             </div>
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Mô tả</label
+            >
             <textarea
               v-model="toolForm.description"
               rows="3"
@@ -434,10 +448,11 @@ const selectedToolId = ref(null);
 const selectedTool = ref({});
 
 const store = useToolStore();
-const {toolList} = storeToRefs(store);
+const { toolList } = storeToRefs(store);
 console.log("toolList", toolList.value);
 // Form and filters
 const filters = reactive({
+  type: "",
   category: "",
   status: "",
   location: "",
@@ -457,11 +472,9 @@ const toolForm = reactive({
   createdAt: "",
 });
 
-
-
 // Computed properties
 const filteredTools = computed(() => {
-  let result = toolList.value; 
+  let result = toolList.value;
 
   if (filters.type) {
     result = result.filter((tool) => tool.type === filters.type);
@@ -489,7 +502,6 @@ const totalPages = computed(() => {
   return Math.ceil(toolList.value.length / itemsPerPage.value) || 1; // Ensure toolList is used
 });
 
-
 function getCategoryText(category) {
   switch (category) {
     case "GOLF_CLUB":
@@ -514,7 +526,6 @@ function getStatusText(status) {
       return status;
   }
 }
-
 
 function refreshData() {
   store.getAllTools(); // Fetch fresh data from the server
@@ -551,11 +562,10 @@ function viewToolDetails(tool) {
   selectedTool.value = JSON.parse(JSON.stringify(tool));
   Object.assign(toolForm, {
     ...selectedTool.value,
-    createdAt: selectedTool.value.createdAt.split('T')[0], // Format for date input
+    createdAt: selectedTool.value.createdAt.split("T")[0], // Format for date input
   });
   showToolModal.value = true;
   console.log("selectedTool", selectedTool.value);
-  
 }
 
 function editTool(tool) {
@@ -564,7 +574,7 @@ function editTool(tool) {
   selectedTool.value = JSON.parse(JSON.stringify(tool));
   Object.assign(toolForm, {
     ...selectedTool.value,
-    createdAt: selectedTool.value.createdAt.split('T')[0], // Format for date input
+    createdAt: selectedTool.value.createdAt.split("T")[0], // Format for date input
   });
   showToolModal.value = true;
 }

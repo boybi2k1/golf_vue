@@ -1,3 +1,183 @@
+<script setup>
+import { ref, reactive, computed, onMounted } from "vue";
+import {
+  RefreshCwIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EyeIcon,
+  PrinterIcon,
+  SearchIcon,
+} from "lucide-vue-next";
+import { usePaymentStore } from "../../stores/payment";
+import { storeToRefs } from "pinia";
+
+// State
+const showDetailsModal = ref(false);
+const showInvoiceModal = ref(false);
+const selectedPayment = ref({});
+const invoicePayment = ref({});
+const paymentStore = usePaymentStore();
+const { paymentSearch, pagination } = storeToRefs(paymentStore);
+// Form and filters
+const searchQuery = reactive({
+  page: 1,
+  size: 10,
+  type: "",
+  status: "",
+  key: "",
+  value: "",
+  startDate: "",
+  endDate: "",
+});
+
+// Methods
+function formatCurrency(value) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function formatDateTime(dateTimeString) {
+  if (!dateTimeString) return "N/A";
+  const date = new Date(dateTimeString);
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getPaymentTypeText(type) {
+  switch (type) {
+    case "MEMBERSHIP":
+      return "Phí hội viên";
+    case "BOOKING":
+      return "Đặt sân";
+    case "OTHER":
+      return "Khác";
+    default:
+      return type;
+  }
+}
+
+function getStatusText(status) {
+  switch (status) {
+    case "COMPLETED":
+      return "Đã thanh toán";
+    case "PENDING":
+      return "Chờ thanh toán";
+    case "EXPIRED":
+      return "Đã hết hạn";
+    case "FAILED":
+      return "Thất bại";
+    default:
+      return status;
+  }
+}
+
+function getPaymentMethodText(method) {
+  switch (method) {
+    case "cash":
+      return "Tiền mặt";
+    case "card":
+      return "Thẻ tín dụng/ghi nợ";
+    default:
+      return method;
+  }
+}
+
+function getCardTypeText(type) {
+  switch (type) {
+    case "visa":
+      return "Visa";
+    case "mastercard":
+      return "Mastercard";
+    case "amex":
+      return "American Express";
+    case "jcb":
+      return "JCB";
+    case "other":
+      return "Khác";
+    default:
+      return type;
+  }
+}
+
+function getEwalletTypeText(type) {
+  switch (type) {
+    case "momo":
+      return "MoMo";
+    case "zalopay":
+      return "ZaloPay";
+    case "vnpay":
+      return "VNPay";
+    case "other":
+      return "Khác";
+    default:
+      return type;
+  }
+}
+function handleSearch() {
+  // In a real app, this would fetch data from the server based on searchQuery
+  paymentStore.searchPayment(searchQuery);
+}
+
+function refreshData() {
+  searchQuery.page = 1;
+  searchQuery.size = 10;
+  searchQuery.type = "";
+  searchQuery.status = "";
+  searchQuery.key = "";
+  searchQuery.value = "";
+  searchQuery.startDate = "";
+  searchQuery.endDate = "";
+  paymentStore.searchPayment(searchQuery);
+}
+
+function viewPaymentDetails(payment) {
+  selectedPayment.value = { ...payment };
+  showDetailsModal.value = true;
+}
+
+function printInvoice(payment) {
+  invoicePayment.value = { ...payment };
+  showInvoiceModal.value = true;
+}
+
+function printInvoiceContent() {
+  const invoiceContent = document.getElementById("invoice-content");
+  if (invoiceContent) {
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(
+      "<html><head><title>Hóa đơn thanh toán</title></head><body>"
+    );
+    printWindow.document.write(invoiceContent.innerHTML);
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+    printWindow.print();
+  }
+}
+onMounted(() => {
+  refreshData();
+});
+
+console.log(paymentSearch.value)
+
+</script>
+
 <template>
   <div class="bg-green-50 min-h-screen p-4">
     <div
@@ -14,7 +194,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
       <!-- Filters -->
       <div class="lg:col-span-full">
         <div class="bg-white rounded-lg shadow p-4">
@@ -24,15 +204,13 @@
                 >Loại thanh toán</label
               >
               <select
-                v-model="filters.type"
+                v-model="searchQuery.type"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Tất cả loại</option>
-                <option value="membership">Phí hội viên</option>
-                <option value="booking">Đặt sân</option>
-                <option value="service">Dịch vụ</option>
-                <option value="event">Sự kiện</option>
-                <option value="other">Khác</option>
+                <option value="MEMBERSHIP">Phí hội viên</option>
+                <option value="BOOKING">Đặt sân</option>
+                <option value="OTHER">Khác</option>
               </select>
             </div>
             <div>
@@ -40,56 +218,23 @@
                 >Trạng thái</label
               >
               <select
-                v-model="filters.status"
+                v-model="searchQuery.status"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Tất cả trạng thái</option>
-                <option value="completed">Đã thanh toán</option>
-                <option value="pending">Chờ thanh toán</option>
-                <option value="cancelled">Đã hủy</option>
-                <option value="refunded">Đã hoàn tiền</option>
+                <option value="COMPLETED">Đã thanh toán</option>
+                <option value="PENDING">Chờ thanh toán</option>
+                <option value="FAILED">Thanh toán lỗi</option>
+                <option value="EXPIRED">Hết hạn</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Phương thức</label
-              >
-              <select
-                v-model="filters.method"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="">Tất cả phương thức</option>
-                <option value="cash">Tiền mặt</option>
-                <option value="card">Thẻ tín dụng/ghi nợ</option>
-                <option value="transfer">Chuyển khoản</option>
-                <option value="ewallet">Ví điện tử</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Tìm kiếm</label
-              >
-              <div class="relative">
-                <SearchIcon
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
-                />
-                <input
-                  type="text"
-                  v-model="filters.search"
-                  placeholder="Mã thanh toán, khách hàng..."
-                  class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Từ ngày</label
               >
               <input
                 type="date"
-                v-model="filters.dateFrom"
+                v-model="searchQuery.startDate"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
@@ -99,9 +244,51 @@
               >
               <input
                 type="date"
-                v-model="filters.dateTo"
+                v-model="searchQuery.endDate"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Tìm kiếm theo</label
+              >
+              <select
+                v-model="searchQuery.key"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="">Tất cả</option>
+                <option value="name">Tên dịch vụ</option>
+                <option value="code">Mã dịch vụ</option>
+                <option value="status">Trạng thái</option>
+              </select>
+            </div>
+            <div class="col-span-2">
+              <label
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Tìm kiếm</label
+              >
+              <div class="relative">
+                <SearchIcon
+                  class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+                />
+                <input
+                  type="text"
+                  v-model="searchQuery.value"
+                  placeholder="Mã thanh toán, khách hàng..."
+                  class="w-full border border-gray-300 rounded-md pl-5 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+            </div>
+
+            <div class="mt-4 flex justify-end">
+              <button
+                @click="handleSearch"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+              >
+                Tìm kiếm
+              </button>
             </div>
           </div>
         </div>
@@ -161,22 +348,40 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr
-              v-for="payment in filteredPayments"
+              v-for="payment in paymentSearch"
               :key="payment.id"
               class="hover:bg-gray-50"
             >
               <td
                 class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
               >
-                {{ payment.id }}
+                {{ payment.transactionId }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="text-sm font-medium text-gray-900">
-                    {{ payment.customerName }}
+                  <div class="h-10 w-10 flex-shrink-0 mr-3">
+                    <template v-if="payment.user.avatar">
+                      <img
+                        :src="payment.user.avatar"
+                        class="h-10 w-10 rounded-full object-cover"
+                        alt="Avatar"
+                      />
+                    </template>
+                    <template v-else>
+                      <div
+                        class="h-10 w-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-bold text-lg select-none"
+                      >
+                        {{ (payment.user.fullName).charAt(0).toUpperCase() }}
+                      </div>
+                    </template>
                   </div>
-                  <div class="text-xs text-gray-500 ml-1">
-                    ({{ payment.customerId }})
+                  <div class="flex flex-col">
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ payment.user.fullName}}
+                    </div>
+                    <div class="text-xs text-gray-500 ml-1">
+                      {{ payment.user.phone }}
+                    </div>
                   </div>
                 </div>
               </td>
@@ -194,22 +399,22 @@
                 {{ formatCurrency(payment.amount) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ getPaymentMethodText(payment.method) }}
+                {{ getPaymentMethodText(payment.paymentMethod) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ formatDate(payment.date) }}
+                {{ formatDate(payment.createdAt) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="{
                     'px-2 py-1 text-xs font-medium rounded-full': true,
                     'bg-green-100 text-green-800':
-                      payment.status === 'completed',
+                      payment.status === 'COMPLETED',
                     'bg-yellow-100 text-yellow-800':
-                      payment.status === 'pending',
-                    'bg-red-100 text-red-800': payment.status === 'cancelled',
+                      payment.status === 'PENDING',
+                    'bg-red-100 text-red-800': payment.status === 'FAILED',
                     'bg-purple-100 text-purple-800':
-                      payment.status === 'refunded',
+                      payment.status === 'EXPIRED',
                   }"
                 >
                   {{ getStatusText(payment.status) }}
@@ -232,7 +437,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-if="filteredPayments.length === 0">
+            <tr v-if="paymentSearch.length === 0">
               <td
                 colspan="8"
                 class="px-6 py-4 text-center text-sm text-gray-500"
@@ -247,25 +452,15 @@
       <div
         class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
       >
-        <div
-          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
-        >
-          <div>
-            <p class="text-sm text-gray-700">
-              Hiển thị
-              <span class="font-medium">{{ filteredPayments.length }}</span>
-              trong số
-              <span class="font-medium">{{ payments.length }}</span> kết quả
-            </p>
-          </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-end">
           <div>
             <nav
               class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
               aria-label="Pagination"
             >
               <button
-                @click="currentPage--"
-                :disabled="currentPage === 1"
+                @click="searchQuery.page--"
+                :disabled="pagination.page === 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span class="sr-only">Previous</span>
@@ -274,11 +469,11 @@
               <span
                 class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
               >
-                Trang {{ currentPage }} / {{ totalPages }}
+                Trang {{ pagination.page }} / {{ pagination.totalPages }}
               </span>
               <button
-                @click="currentPage++"
-                :disabled="currentPage === totalPages"
+                @click="searchQuery.page++"
+                :disabled="pagination.page === pagination.totalPages"
                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span class="sr-only">Next</span>
@@ -291,7 +486,7 @@
     </div>
 
     <!-- Payment Details Modal -->
-    <div
+    <!-- <div
       v-if="showDetailsModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
@@ -495,10 +690,10 @@
           </button>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Invoice Modal -->
-    <div
+    <!-- <div
       v-if="showInvoiceModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
@@ -634,383 +829,6 @@
           </button>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
-
-<script setup>
-import { ref, reactive, computed, onMounted } from "vue";
-import {
-  RefreshCwIcon,
-  SearchIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  EyeIcon,
-  PrinterIcon,
-  XIcon,
-} from "lucide-vue-next";
-
-// State
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const showDetailsModal = ref(false);
-const showInvoiceModal = ref(false);
-const selectedPayment = ref({});
-const invoicePayment = ref({});
-
-// Form and filters
-const filters = reactive({
-  type: "",
-  status: "",
-  method: "",
-  search: "",
-  dateFrom: "",
-  dateTo: "",
-});
-
-// Mock data for customers (members)
-const customers = ref([
-  { id: "MEM001", name: "Nguyễn Văn A" },
-  { id: "MEM002", name: "Trần Thị B" },
-  { id: "MEM003", name: "Lê Văn C" },
-  { id: "MEM004", name: "Phạm Thị D" },
-  { id: "MEM005", name: "Hoàng Văn E" },
-  { id: "MEM006", name: "Vũ Thị F" },
-]);
-
-// Mock data
-const payments = ref([
-  {
-    id: "PAY001",
-    type: "membership",
-    status: "completed",
-    customerId: "MEM001",
-    customerName: "Nguyễn Văn A",
-    amount: 25000000,
-    method: "transfer",
-    date: "2025-01-15",
-    referenceId: "MEM001-2025",
-    notes: "Thanh toán phí hội viên năm 2025",
-    transferInfo: "Ngân hàng VCB, STK: 1234567890",
-    createdBy: "Admin",
-    history: [
-      { action: "Tạo thanh toán", date: "2025-01-15T10:30:00", by: "Admin" },
-      {
-        action: "Cập nhật trạng thái: Đã thanh toán",
-        date: "2025-01-15T14:20:00",
-        by: "Admin",
-      },
-    ],
-  },
-  {
-    id: "PAY002",
-    type: "booking",
-    status: "completed",
-    customerId: "MEM002",
-    customerName: "Trần Thị B",
-    amount: 2500000,
-    method: "card",
-    date: "2025-04-10",
-    referenceId: "BOOK123",
-    notes: "Thanh toán đặt sân 18 hố",
-    cardLastFour: "4567",
-    cardType: "visa",
-    createdBy: "Receptionist",
-    history: [
-      {
-        action: "Tạo thanh toán",
-        date: "2025-04-10T08:15:00",
-        by: "Receptionist",
-      },
-      {
-        action: "Cập nhật trạng thái: Đã thanh toán",
-        date: "2025-04-10T08:20:00",
-        by: "Receptionist",
-      },
-    ],
-  },
-  {
-    id: "PAY003",
-    type: "service",
-    status: "completed",
-    customerId: "MEM003",
-    customerName: "Lê Văn C",
-    amount: 1500000,
-    method: "cash",
-    date: "2025-04-15",
-    referenceId: "SRV456",
-    notes: "Thanh toán dịch vụ thuê gậy và xe điện",
-    createdBy: "Staff",
-    history: [
-      { action: "Tạo thanh toán", date: "2025-04-15T14:30:00", by: "Staff" },
-    ],
-  },
-  {
-    id: "PAY004",
-    type: "event",
-    status: "pending",
-    customerId: "MEM004",
-    customerName: "Phạm Thị D",
-    amount: 15000000,
-    method: "transfer",
-    date: "2025-04-20",
-    referenceId: "EVT789",
-    notes: "Đặt cọc tổ chức sự kiện gia đình",
-    transferInfo: "Đang chờ xác nhận từ ngân hàng",
-    createdBy: "Manager",
-    history: [
-      { action: "Tạo thanh toán", date: "2025-04-18T09:45:00", by: "Manager" },
-    ],
-  },
-  {
-    id: "PAY005",
-    type: "booking",
-    status: "cancelled",
-    customerId: "MEM005",
-    customerName: "Hoàng Văn E",
-    amount: 3000000,
-    method: "card",
-    date: "2025-04-05",
-    referenceId: "BOOK456",
-    notes: "Hủy đặt sân do thời tiết xấu",
-    cardLastFour: "7890",
-    cardType: "mastercard",
-    createdBy: "Receptionist",
-    history: [
-      {
-        action: "Tạo thanh toán",
-        date: "2025-04-01T16:20:00",
-        by: "Receptionist",
-      },
-      {
-        action: "Cập nhật trạng thái: Đã hủy",
-        date: "2025-04-05T08:30:00",
-        by: "Manager",
-      },
-    ],
-  },
-  {
-    id: "PAY006",
-    type: "service",
-    status: "refunded",
-    customerId: "MEM006",
-    customerName: "Vũ Thị F",
-    amount: 850000,
-    method: "ewallet",
-    date: "2025-04-12",
-    referenceId: "SRV789",
-    notes: "Hoàn tiền dịch vụ spa do lịch bận",
-    ewalletType: "momo",
-    createdBy: "Staff",
-    history: [
-      { action: "Tạo thanh toán", date: "2025-04-10T10:15:00", by: "Staff" },
-      {
-        action: "Cập nhật trạng thái: Đã hoàn tiền",
-        date: "2025-04-12T14:30:00",
-        by: "Manager",
-      },
-    ],
-  },
-]);
-
-// Computed properties
-const filteredPayments = computed(() => {
-  let result = payments.value;
-
-  if (filters.type) {
-    result = result.filter((payment) => payment.type === filters.type);
-  }
-
-  if (filters.status) {
-    result = result.filter((payment) => payment.status === filters.status);
-  }
-
-  if (filters.method) {
-    result = result.filter((payment) => payment.method === filters.method);
-  }
-
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    result = result.filter(
-      (payment) =>
-        payment.id.toLowerCase().includes(searchLower) ||
-        payment.customerName.toLowerCase().includes(searchLower) ||
-        payment.customerId.toLowerCase().includes(searchLower) ||
-        (payment.referenceId &&
-          payment.referenceId.toLowerCase().includes(searchLower))
-    );
-  }
-
-  if (filters.dateFrom) {
-    const fromDate = new Date(filters.dateFrom);
-    result = result.filter((payment) => new Date(payment.date) >= fromDate);
-  }
-
-  if (filters.dateTo) {
-    const toDate = new Date(filters.dateTo);
-    toDate.setHours(23, 59, 59, 999); // End of the day
-    result = result.filter((payment) => new Date(payment.date) <= toDate);
-  }
-
-  // Sort by date (newest first)
-  result = result.sort((a, b) => {
-    return new Date(b.date) - new Date(a.date);
-  });
-
-  // Pagination
-  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-  return result.slice(startIndex, startIndex + itemsPerPage.value);
-});
-
-const totalPages = computed(() => {
-  return Math.ceil(payments.value.length / itemsPerPage.value) || 1;
-});
-
-// Methods
-function formatCurrency(value) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(value);
-}
-
-function formatDate(dateString) {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
-
-function formatDateTime(dateTimeString) {
-  if (!dateTimeString) return "N/A";
-  const date = new Date(dateTimeString);
-  return date.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function getPaymentTypeText(type) {
-  switch (type) {
-    case "membership":
-      return "Phí hội viên";
-    case "booking":
-      return "Đặt sân";
-    case "service":
-      return "Dịch vụ";
-    case "event":
-      return "Sự kiện";
-    case "other":
-      return "Khác";
-    default:
-      return type;
-  }
-}
-
-function getStatusText(status) {
-  switch (status) {
-    case "completed":
-      return "Đã thanh toán";
-    case "pending":
-      return "Chờ thanh toán";
-    case "cancelled":
-      return "Đã hủy";
-    case "refunded":
-      return "Đã hoàn tiền";
-    default:
-      return status;
-  }
-}
-
-function getPaymentMethodText(method) {
-  switch (method) {
-    case "cash":
-      return "Tiền mặt";
-    case "card":
-      return "Thẻ tín dụng/ghi nợ";
-    case "transfer":
-      return "Chuyển khoản";
-    case "ewallet":
-      return "Ví điện tử";
-    default:
-      return method;
-  }
-}
-
-function getCardTypeText(type) {
-  switch (type) {
-    case "visa":
-      return "Visa";
-    case "mastercard":
-      return "Mastercard";
-    case "amex":
-      return "American Express";
-    case "jcb":
-      return "JCB";
-    case "other":
-      return "Khác";
-    default:
-      return type;
-  }
-}
-
-function getEwalletTypeText(type) {
-  switch (type) {
-    case "momo":
-      return "MoMo";
-    case "zalopay":
-      return "ZaloPay";
-    case "vnpay":
-      return "VNPay";
-    case "other":
-      return "Khác";
-    default:
-      return type;
-  }
-}
-
-function getPaymentsCount(status) {
-  return payments.value.filter((payment) => payment.status === status).length;
-}
-
-function getTotalRevenue() {
-  return payments.value
-    .filter((payment) => payment.status === "completed")
-    .reduce((total, payment) => total + payment.amount, 0);
-}
-
-function refreshData() {
-  // In a real app, this would fetch fresh data from the server
-  console.log("Refreshing data...");
-}
-
-function viewPaymentDetails(payment) {
-  selectedPayment.value = { ...payment };
-  showDetailsModal.value = true;
-}
-
-function printInvoice(payment) {
-  invoicePayment.value = { ...payment };
-  showInvoiceModal.value = true;
-}
-
-function printInvoiceContent() {
-  const invoiceContent = document.getElementById("invoice-content");
-  if (invoiceContent) {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      "<html><head><title>Hóa đơn thanh toán</title></head><body>"
-    );
-    printWindow.document.write(invoiceContent.innerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-  }
-}
-</script>

@@ -81,7 +81,6 @@
                 type="text"
                 v-model="searchFilters.value"
                 :placeholder="`Nhập ${searchFilters.key}`"
-                  
                 class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
@@ -168,11 +167,16 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="h-10 w-10 flex-shrink-0 mr-3">
-                    <!-- <img
-                      src="/api/placeholder/40/40"
-                      class="h-10 w-10 rounded-full object-cover"
-                      alt="Member avatar"
-                    /> -->
+                    <template v-if="member.avatar">
+                      <img :src="member.avatar" :alt="member.fullName" class="w-10 h-10 rounded-full object-cover border border-gray-300" />
+                    </template>
+                    <template v-else>
+                      <div
+                        class="flex items-center justify-center w-10 h-10 text-xl font-semibold text-gray-500 bg-gray-200 rounded-full"
+                      >
+                        {{ member.fullName?.charAt(0) }}
+                      </div>
+                    </template>
                   </div>
                   <div>
                     <div class="text-sm font-medium text-gray-900">
@@ -707,7 +711,7 @@ import { useMembershipTypeStore } from "../../stores/membership_type";
 
 // Store and state
 const membershipStore = useMembershipStore();
-const membershipTypeStore = useMembershipTypeStore()
+const membershipTypeStore = useMembershipTypeStore();
 const showMemberModal = ref(false);
 const showDetailsModal = ref(false);
 const showConfirmModal = ref(false);
@@ -723,7 +727,7 @@ function toggleActionDropdown(id) {
 }
 // Form data
 const { memberships, pagination } = storeToRefs(membershipStore);
-const {membershipTypes} = storeToRefs(membershipTypeStore)
+const { membershipTypes } = storeToRefs(membershipTypeStore);
 const memberForm = reactive({
   id: "",
   userId: "",
@@ -817,13 +821,15 @@ function closeDetailsModal() {
 }
 
 // Xác nhận/xử lý trạng thái
-function confirmMembership(id) {
+async function confirmMembership(id) {
   // Gọi API xác nhận hoặc cập nhật local
-  const member = membershipStore.memberships.find((m) => m.id === id);
-  if (member) {
-    member.status = "ACTIVE";
-    showNotification("Đã xác nhận hội viên!", "success");
-  }
+  await membershipStore.confirmMembership(id).then(() => {
+    const member = membershipStore.memberships.find((m) => m.id === id);
+    if (member) {
+      member.status = "ACTIVE";
+      showNotification("Đã xác nhận hội viên!", "success");
+    }
+  });
 }
 function lockMembership(id) {
   const member = membershipStore.memberships.find((m) => m.id === id);
@@ -879,11 +885,9 @@ function refreshData() {
 }
 
 // Lifecycle
-onMounted(async() => {
+onMounted(async () => {
   // Nếu dùng API thì gọi API lấy danh sách hội viên ở đây
-  Promise.all([
-   await membershipTypeStore.getAllMembershipTypes(),
-  ]).then(() => {
+  Promise.all([await membershipTypeStore.getAllMembershipTypes()]).then(() => {
     refreshData();
   });
 });

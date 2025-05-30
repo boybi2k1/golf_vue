@@ -1,10 +1,11 @@
-import { defineStore } from 'pinia';
-import api from '../api';
+import { defineStore } from "pinia";
+import api from "../api";
 
-export const useMembershipStore = defineStore('membership', {
+export const useMembershipStore = defineStore("membership", {
   state: () => ({
     memberships: [],
     membership: null,
+    membershipCurrent: null,
     history: [],
     pagination: {
       page: 1,
@@ -32,7 +33,7 @@ export const useMembershipStore = defineStore('membership', {
     async registerMembership(payload) {
       this.loading = true;
       try {
-        const res = await api.post('/membership/register', payload);
+        const res = await api.post("/membership/register", payload);
         return res.data.data;
       } catch (err) {
         this.error = err.message;
@@ -105,7 +106,7 @@ export const useMembershipStore = defineStore('membership', {
     async searchMembership(payload) {
       this.loading = true;
       try {
-        const res = await api.post('/membership/search', payload);
+        const res = await api.post("/membership/search", payload);
         this.memberships = res.data.data.data;
         console.log(this.memberships);
         this.pagination = res.data.data.pagination;
@@ -122,6 +123,22 @@ export const useMembershipStore = defineStore('membership', {
       try {
         const res = await api.delete(`/membership/${id}`);
         return res.data.data;
+      } catch (err) {
+        this.error = err.message;
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+    // lấy membership hiện tại của người dùng
+    async getCurrentMembership({ param }) {
+      this.loading = true;
+      try {
+        const res = await api.get(`/membership/user-status`, {
+          params: param,
+        });
+        this.membershipCurrent = res.data.data;
+        return this.membershipCurrent;
       } catch (err) {
         this.error = err.message;
         throw err;

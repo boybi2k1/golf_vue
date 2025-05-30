@@ -89,5 +89,39 @@ export const useUserStore = defineStore("user", {
         this.error = err.message;
       }
     },
+        // Upload avatar for user
+    async changeAvatar(file) {
+      try {
+        this.loading = true;
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await api.post("/user/avatar", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        // Backend trả về url mới hoặc user object mới
+        return res.data.data; // Có thể là url hoặc user object
+      } catch (err) {
+        this.error = err.message;
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async changePassword(data)
+    {
+      try {
+        this.loading = true;
+        const res = await api.put("/user/change-password", data); // Gọi API đổi mật khẩu
+        return res.data.data; // Trả về kết quả thành công
+      } catch (err) {
+        this.error = err.message; // Lưu lỗi nếu có
+        throw err; // Ném lỗi để xử lý bên ngoài nếu cần
+      } finally {
+        this.loading = false; // Đặt loading về false sau khi hoàn thành
+      }
+    }
   },
 });

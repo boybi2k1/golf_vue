@@ -56,8 +56,8 @@ const menuItems = [
     icon: History,
   },
   {
-    title: "Thông tin cá nhân",
-    path: "/profile",
+    title: "Đăng ký hội viên",
+    path: "/memberships",
     icon: User,
   },
 ];

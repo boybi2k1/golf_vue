@@ -5,6 +5,7 @@
       <SideBar />
       <router-view />
     </div>
+   
   </div>
 </template>
 

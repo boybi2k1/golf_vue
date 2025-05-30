@@ -16,12 +16,14 @@ import AccountView from "../views/admin/AccountView.vue";
 import UserBookingView from "../views/user/UserBookingView.vue";
 import UserEventView from "../views/user/UserEventView.vue";
 import UserHistory from "../views/user/UserHistory.vue";
-import ProfileView from "../views/user/ProfileView.vue";
+import ProfileView from "../views/ProfileView.vue";
+import UserMembershipTypes from "../views/user/UserMembershipTypes.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import Unauthorized from "../views/unauthorized.vue";
 import TeetimeView from "../views/admin/TeetimeView.vue";
 import Oauth2Redirect from "../components/Oauth2Redirect.vue";
+import VnpayView from "../views/VnpayView.vue";
 
 const routes = [
   { path: "/login", name: "login", component: LoginView },
@@ -69,6 +71,8 @@ const routes = [
         name: "system-settings",
         component: SystemSettingsView,
       },
+      { path: "profile", name: "profile", component: ProfileView },
+
       { path: "account", name: "account", component: AccountView },
     ],
   },
@@ -79,7 +83,7 @@ const routes = [
     component: UserLayout,
     meta: {
       requiresAuth: true,
-      allowedRoles: ["MEMBER", "STAFF", "ADMIN"],
+      allowedRoles: ["MEMBER"],
     },
     children: [
       { path: "", name: "user-home", component: UserBookingView },
@@ -87,10 +91,18 @@ const routes = [
       { path: "events", name: "user-events", component: UserEventView },
       { path: "history", name: "user-history", component: UserHistory },
       { path: "profile", name: "user-profile", component: ProfileView },
+      {
+        path: "memberships",
+        name: "user-memberships",
+        component: UserMembershipTypes,
+      },
+      {
+        path: "/vnpay-return",
+        name: "VNPayReturn",
+        component: VnpayView,
+      },
     ],
   },
-
-  // catch all route
 ];
 
 const router = createRouter({

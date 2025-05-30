@@ -1,6 +1,8 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, reactive } from "vue";
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   Plus as PlusIcon,
   RefreshCw as RefreshCwIcon,
   X as XIcon,
@@ -9,13 +11,16 @@ import { useGolfCourseStore } from "../../stores/golf_course";
 import { storeToRefs } from "pinia";
 import { useTeeTimeStore } from "../../stores/tee_time";
 
+const golfCourseStore = useGolfCourseStore();
+const { golfCourses } = storeToRefs(golfCourseStore);
+const teeTimeStore = useTeeTimeStore();
+const { teeTimeSearch, pagination, loading } = storeToRefs(teeTimeStore);
 // State
-const searchQuery = ref({
+const searchQuery = reactive({
   status: "",
   key: "golfCourseId",
   value: "",
-  key2: "date",
-  value2: "",
+  date: new Date().toISOString().split("T")[0],
   page: 1,
   size: 10,
 });
@@ -34,16 +39,7 @@ const teeTimeForm = ref({
   price: 1500000,
 });
 
-// Pagination
-const currentPage = ref(1);
-const itemsPerPage = 10;
-
-const golfCourseStore = useGolfCourseStore();
-const golfCourses = storeToRefs(golfCourseStore);
-const teeTimeStore = useTeeTimeStore();
-const { teeTimeSearch, pagination, loading } = storeToRefs(teeTimeStore);
 // Computed
-
 
 // Methods
 function formatDate(date) {
@@ -66,52 +62,40 @@ function formatPrice(price) {
 
 function getStatusLabel(status) {
   const statusMap = {
-    available: "Còn trống",
-    booked: "Đã đặt",
-    cancelled: "Đã hủy",
+    HOLD: "Đang giữ",
+    CANCELLED: "Đã hủy",
+    AVAILABLE: "Còn trống",
+    BOOKED: "Đã đặt",
+    CHECKED_OUT: "Đã check-out",
+    CHECKED_IN: "Đã check-in",
+    UNAVAILABLE: "Không khả dụng",
   };
   return statusMap[status] || status;
 }
 
 function getCourseName(courseId) {
-  const courseMap = {
-    GC001: "Sân A - 18 hố",
-    GC002: "Sân B - 9 hố",
-    GC003: "Sân C - 18 hố",
-  };
-  return courseMap[courseId] || courseId;
+  const course = golfCourses.value.find((c) => c.id === courseId);
+  return course ? course.name : "Không xác định";
 }
 
 function applyFilters() {
-  // In a real app, this would fetch data from the server with the filters
-  console.log("Applying filters:", filters.value);
   loadTeeTimes();
-  // Reset to first page when filters change
-  currentPage.value = 1;
 }
 
 function refreshData() {
   loadTeeTimes();
-  // Reset to first page when refreshing data
-  currentPage.value = 1;
-}
-
-function goToPage(page) {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
 }
 
 function openCreateModal() {
   isEditing.value = false;
   selectedTeeTimeId.value = null;
   teeTimeForm.value = {
-    golfCourseId: "GC001",
-    date: filters.value.date || new Date().toISOString().split("T")[0],
+    golfCourseId: golfCourses.value[0]?.id || "",
+    date: new Date().toISOString().split("T")[0],
     startTime: "07:00",
     maxPlayers: 4,
     bookedPlayers: 0,
-    status: "available",
+    status: "AVAILABLE",
     price: 1500000,
   };
   showModal.value = true;
@@ -120,7 +104,6 @@ function openCreateModal() {
 function editTeeTime(teeTime) {
   isEditing.value = true;
   selectedTeeTimeId.value = teeTime.id;
-
   teeTimeForm.value = {
     golfCourseId: teeTime.golfCourseId,
     date: teeTime.date,
@@ -130,44 +113,26 @@ function editTeeTime(teeTime) {
     status: teeTime.status,
     price: teeTime.price,
   };
-
   showModal.value = true;
 }
 
 function closeModal() {
   showModal.value = false;
 }
-
 function saveTeeTime() {
-  const formData = { ...teeTimeForm.value };
-
-  const teeTimeData = {
-    id: isEditing.value
-      ? selectedTeeTimeId.value
-      : `TT${Date.now().toString().substring(6)}`,
-    golfCourseId: formData.golfCourseId,
-    date: formData.date,
-    startTime: formData.startTime,
-    maxPlayers: parseInt(formData.maxPlayers),
-    bookedPlayers: parseInt(formData.bookedPlayers),
-    status: formData.status,
-    price: parseFloat(formData.price),
-  };
-
-  if (isEditing.value) {
-    // Update existing tee time
-    const index = teeTimes.value.findIndex(
-      (t) => t.id === selectedTeeTimeId.value
-    );
-    if (index !== -1) {
-      teeTimes.value[index] = teeTimeData;
-    }
+  if (isEditing.value && selectedTeeTimeId.value) {
+    // Sửa tee time
+    teeTimeStore
+      .updateTeeTime(selectedTeeTimeId.value, { ...teeTimeForm.value })
+      .then(() => {
+        closeModal();
+      });
   } else {
-    // Create new tee time
-    teeTimes.value.push(teeTimeData);
+    // Thêm mới tee time
+    teeTimeStore.createTeeTime({ ...teeTimeForm.value }).then(() => {
+      closeModal();
+    });
   }
-
-  closeModal();
 }
 
 function cancelTeeTime(teeTime) {
@@ -183,22 +148,25 @@ function cancelTeeTime(teeTime) {
 }
 
 async function loadTeeTimes() {
-  await teeTimeStore.searchTeeTime(searchQuery.value);
+  await teeTimeStore.searchTeeTime(searchQuery);
 }
 
-// Watch for changes in filteredTeeTimes to reset pagination if needed
-watch(filteredTeeTimes, () => {
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = Math.max(1, totalPages.value);
+watch(golfCourses, (newCourses) => {
+  if (newCourses.length > 0 && !searchQuery.value) {
+    searchQuery.value = newCourses[0].id;
   }
 });
-
+//watch for change page
+function onChangePage(page) {
+  searchQuery.page = page + 1;
+  loadTeeTimes();
+}
 // Lifecycle hooks
 onMounted(async () => {
-  await golfCourseStore.getAllGolfCourses();
-  loadTeeTimes();
+  Promise.all([golfCourseStore.getAllGolfCourses(), loadTeeTimes()]);
 });
-</script>F
+</script>
+
 <template>
   <div class="bg-emerald-50 min-h-screen p-4">
     <!-- Header -->
@@ -231,7 +199,7 @@ onMounted(async () => {
           >
           <input
             type="date"
-            v-model="filters.date"
+            v-model="searchQuery.date"
             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
@@ -240,13 +208,16 @@ onMounted(async () => {
             >Sân Golf</label
           >
           <select
-            v-model="filters.golfCourseId"
+            v-model="searchQuery.value"
             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           >
-            <option value="">Tất cả sân</option>
-            <option value="GC001">Sân A - 18 hố</option>
-            <option value="GC002">Sân B - 9 hố</option>
-            <option value="GC003">Sân C - 18 hố</option>
+            <option
+              v-for="course in golfCourses"
+              :key="course.id"
+              :value="course.id"
+            >
+              {{ course.name }}
+            </option>
           </select>
         </div>
         <div>
@@ -254,28 +225,38 @@ onMounted(async () => {
             >Trạng thái</label
           >
           <select
-            v-model="filters.status"
+            v-model="searchQuery.status"
             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           >
             <option value="">Tất cả trạng thái</option>
-            <option value="available">Còn trống</option>
-            <option value="booked">Đã đặt</option>
-            <option value="cancelled">Đã hủy</option>
+            <option value="AVAILABLE">Còn trống</option>
+            <option value="BOOKED">Đã đặt</option>
+            <option value="HOLD">Đang giữ</option>
+            <option value="CHECKED_OUT">Đã Check-out</option>
+            <option value="CHECKED_IN">Đã Check-in</option>
+            <option value="UNAVAILABLE">Không khả dụng</option>
           </select>
         </div>
-        <div class="flex items-end">
-          <button
-            @click="applyFilters"
-            class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
-          >
-            Áp dụng bộ lọc
-          </button>
-        </div>
+        
+        <div class="mt-4 flex justify-end">
+              <button
+                @click="applyFilters"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+              >
+                Tìm kiếm
+              </button>
+            </div>
       </div>
     </div>
 
     <!-- Tee Time List -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div v-if="loading" class="flex justify-center items-center p-8">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"
+      ></div>
+    </div>
+
+    <div v-else class="bg-white rounded-lg shadow overflow-hidden">
       <div class="p-4 border-b border-gray-200">
         <h2 class="text-lg font-medium text-gray-900">Danh sách Tee Time</h2>
       </div>
@@ -283,11 +264,6 @@ onMounted(async () => {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                ID
-              </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
@@ -326,10 +302,7 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="(teeTime, index) in paginatedTeeTimes" :key="index">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ teeTime.id }}
-              </td>
+            <tr v-for="(teeTime, index) in teeTimeSearch" :key="index">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ formatDate(teeTime.date) }}
               </td>
@@ -376,7 +349,7 @@ onMounted(async () => {
                 </button>
               </td>
             </tr>
-            <tr v-if="filteredTeeTimes.length === 0">
+            <tr v-if="teeTimeSearch.length === 0">
               <td
                 colspan="8"
                 class="px-6 py-4 text-center text-sm text-gray-500"
@@ -384,258 +357,185 @@ onMounted(async () => {
                 Không có dữ liệu tee time phù hợp với bộ lọc
               </td>
             </tr>
-            <tr v-else-if="paginatedTeeTimes.length === 0">
-              <td
-                colspan="8"
-                class="px-6 py-4 text-center text-sm text-gray-500"
-              >
-                Không có dữ liệu tee time trên trang này
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
-      <div class="px-6 py-4 border-t border-gray-200">
-        <div class="flex flex-col sm:flex-row justify-between items-center">
-          <div class="text-sm text-gray-700 mb-4 sm:mb-0">
-            Hiển thị
-            <span class="font-medium">{{ startItem }}-{{ endItem }}</span> trong
-            tổng số
-            <span class="font-medium">{{ filteredTeeTimes.length }}</span> tee
-            time
-          </div>
-          <div class="flex gap-2">
-            <button
-              @click="goToPage(currentPage - 1)"
-              :disabled="currentPage === 1"
-              :class="{
-                'px-3 py-1 border rounded-md': true,
-                'border-gray-300 text-gray-700 hover:bg-gray-100':
-                  currentPage !== 1,
-                'border-gray-200 text-gray-400 cursor-not-allowed':
-                  currentPage === 1,
-              }"
+
+      <div
+        class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+      >
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-end">
+          <div>
+            <nav
+              class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+              aria-label="Pagination"
             >
-              Trước
-            </button>
-
-            <template v-if="totalPages <= 7">
               <button
-                v-for="page in totalPages"
-                :key="page"
-                @click="goToPage(page)"
-                :class="{
-                  'px-3 py-1 border rounded-md': true,
-                  'bg-emerald-50 text-emerald-700 border-emerald-300':
-                    currentPage === page,
-                  'border-gray-300 text-gray-700 hover:bg-gray-100':
-                    currentPage !== page,
-                }"
+                @click="onChangePage(pagination.page - 1)"
+                :disabled="pagination.page + 1 === 1"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ page }}
+                <span class="sr-only">Previous</span>
+                <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
               </button>
-            </template>
-
-            <template v-else>
-              <!-- First page -->
+              <span
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+              >
+                Trang {{ pagination.page + 1 }} / {{ pagination.totalPages }}
+              </span>
               <button
-                @click="goToPage(1)"
-                :class="{
-                  'px-3 py-1 border rounded-md': true,
-                  'bg-emerald-50 text-emerald-700 border-emerald-300':
-                    currentPage === 1,
-                  'border-gray-300 text-gray-700 hover:bg-gray-100':
-                    currentPage !== 1,
-                }"
+                @click="onChangePage(pagination.page + 1)"
+                :disabled="pagination.page + 1 === pagination.totalPages"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                
+                <span class="sr-only">Next</span>
+                <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
               </button>
-
-              <!-- Ellipsis if needed -->
-              <span v-if="currentPage > 3" class="px-3 py-1">...</span>
-
-              <!-- Pages around current page -->
-              <template v-for="page in visiblePageNumbers" :key="page">
-                <button
-                  v-if="page !== 1 && page !== totalPages"
-                  @click="goToPage(page)"
-                  :class="{
-                    'px-3 py-1 border rounded-md': true,
-                    'bg-emerald-50 text-emerald-700 border-emerald-300':
-                      currentPage === page,
-                    'border-gray-300 text-gray-700 hover:bg-gray-100':
-                      currentPage !== page,
-                  }"
-                >
-                  {{ page }}
-                </button>
-              </template>
-
-              <!-- Ellipsis if needed -->
-              <span v-if="currentPage < totalPages - 2" class="px-3 py-1"
-                >...</span
-              >
-
-              <!-- Last page -->
-              <button
-                @click="goToPage(totalPages)"
-                :class="{
-                  'px-3 py-1 border rounded-md': true,
-                  'bg-emerald-50 text-emerald-700 border-emerald-300':
-                    currentPage === totalPages,
-                  'border-gray-300 text-gray-700 hover:bg-gray-100':
-                    currentPage !== totalPages,
-                }"
-              >
-                {{ totalPages }}
-              </button>
-            </template>
-
-            <button
-              @click="goToPage(currentPage + 1)"
-              :disabled="currentPage === totalPages"
-              :class="{
-                'px-3 py-1 border rounded-md': true,
-                'border-gray-300 text-gray-700 hover:bg-gray-100':
-                  currentPage !== totalPages,
-                'border-gray-200 text-gray-400 cursor-not-allowed':
-                  currentPage === totalPages,
-              }"
-            >
-              Sau
-            </button>
+            </nav>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Create/Edit Modal -->
+    <!-- Thay thế phần form trong modal tạo/sửa tee time như sau -->
+
     <div
       v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center z-50"
-      style="background-color: rgba(0, 0, 0, 0.5)"
+      class="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm"
     >
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 animate-fade-in"
+      >
+        <!-- Header -->
         <div
-          class="p-4 border-b border-gray-200 flex justify-between items-center"
+          class="p-5 border-b border-gray-200 flex justify-between items-center"
         >
-          <h3 class="text-lg font-medium text-gray-900">
+          <h3 class="text-xl font-semibold text-gray-800">
             {{ isEditing ? "Chỉnh sửa Tee Time" : "Tạo Tee Time mới" }}
           </h3>
-          <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
-            <XIcon class="w-5 h-5" />
+          <button
+            @click="closeModal"
+            class="text-gray-400 hover:text-red-500 transition duration-200"
+          >
+            <XIcon class="w-6 h-6" />
           </button>
         </div>
-        <div class="p-4">
-          <form @submit.prevent="saveTeeTime">
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Sân Golf</label
-                >
-                <select
-                  v-model="teeTimeForm.golfCourseId"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                >
-                  <option value="GC001">Sân A - 18 hố</option>
-                  <option value="GC002">Sân B - 9 hố</option>
-                  <option value="GC003">Sân C - 18 hố</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Ngày</label
-                >
-                <input
-                  type="date"
-                  v-model="teeTimeForm.date"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Giờ bắt đầu</label
-                >
-                <input
-                  type="time"
-                  v-model="teeTimeForm.startTime"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Số người tối đa</label
-                >
-                <input
-                  type="number"
-                  v-model="teeTimeForm.maxPlayers"
-                  min="1"
-                  max="4"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Số người đã đặt</label
-                >
-                <input
-                  type="number"
-                  v-model="teeTimeForm.bookedPlayers"
-                  min="0"
-                  :max="teeTimeForm.maxPlayers"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Trạng thái</label
-                >
-                <select
-                  v-model="teeTimeForm.status"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                >
-                  <option value="available">Còn trống</option>
-                  <option value="booked">Đã đặt</option>
-                  <option value="cancelled">Đã hủy</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Giá (VND)</label
-                >
-                <input
-                  type="number"
-                  v-model="teeTimeForm.price"
-                  min="0"
-                  step="10000"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                />
-              </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                @click="closeModal"
-                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+
+        <!-- Form -->
+        <form @submit.prevent="saveTeeTime" class="p-5 space-y-4">
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700">Sân Golf</label>
+            <select
+              v-model="teeTimeForm.golfCourseId"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            >
+              <option disabled value="">Chọn sân golf</option>
+              <option
+                v-for="course in golfCourses"
+                :key="course.id"
+                :value="course.id"
               >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
-              >
-                {{ isEditing ? "Cập nhật" : "Tạo mới" }}
-              </button>
-            </div>
-          </form>
-        </div>
+                {{ course.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700">Ngày</label>
+            <input
+              type="date"
+              v-model="teeTimeForm.date"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700">Giờ bắt đầu</label>
+            <input
+              type="time"
+              v-model="teeTimeForm.startTime"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700"
+              >Số người tối đa</label
+            >
+            <input
+              type="number"
+              v-model="teeTimeForm.maxPlayers"
+              min="1"
+              max="4"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700"
+              >Số người đã đặt</label
+            >
+            <input
+              type="number"
+              v-model="teeTimeForm.bookedPlayers"
+              min="0"
+              :max="teeTimeForm.maxPlayers"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700">Trạng thái</label>
+            <select
+              v-model="teeTimeForm.status"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="AVAILABLE">Còn trống</option>
+              <option value="BOOKED">Đã đặt</option>
+              <option value="HOLD">Đang giữ</option>
+              <option value="CHECKED_IN">Đã Check-in</option>
+              <option value="CHECKED_OUT">Đã Check-out</option>
+              <option value="UNAVAILABLE">Không khả dụng</option>
+              <option value="CANCELLED">Đã hủy</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700">Giá (VND)</label>
+            <input
+              type="number"
+              v-model="teeTimeForm.price"
+              min="0"
+              step="10000"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <!-- Footer -->
+          <div class="pt-4 flex justify-end space-x-3">
+            <button
+              type="button"
+              @click="closeModal"
+              class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition duration-200"
+            >
+              {{ isEditing ? "Cập nhật" : "Tạo mới" }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

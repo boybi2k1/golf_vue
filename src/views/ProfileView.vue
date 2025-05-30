@@ -2,12 +2,12 @@
 
       <main class="flex-1 p-6 overflow-y-auto bg-green-100">
         <!-- Embed Booking component -->
-        <ProfileUser />
+        <Profile />
       </main>
 
 
 </template>
 
 <script setup>
-import ProfileUser from '../../components/user/ProfileUser.vue';
+import Profile from '../components/ProfileMember.vue';
 </script>

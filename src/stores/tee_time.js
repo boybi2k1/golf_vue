@@ -57,11 +57,18 @@ export const useTeeTimeStore = defineStore("teeTime", {
     },
 
     async updateTeeTime(id, request) {
-      this.loading = true;
+      // this.loading = true;
       this.error = null;
       try {
         const res = await api.put(`/tee-time/update/${id}`, request);
-        return res.data.data;
+        const updated = res.data.data;
+        const index = this.teeTimeSearch.findIndex(
+          (b) => b.id === updated.id
+        );
+        if (index !== -1) {
+          this.teeTimeSearch[index] = updated;
+        }
+        return updated;
       } catch (err) {
         this.error = err.response?.data?.message || err.message;
         throw err;
@@ -84,13 +91,18 @@ export const useTeeTimeStore = defineStore("teeTime", {
       }
     },
 
-    async holdTeeTime(teeTimeId) {
+    async holdTeeTime({param}) {
       this.loading = true;
       this.error = null;
       try {
-        const res = await api.post(`/tee-time/hold`, null, {
-          params: { teeTimeId },
+        const res = await api.get(`/tee-time/hold`, {
+          params: param,
         });
+        const holdTeeTime = res.data.data;
+        const index = this.availableTeeTimes.findIndex((t) => t.id === holdTeeTime.id);
+        if (index !== -1) {
+          this.availableTeeTimes[index] = holdTeeTime;
+        }
         return res.data.data;
       } catch (err) {
         this.error = err.response?.data?.message || err.message;

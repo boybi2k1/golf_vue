@@ -262,7 +262,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from "vue";
-import { PlusIcon } from "lucide-vue-next";
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, SearchIcon } from "lucide-vue-next";
 import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
 

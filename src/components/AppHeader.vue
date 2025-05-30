@@ -39,19 +39,14 @@
             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
           >
             <a
-              href="#"
+              @click="handleProfile"
               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >Your Profile</a
-            >
-            <a
-              href="#"
-              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >Settings</a
+              >Hồ sơ</a
             >
             <a
               @click="logout($event)"
               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >Sign out</a
+              >Đăng xuất</a
             >
           </div>
         </div>
@@ -64,6 +59,7 @@
 import { ref } from "vue";
 import { Flag, Bell } from "lucide-vue-next";
 import { useAuthStore } from "../stores/auth";
+import router from "../router";
 
 const showNotifications = ref(false);
 const showUserMenu = ref(false);
@@ -87,4 +83,18 @@ const logout = (e) => {
   authStore.logout();
   window.location.href = "/login";
 };
+
+
+const handleProfile = (e) => {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  // Chuyển hướng đến trang hồ sơ phù hợp với vai trò
+  const user = authStore.user;
+  if (user && user.role && user.role.toLowerCase() === 'admin') {
+    router.push("/admin/profile");
+  } else {
+    router.push("/profile");
+  }
+};
+
+
 </script>

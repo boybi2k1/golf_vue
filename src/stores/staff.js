@@ -85,6 +85,20 @@ export const useStaffStore = defineStore('staff', {
       } finally {
         this.loading = false
       }
+    },
+
+    // get by userId
+    async getStaffByUserId(userId) {
+      try {
+        this.loading = true
+        const res = await api.get(`/staff/get-by-user/${userId}`)
+        return res.data.data  // Trả về dữ liệu của staff
+      } catch (err) {
+        this.error = err.message
+        throw err
+      } finally {
+        this.loading = false
+      }
     }
   }
 })

@@ -130,15 +130,19 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="h-10 w-10 flex-shrink-0 mr-3">
+                  <div class="h-14 w-24 flex-shrink-0 mr-3">
                     <img
-                      :src="
-                        course.image ||
-                        'https://img.lovepik.com/png/20231114/golf-course-clipart-golf-course-isometric-icon-with-river-and_586078_wh860.png'
-                      "
-                      class="h-10 w-10 rounded-full object-cover"
-                      alt="Course thumbnail"
+                      :src="course.image"
+                      class="h-14 w-24 rounded object-cover border border-gray-200"
+                      alt="Ảnh sân golf"
+                      v-if="course.image"
                     />
+                    <div
+                      v-else
+                      class="h-14 w-24 flex items-center justify-center bg-gray-100 text-gray-400 rounded border border-gray-200 text-xs"
+                    >
+                      Không có ảnh
+                    </div>
                   </div>
                   <div class="text-sm font-medium text-gray-900">
                     {{ course.name }}
@@ -210,7 +214,6 @@
         ></div>
       </div>
     </div>
-
     <!-- Course Modal -->
     <div
       v-if="showCourseModal"
@@ -298,14 +301,23 @@
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Hình ảnh URL</label
+              >Hình ảnh sân golf</label
             >
-            <input
-              type="text"
-              v-model="courseForm.image"
-              placeholder="https://example.com/image.jpg"
-              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
+            <div class="flex items-center gap-4">
+              <input
+                type="file"
+                accept="image/*"
+                @change="onImageChange"
+                class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+              <div v-if="courseForm.image" class="h-14 w-24 flex-shrink-0">
+                <img
+                  :src="courseForm.image"
+                  class="h-14 w-24 rounded object-cover border border-gray-200"
+                  alt="Ảnh xem trước"
+                />
+              </div>
+            </div>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1"
@@ -425,6 +437,16 @@ const courseForm = reactive({
   duration: 0,
   description: "",
 });
+
+function onImageChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    courseForm.image = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
 const filters = reactive({
   status: "",

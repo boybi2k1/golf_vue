@@ -19,13 +19,23 @@
                   class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md"
                 >
                   <img
-                    :src="
-                      user.avatarUrl ||
-                      '/placeholder.svg?height=128&width=128&text=Avatar'
-                    "
+                    v-if="userForm.avatar"
+                    :src="userForm.avatar"
                     alt="Avatar"
                     class="w-full h-full object-cover"
                   />
+                  <div
+                    v-else
+                    class="w-full h-full flex items-center justify-center bg-gray-200 text-4xl font-bold text-green-700 select-none"
+                  >
+                    {{
+                      userForm.fullName &&
+                      userForm.fullName
+                        .split(" ")
+                        .map((word) => word[0]?.toUpperCase() || "")
+                        .join("")
+                    }}
+                  </div>
                 </div>
                 <button
                   @click="openFileUpload"
@@ -42,14 +52,14 @@
                 />
               </div>
               <h2 class="text-xl font-bold text-gray-800">
-                {{ user.fullName }}
+                {{ userForm.fullName }}
               </h2>
-              <p class="text-gray-600">{{ user.email }}</p>
+              <p class="text-gray-600">{{ userForm.email }}</p>
               <div class="mt-2 flex items-center">
                 <span
                   class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 font-medium"
                 >
-                  {{ getMembershipLabel(user.membershipType) }}
+                  {{ getMembershipLabel(userForm.membershipType) }}
                 </span>
               </div>
             </div>
@@ -62,7 +72,7 @@
                   <div>
                     <p class="text-sm text-gray-500">Số điện thoại</p>
                     <p class="font-medium">
-                      {{ user.phone || "Chưa cập nhật" }}
+                      {{ guestForm.phone || "Chưa cập nhật" }}
                     </p>
                   </div>
                 </div>
@@ -70,7 +80,7 @@
                   <MailIcon class="w-5 h-5 text-green-600 mr-3 mt-0.5" />
                   <div>
                     <p class="text-sm text-gray-500">Email</p>
-                    <p class="font-medium">{{ user.email }}</p>
+                    <p class="font-medium">{{ guestForm.email }}</p>
                   </div>
                 </div>
                 <div class="flex items-start">
@@ -78,7 +88,7 @@
                   <div>
                     <p class="text-sm text-gray-500">Địa chỉ</p>
                     <p class="font-medium">
-                      {{ user.address || "Chưa cập nhật" }}
+                      {{ guestForm.address || "Chưa cập nhật" }}
                     </p>
                   </div>
                 </div>
@@ -123,7 +133,7 @@
                     >Họ và tên</label
                   >
                   <input
-                    v-model="personalInfo.fullName"
+                    v-model="guestForm.fullName"
                     type="text"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -133,7 +143,7 @@
                     >Ngày sinh</label
                   >
                   <input
-                    v-model="personalInfo.birthDate"
+                    v-model="guestForm.birthDate"
                     type="date"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -143,7 +153,7 @@
                     >Số điện thoại</label
                   >
                   <input
-                    v-model="personalInfo.phone"
+                    v-model="guestForm.phone"
                     type="tel"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -153,7 +163,7 @@
                     >Email</label
                   >
                   <input
-                    v-model="personalInfo.email"
+                    v-model="guestForm.email"
                     type="email"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -163,7 +173,7 @@
                     >Địa chỉ</label
                   >
                   <input
-                    v-model="personalInfo.address"
+                    v-model="guestForm.address"
                     type="text"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -173,7 +183,7 @@
                     >Giới tính</label
                   >
                   <select
-                    v-model="personalInfo.gender"
+                    v-model="guestForm.gender"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="MALE">Nam</option>
@@ -183,11 +193,11 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Quốc tịch</label
+                    >Ngày sinh</label
                   >
                   <input
-                    v-model="personalInfo.nationality"
-                    type="text"
+                    v-model="guestForm.birthDate"
+                    type="date"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
@@ -205,7 +215,7 @@
           </div>
 
           <!-- Membership Tab -->
-          <div
+          <!-- <div
             v-if="activeTab === 'membership'"
             class="bg-white rounded-lg shadow-md p-6"
           >
@@ -295,7 +305,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- Security Tab -->
           <div
@@ -356,63 +366,36 @@
       </div>
     </div>
 
-    <!-- Success notification -->
-    <div
-      v-if="showNotification"
-      class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg flex items-center"
-    >
-      <CheckCircleIcon class="w-5 h-5 mr-2" />
-      {{ notificationMessage }}
-    </div>
+    <!-- Success/Error notification -->
+   
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, inject } from "vue";
 import {
   Camera as CameraIcon,
   Phone as PhoneIcon,
   Mail as MailIcon,
   MapPin as MapPinIcon,
   Check as CheckIcon,
-  CheckCircle as CheckCircleIcon,
   Smartphone as SmartphoneIcon,
   Tablet as TabletIcon,
   Laptop as DeviceIcon,
 } from "lucide-vue-next";
-
+const showToast = inject('showToast');
+// Notification status: 'success' | 'error'
+import { useAuthStore } from "../stores/auth";
+import { useGuestStore } from "../stores/guest";
+import { getMembershipLabel } from "../utils/format";
+import { useUserStore } from "../stores/user";
+import { URL_IMAGE } from "../api";
+const userStore = useUserStore();
 // State
 const activeTab = ref("personal");
-const showNotification = ref(false);
-const notificationMessage = ref("");
 const fileInput = ref(null);
 
 // User data
-const user = reactive({
-  id: "USR001",
-  fullName: "Nguyễn Văn A",
-  email: "nguyenvana@example.com",
-  phone: "0912345678",
-  address: "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh",
-  avatarUrl: null,
-  membershipType: "GOLD",
-  membershipExpiry: "2025-12-31",
-  memberSince: "2020-05-15",
-  handicap: 12.5,
-  totalGames: 48,
-  favoriteCourse: "Kings Island Golf Resort",
-});
-
-// Form data
-const personalInfo = reactive({
-  fullName: user.fullName,
-  birthDate: "1985-07-15",
-  phone: user.phone,
-  email: user.email,
-  address: user.address,
-  gender: "MALE",
-  nationality: "Việt Nam",
-});
 
 const passwordForm = reactive({
   currentPassword: "",
@@ -431,79 +414,6 @@ const tabs = [
   { id: "security", label: "Bảo mật" },
 ];
 
-// Golf courses
-const golfCourses = [
-  { id: "GC001", name: "Kings Island Golf Resort" },
-  { id: "GC002", name: "Vinpearl Golf Nam Hội An" },
-  { id: "GC003", name: "BRG Da Nang Golf Resort" },
-  { id: "GC004", name: "The Bluffs Ho Tram Strip" },
-  { id: "GC005", name: "Long Thanh Golf Club" },
-];
-
-// Membership plans
-const membershipPlans = [
-  {
-    id: "BASIC",
-    name: "Cơ bản",
-    price: 5000000,
-    features: [
-      "Đặt sân trước 3 ngày",
-      "Giảm 5% phí sân",
-      "Không giới hạn số lần chơi",
-    ],
-  },
-  {
-    id: "GOLD",
-    name: "Vàng",
-    price: 15000000,
-    features: [
-      "Đặt sân trước 7 ngày",
-      "Giảm 15% phí sân",
-      "Giảm 10% dịch vụ caddie",
-      "Tham gia các sự kiện độc quyền",
-    ],
-  },
-  {
-    id: "PLATINUM",
-    name: "Bạch kim",
-    price: 30000000,
-    features: [
-      "Đặt sân trước 14 ngày",
-      "Giảm 25% phí sân",
-      "Giảm 20% dịch vụ caddie",
-      "Tham gia các sự kiện độc quyền",
-      "Huấn luyện viên riêng 2 buổi/tháng",
-    ],
-  },
-];
-
-// Methods
-function formatDate(dateString) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
-
-function formatPrice(price) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(price);
-}
-
-function getMembershipLabel(membershipType) {
-  const membershipMap = {
-    BASIC: "Hội viên Cơ bản",
-    GOLD: "Hội viên Vàng",
-    PLATINUM: "Hội viên Bạch kim",
-  };
-  return membershipMap[membershipType] || membershipType;
-}
-
 function getRemainingDays(expiryDate) {
   if (!expiryDate) return 0;
   const today = new Date();
@@ -517,32 +427,18 @@ function openFileUpload() {
   fileInput.value.click();
 }
 
-function handleAvatarChange(event) {
+async function handleAvatarChange(event) {
   const file = event.target.files[0];
   if (file) {
-    // In a real app, this would upload the file to a server
-    // For now, we'll just create a local URL
-    user.avatarUrl = URL.createObjectURL(file);
-    showNotification.value = true;
-    notificationMessage.value = "Ảnh đại diện đã được cập nhật";
-    setTimeout(() => {
-      showNotification.value = false;
-    }, 3000);
+    try {
+      const result = await userStore.changeAvatar(file);
+      // fallback: tạo URL tạm nếu backend không trả về url
+      userForm.avatar = URL.createObjectURL(file);
+      showToast("Cập nhật ảnh đại diện thành công");
+    } catch (err) {
+      showToast("Cập nhật ảnh đại diện thất bại", "error");
+    }
   }
-}
-
-function savePersonalInfo() {
-  // In a real app, this would send the data to a server
-  user.fullName = personalInfo.fullName;
-  user.phone = personalInfo.phone;
-  user.email = personalInfo.email;
-  user.address = personalInfo.address;
-
-  showNotification.value = true;
-  notificationMessage.value = "Thông tin cá nhân đã được cập nhật";
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
 }
 
 function upgradeMembership(membershipId) {
@@ -554,37 +450,30 @@ function upgradeMembership(membershipId) {
   );
 }
 
-function changePassword() {
+async function changePassword() {
   // Validate passwords
   if (passwordForm.newPassword !== passwordForm.confirmPassword) {
     alert("Mật khẩu mới không khớp");
     return;
   }
 
-  // In a real app, this would send the data to a server
-  showNotification.value = true;
-  notificationMessage.value = "Mật khẩu đã được cập nhật";
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
+  const data = {
+    oldPassword: passwordForm.currentPassword,
+    newPassword: passwordForm.newPassword,
+  };
+  await userStore
+    .changePassword(data)
+    .then(() => {
+      showToast("Đổi mật khẩu thành công");
+    })
+    .catch((error) => {
+      showToast("Đổi mật khẩu thất bại", "error");
+    });
 
   // Reset form
   passwordForm.currentPassword = "";
   passwordForm.newPassword = "";
   passwordForm.confirmPassword = "";
-}
-
-function toggleTwoFactor() {
-  // In a real app, this would open a setup flow for 2FA
-  securitySettings.twoFactorEnabled = !securitySettings.twoFactorEnabled;
-
-  showNotification.value = true;
-  notificationMessage.value = securitySettings.twoFactorEnabled
-    ? "Xác thực hai yếu tố đã được bật"
-    : "Xác thực hai yếu tố đã được tắt";
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
 }
 
 const activeSessions = ref([]);
@@ -619,8 +508,103 @@ function terminateAllSessions() {
   }, 3000);
 }
 
+const authStore = useAuthStore();
+const guestStore = useGuestStore();
+// const { user } = storeToRefs(authStore);
+
+const userCurrent = ref(null);
+const userGuest = ref(null);
+
+const userForm = reactive({
+  id: "",
+  fullName: "",
+  email: "",
+  phone: "",
+  avatar: "",
+  isActive: true,
+  provider: "LOCAL",
+  createdBy: authStore.userId,
+  updatedBy: authStore.userId,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  role: "GOLFER",
+});
+
+const guestForm = reactive({
+  id: "",
+  fullName: "",
+  email: "",
+  phone: "",
+  isDelete: false,
+  role: "GUEST",
+  userId: "",
+  address: "",
+  birthDate: "",
+  gender: "",
+  totalBooking: 0,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  createdBy: authStore.userId,
+  updatedBy: authStore.userId,
+});
+async function savePersonalInfo() {
+  try {
+    const data = {
+      fullName: guestForm.fullName,
+      email: guestForm.email,
+      gender: guestForm.gender,
+      phone: guestForm.phone,
+      address: guestForm.address,
+      birthDate: guestForm.birthDate,
+    };
+    const updateGuest = await guestStore.updateGuest(guestForm.id, data);
+    if (updateGuest) {
+      userForm.fullName = guestForm.fullName;
+      userForm.email = guestForm.email;
+      userForm.phone = guestForm.phone;
+      showToast("Cập nhật thông tin cá nhân thành công");
+    } else {
+      throw new Error("Cập nhật thông tin cá nhân thất bại");
+    }
+  } catch (error) {
+    console.error(error);
+    showToast("Cập nhật thông tin cá nhân thất bại", "error");
+  }
+}
+const fetchUserData = async () => {
+  try {
+    const userId = authStore.userId;
+    // Simulate fetching user data from an API
+    userCurrent.value = await authStore.fetchUser();
+    userGuest.value = await guestStore.getGuestByUserId(userId);
+    console.log("userCurrent", userCurrent.value);
+    console.log("userGuest", userGuest.value);
+    if (userCurrent.value) {
+      userForm.id = userCurrent.value.id;
+      userForm.fullName = userCurrent.value.fullName;
+      userForm.email = userCurrent.value.email;
+      userForm.phone = userCurrent.value.phone;
+      userForm.avatar = URL_IMAGE + userCurrent.value.avatar;
+    }
+    console.log("userForm", userForm);
+    if (userGuest.value) {
+      guestForm.id = userGuest.value.id;
+      guestForm.fullName = userGuest.value.fullName;
+      guestForm.email = userGuest.value.email;
+      guestForm.phone = userGuest.value.phone;
+      guestForm.address = userGuest.value.address || "";
+      guestForm.birthDate = userGuest.value.birthDate || "";
+      guestForm.gender = userGuest.value.gender;
+      guestForm.userId = userGuest.value.userId;
+      guestForm.totalBooking = userGuest.value.totalBooking || 0;
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
 // Lifecycle hooks
 onMounted(() => {
-  // In a real app, this would fetch user data from a server
+  fetchUserData();
 });
 </script>

@@ -6,6 +6,7 @@ export const useAuthStore = defineStore("auth", {
     user: null,
     token: localStorage.getItem("token") || null,
     role: localStorage.getItem("role") || null,
+    userId: localStorage.getItem("userId") || null,
   }),
 
   getters: {
@@ -41,6 +42,8 @@ export const useAuthStore = defineStore("auth", {
         this.user = res.data.data;
         this.role = res.data.data.role;
         localStorage.setItem("role", this.role);
+        localStorage.setItem("userId", this.user.id);
+        return this.user;
       } catch (err) {
         this.logout();
       }
@@ -61,6 +64,7 @@ export const useAuthStore = defineStore("auth", {
       this.role = null;
       localStorage.removeItem("token");
       localStorage.removeItem("role");
+      localStorage.removeItem("userId");
     },
   },
 });
