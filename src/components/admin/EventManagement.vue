@@ -6,6 +6,7 @@
       <h1 class="text-xl font-semibold text-green-800">Quản Lý Sự Kiện</h1>
       <div class="flex gap-2">
         <button
+          v-if="isAdmin"
           @click="openNewEventModal"
           class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md"
         >
@@ -180,12 +181,14 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="editEvent(event)"
                     class="text-blue-500 hover:text-blue-700"
                   >
                     <EditIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="confirmDeleteEvent(event)"
                     class="text-red-500 hover:text-red-700"
                   >
@@ -210,15 +213,8 @@
         class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
       >
         <div
-          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-end"
         >
-          <div>
-            <p class="text-sm text-gray-700">
-              Hiển thị
-              <span class="font-medium">{{ filteredEvents.length }}</span> trong
-              số <span class="font-medium">{{ events.length }}</span> kết quả
-            </p>
-          </div>
           <div>
             <nav
               class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
@@ -567,6 +563,9 @@ import {
 
 import { useEventStore } from "../../stores/event";
 import { storeToRefs } from "pinia";
+import { checkAdminRole } from "../../utils/format";
+
+const isAdmin = checkAdminRole();
 const eventStore = useEventStore();
 const { events, pagination } = storeToRefs(eventStore);
 
@@ -640,7 +639,6 @@ function getStatusText(status) {
       return status;
   }
 }
-
 
 function getTargetUserTypeText(targetUserType) {
   switch (targetUserType) {

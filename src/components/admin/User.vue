@@ -16,7 +16,8 @@ import {
 import { useStaffStore } from "../../stores/staff";
 import { useGuestStore } from "../../stores/guest";
 import { storeToRefs } from "pinia";
-
+import { checkAdminRole } from "../../utils/format";
+const isAdmin = checkAdminRole();
 // State
 const currentPageStaff = ref(1);
 const currentPageGolfer = ref(1);
@@ -172,7 +173,7 @@ onMounted(() => {
     </div>
 
     <!-- Tabs -->
-    <div class="mb-4 flex gap-2">
+    <div v-if="isAdmin" class="mb-4 flex gap-2">
       <button
         :class="[
           'px-4 py-2 rounded-t-lg font-semibold',
@@ -376,12 +377,14 @@ onMounted(() => {
                     <EyeIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="editUser(user)"
                     class="text-blue-500 hover:text-blue-700"
                   >
                     <EditIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="confirmDeleteUser(user)"
                     class="text-red-500 hover:text-red-700"
                   >

@@ -19,8 +19,13 @@ import { useTeeTimeStore } from "../../stores/tee_time";
 import { storeToRefs } from "pinia";
 import { useServicesStore } from "../../stores/services";
 import { useToolStore } from "../../stores/tool";
-import { formatDate, getStatusBookingText } from "../../utils/format";
-const showToast = inject('showToast');
+import {
+  checkAdminRole,
+  formatDate,
+  getStatusBookingText,
+} from "../../utils/format";
+const showToast = inject("showToast");
+const isAdmin = checkAdminRole();
 // Stores
 const bookingStore = useBookingStore();
 const courseStore = useGolfCourseStore();
@@ -92,7 +97,7 @@ const bookingForm = reactive({
 // Lấy giá giờ chơi theo teeTime đã chọn
 const selectedTeeTimePrice = computed(() => {
   if (!bookingForm.teeTimeId) return 0;
-  const teeTime = availableTeeTimes.value.find(
+  const teeTime = mergedTeeTimes.value.find(
     (t) => t.id === bookingForm.teeTimeId
   );
   return teeTime ? teeTime.price : 0;
@@ -177,6 +182,7 @@ async function viewBooking(booking) {
 }
 
 async function editBooking(booking) {
+  console.log("Edit booking:", booking);
   isEditMode.value = true;
   selectedBookingId.value = booking.id;
   originalTeeTimeId.value = booking.teeTime.id;
@@ -184,6 +190,7 @@ async function editBooking(booking) {
   bookingForm.golfCourseId = booking.golfCourse.id;
   bookingForm.teeTimeId = booking.teeTime.id;
   bookingForm.priceByTeeTime = booking.teeTime.price;
+  console.log("bookingForm:", bookingForm.priceByTeeTime);
   teeTimeSelected.value = booking.teeTime;
   const detail = await bookingStore.getBookingDetailByBookingId(booking.id);
   Object.assign(editBookingDetails, detail);
@@ -246,16 +253,27 @@ async function holdTeeTime(teeTimeId) {
     teeTimeId: teeTimeId,
     holes: bookingForm.numberOfHoles,
   };
-  try{
+  try {
     const res = await teeTimeStore.holdTeeTime({ param });
     teeTimeSelected.value = res;
-
   } catch (error) {
     console.error("Error holding tee time:", error);
     showToast("TeeTime không có sẵn! Vui lòng chọn giờ khác", "error");
     return;
   }
 }
+
+// holdTeeTime khi thay doi teeTime
+watch(
+  () => bookingForm.teeTimeId,
+  (newTeeTimeId) => {
+    if (newTeeTimeId) {
+      holdTeeTime(newTeeTimeId);
+    } else {
+      teeTimeSelected.value = null; // Nếu không có tee time, đặt lại
+    }
+  }
+);
 
 function refreshData() {
   searchQuery.page = currentPage.value - 1;
@@ -394,7 +412,7 @@ setInterval(() => {
       bookingForm.bookingDate
     );
   }
-}, 10000);
+}, 30000);
 
 const mergedTeeTimes = computed(() => {
   // Nếu chưa hold tee time thì trả về danh sách gốc
@@ -409,18 +427,24 @@ const mergedTeeTimes = computed(() => {
   return [...availableTeeTimes.value, teeTimeSelected.value];
 });
 
-// Tính tổng tiền dịch vụ
+const priceByHoles = computed(() => {
+  // Lấy giá theo số lỗ đã chọn
+  const numberHoles = bookingForm.numberOfHoles || 9; // Mặc định là 9 lỗ nếu không có giá trị
+  const holeByCourse = golfCourses.value.find(
+    (course) => course.id === bookingForm.golfCourseId
+  )?.holes;
+  return numberHoles / holeByCourse;
+});
 
+// Tính tổng tiền dịch vụ
 const calPriceCourse = computed(() => {
-  const numPlayers = bookingForm.numPlayers || 0;
-  const priceByCourse = bookingForm.priceByTeeTime || 0;
-  return priceByCourse * numPlayers;
+  const numPlayers = bookingForm.numPlayers;
+  const priceByCourse = bookingForm.priceByTeeTime;
+  // Mặc định là 9 lỗ nếu không có giá trị
+  return priceByCourse * numPlayers * priceByHoles.value;
 });
 const totalPrice = computed(() => {
-  const numPlayers = bookingForm.numPlayers || 0;
-  const priceByCourse = bookingForm.priceByTeeTime || 0;
-  const courseTotal = priceByCourse * numPlayers;
-  return courseTotal + servicesTotal.value;
+  return calPriceCourse.value + servicesTotal.value;
 });
 const depositAmount = computed(() => {
   const total = totalPrice.value || 0;
@@ -691,7 +715,7 @@ const formatPrice = (price) => {
                   {{ getStatusBookingText(booking.status) }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <td class="px-6 py-4 whitespace-nowrap  text-sm font-medium">
                 <div class="flex space-x-2">
                   <button
                     @click="viewBooking(booking)"
@@ -706,6 +730,7 @@ const formatPrice = (price) => {
                     <EditIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="confirmDeleteBooking(booking)"
                     class="text-red-500 hover:text-red-700"
                   >
@@ -730,7 +755,7 @@ const formatPrice = (price) => {
         class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
       >
         <div
-          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-end"
         >
           <div>
             <nav
@@ -845,7 +870,6 @@ const formatPrice = (price) => {
               <select
                 v-model="bookingForm.teeTimeId"
                 required
-                @blur="holdTeeTime(bookingForm.teeTimeId)"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option v-if="availableTeeTimes.length === 0" disabled>

@@ -292,20 +292,21 @@
 
                   <div class="flex justify-end gap-2">
                     <button
+                      v-if="isAdmin"
                       @click="saveTeeTimeConfig(config, idx)"
                       class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
                     >
                       {{ config.id ? "Lưu" : "Thêm mới" }}
                     </button>
                     <button
-                      v-if="config.id"
+                      v-if="config.id && isAdmin"
                       @click="deleteTeeTimeConfig(config.id)"
                       class="flex items-center text-red-600 hover:text-red-800 text-sm font-medium"
                     >
                       <XIcon class="w-4 h-4 mr-1" /> Xóa cấu hình
                     </button>
                     <button
-                      v-else
+                      v-if="isAdmin && !config.id"
                       @click="removeNewTeeTimeConfig(idx)"
                       class="flex items-center text-red-600 hover:text-red-800 text-sm font-medium"
                     >
@@ -316,6 +317,7 @@
 
                 <!-- Nút thêm -->
                 <button
+                  v-if="isAdmin"
                   @click="addNewTeeTimeConfig"
                   class="inline-flex items-center text-green-700 hover:text-green-800 mt-2 font-semibold"
                 >
@@ -346,6 +348,7 @@
                         />
                       </div>
                       <button
+                        v-if="isAdmin"
                         @click="removeMembershipType(index)"
                         class="text-red-500 hover:text-red-700"
                       >
@@ -431,6 +434,7 @@
                           class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
                         <button
+                          v-if="isAdmin"
                           @click="removeBenefit(index, benefitIndex)"
                           class="ml-2 text-red-500 hover:text-red-700"
                         >
@@ -438,6 +442,7 @@
                         </button>
                       </div>
                       <button
+                        v-if="isAdmin"
                         @click="addBenefit(index)"
                         class="mt-2 text-sm text-green-700 hover:text-green-800 flex items-center"
                       >
@@ -446,6 +451,7 @@
                     </div>
                     <div class="flex justify-end mt-4">
                       <button
+                        v-if="isAdmin"
                         @click="saveMembershipType(type, index)"
                         class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
                       >
@@ -455,6 +461,7 @@
                   </div>
                 </div>
                 <button
+                  v-if="isAdmin"
                   @click="addMembershipType"
                   class="mt-3 flex items-center text-green-700 hover:text-green-800"
                 >
@@ -484,7 +491,9 @@ import { useGolfCourseStore } from "../../stores/golf_course";
 import { useTeeTimeConfigStore } from "../../stores/tee_time_config";
 import { useMembershipTypeStore } from "../../stores/membership_type";
 import { storeToRefs } from "pinia";
+import { checkAdminRole } from "../../utils/format";
 
+const isAdmin = checkAdminRole();
 // State
 const selectedCategoryId = ref(null);
 const selectedCategory = ref(null);

@@ -182,12 +182,14 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="editTool(tool)"
                     class="text-blue-500 hover:text-blue-700"
                   >
                     <EditIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="confirmDeleteTool(tool)"
                     class="text-red-500 hover:text-red-700"
                   >
@@ -404,6 +406,7 @@
         </div>
         <div class="flex justify-end space-x-2 border-t px-6 py-4">
           <button
+          
             @click="showConfirmModal = false"
             class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
@@ -436,6 +439,7 @@ import {
 } from "lucide-vue-next";
 import { useToolStore } from "../../stores/tool";
 import { storeToRefs } from "pinia";
+import { checkAdminRole } from "../../utils/format";
 
 // State
 const currentPage = ref(1);
@@ -446,7 +450,7 @@ const showActionsModal = ref(false);
 const isEditMode = ref(false);
 const selectedToolId = ref(null);
 const selectedTool = ref({});
-
+const isAdmin = checkAdminRole();
 const store = useToolStore();
 const { toolList } = storeToRefs(store);
 console.log("toolList", toolList.value);

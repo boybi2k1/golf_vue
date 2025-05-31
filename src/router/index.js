@@ -16,7 +16,6 @@ import AccountView from "../views/admin/AccountView.vue";
 import UserBookingView from "../views/user/UserBookingView.vue";
 import UserEventView from "../views/user/UserEventView.vue";
 import UserHistory from "../views/user/UserHistory.vue";
-import ProfileView from "../views/ProfileView.vue";
 import UserMembershipTypes from "../views/user/UserMembershipTypes.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
@@ -24,6 +23,8 @@ import Unauthorized from "../views/unauthorized.vue";
 import TeetimeView from "../views/admin/TeetimeView.vue";
 import Oauth2Redirect from "../components/Oauth2Redirect.vue";
 import VnpayView from "../views/VnpayView.vue";
+import UserProfileView from "../views/user/UserProfileView.vue";
+import ProfileView from "../views/admin/ProfileView.vue";
 
 const routes = [
   { path: "/login", name: "login", component: LoginView },
@@ -90,7 +91,7 @@ const routes = [
       { path: "booking", name: "user-booking", component: UserBookingView },
       { path: "events", name: "user-events", component: UserEventView },
       { path: "history", name: "user-history", component: UserHistory },
-      { path: "profile", name: "user-profile", component: ProfileView },
+      { path: "profile", name: "user-profile", component: UserProfileView},
       {
         path: "memberships",
         name: "user-memberships",

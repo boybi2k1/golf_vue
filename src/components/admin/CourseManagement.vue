@@ -6,6 +6,7 @@
       <h1 class="text-xl font-semibold text-green-800">Quản Lý Sân Golf</h1>
       <div class="flex gap-2">
         <button
+          v-if="isAdmin"
           @click="openNewCourseModal"
           class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md"
         >
@@ -180,12 +181,14 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="editCourse(course)"
                     class="text-blue-500 hover:text-blue-700"
                   >
                     <EditIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="confirmDeleteCourse(course)"
                     class="text-red-500 hover:text-red-700"
                   >
@@ -415,7 +418,10 @@ import {
 } from "lucide-vue-next";
 import { useGolfCourseStore } from "../../stores/golf_course"; // Nhớ cập nhật đúng đường dẫn tới store của bạn
 import { storeToRefs } from "pinia";
+import { checkAdminRole } from "../../utils/format";
 
+const isAdmin = checkAdminRole();
+console.log("isAdmin:", isAdmin);
 // State
 const currentPage = ref(1);
 const itemsPerPage = ref(10);

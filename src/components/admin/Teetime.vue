@@ -10,7 +10,8 @@ import {
 import { useGolfCourseStore } from "../../stores/golf_course";
 import { storeToRefs } from "pinia";
 import { useTeeTimeStore } from "../../stores/tee_time";
-
+import { checkAdminRole } from "../../utils/format";
+const isAdmin = checkAdminRole();
 const golfCourseStore = useGolfCourseStore();
 const { golfCourses } = storeToRefs(golfCourseStore);
 const teeTimeStore = useTeeTimeStore();
@@ -176,6 +177,7 @@ onMounted(async () => {
       <h1 class="text-xl font-semibold text-emerald-800">Quản Lý Tee Time</h1>
       <div class="flex gap-2">
         <button
+          v-if="isAdmin"
           @click="openCreateModal"
           class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md"
         >
@@ -237,15 +239,15 @@ onMounted(async () => {
             <option value="UNAVAILABLE">Không khả dụng</option>
           </select>
         </div>
-        
+
         <div class="mt-4 flex justify-end">
-              <button
-                @click="applyFilters"
-                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
-              >
-                Tìm kiếm
-              </button>
-            </div>
+          <button
+            @click="applyFilters"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+          >
+            Tìm kiếm
+          </button>
+        </div>
       </div>
     </div>
 
@@ -295,6 +297,7 @@ onMounted(async () => {
                 Giá
               </th>
               <th
+                v-if="isAdmin"
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 Thao tác
@@ -332,6 +335,7 @@ onMounted(async () => {
                 {{ formatPrice(teeTime.price) }}
               </td>
               <td
+                v-if="isAdmin"
                 class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
               >
                 <button

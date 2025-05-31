@@ -72,7 +72,7 @@
                   <div>
                     <p class="text-sm text-gray-500">Số điện thoại</p>
                     <p class="font-medium">
-                      {{ guestForm.phone || "Chưa cập nhật" }}
+                      {{ staffForm.phone || "Chưa cập nhật" }}
                     </p>
                   </div>
                 </div>
@@ -80,7 +80,7 @@
                   <MailIcon class="w-5 h-5 text-green-600 mr-3 mt-0.5" />
                   <div>
                     <p class="text-sm text-gray-500">Email</p>
-                    <p class="font-medium">{{ guestForm.email }}</p>
+                    <p class="font-medium">{{ staffForm.email }}</p>
                   </div>
                 </div>
                 <div class="flex items-start">
@@ -88,7 +88,7 @@
                   <div>
                     <p class="text-sm text-gray-500">Địa chỉ</p>
                     <p class="font-medium">
-                      {{ guestForm.address || "Chưa cập nhật" }}
+                      {{ staffForm.address || "Chưa cập nhật" }}
                     </p>
                   </div>
                 </div>
@@ -133,7 +133,7 @@
                     >Họ và tên</label
                   >
                   <input
-                    v-model="guestForm.fullName"
+                    v-model="staffForm.fullName"
                     type="text"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -143,7 +143,7 @@
                     >Ngày sinh</label
                   >
                   <input
-                    v-model="guestForm.birthDate"
+                    v-model="staffForm.birthDate"
                     type="date"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -153,7 +153,7 @@
                     >Số điện thoại</label
                   >
                   <input
-                    v-model="guestForm.phone"
+                    v-model="staffForm.phone"
                     type="tel"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -163,7 +163,7 @@
                     >Email</label
                   >
                   <input
-                    v-model="guestForm.email"
+                    v-model="staffForm.email"
                     type="email"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -173,7 +173,7 @@
                     >Địa chỉ</label
                   >
                   <input
-                    v-model="guestForm.address"
+                    v-model="staffForm.address"
                     type="text"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -183,7 +183,7 @@
                     >Giới tính</label
                   >
                   <select
-                    v-model="guestForm.gender"
+                    v-model="staffForm.gender"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="MALE">Nam</option>
@@ -196,7 +196,7 @@
                     >Ngày sinh</label
                   >
                   <input
-                    v-model="guestForm.birthDate"
+                    v-model="staffForm.birthDate"
                     type="date"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
@@ -213,99 +213,6 @@
               </div>
             </form>
           </div>
-
-          <!-- Membership Tab -->
-          <!-- <div
-            v-if="activeTab === 'membership'"
-            class="bg-white rounded-lg shadow-md p-6"
-          >
-            <h2 class="text-lg font-medium text-gray-900 mb-4">
-              Thông tin hội viên
-            </h2>
-
-            <div class="bg-green-50 p-4 rounded-lg mb-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="font-medium text-gray-800">
-                    Gói hội viên hiện tại
-                  </h3>
-                  <p class="text-lg font-bold text-green-600">
-                    {{ getMembershipLabel(user.membershipType) }}
-                  </p>
-                  <p class="text-sm text-gray-600">
-                    Ngày hết hạn: {{ formatDate(user.membershipExpiry) }}
-                  </p>
-                </div>
-                <div
-                  class="bg-white px-3 py-1 rounded-full text-green-600 font-medium border border-green-200"
-                >
-                  {{ getRemainingDays(user.membershipExpiry) }} ngày còn lại
-                </div>
-              </div>
-            </div>
-
-            <h3 class="font-medium text-gray-700 mb-3">
-              Nâng cấp gói hội viên
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div
-                v-for="plan in membershipPlans"
-                :key="plan.id"
-                :class="{
-                  'border rounded-lg overflow-hidden transition-all': true,
-                  'border-green-500 shadow-md': plan.id === user.membershipType,
-                  'border-gray-200 hover:border-green-300':
-                    plan.id !== user.membershipType,
-                }"
-              >
-                <div
-                  :class="{
-                    'p-4 border-b': true,
-                    'bg-green-50 border-green-200':
-                      plan.id === user.membershipType,
-                    'bg-gray-50 border-gray-200':
-                      plan.id !== user.membershipType,
-                  }"
-                >
-                  <h4 class="font-bold text-gray-800">{{ plan.name }}</h4>
-                  <p class="text-2xl font-bold mt-1">
-                    {{ formatPrice(plan.price)
-                    }}<span class="text-sm font-normal text-gray-500"
-                      >/năm</span
-                    >
-                  </p>
-                </div>
-                <div class="p-4">
-                  <ul class="space-y-2 mb-4">
-                    <li
-                      v-for="(feature, index) in plan.features"
-                      :key="index"
-                      class="flex items-start"
-                    >
-                      <CheckIcon class="w-5 h-5 text-green-500 mr-2 shrink-0" />
-                      <span class="text-sm">{{ feature }}</span>
-                    </li>
-                  </ul>
-                  <button
-                    v-if="plan.id === user.membershipType"
-                    disabled
-                    class="w-full bg-gray-100 text-gray-500 px-4 py-2 rounded-md cursor-not-allowed"
-                  >
-                    Gói hiện tại
-                  </button>
-                  <button
-                    v-else
-                    @click="upgradeMembership(plan.id)"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
-                  >
-                    {{
-                      plan.id > user.membershipType ? "Nâng cấp" : "Chuyển đổi"
-                    }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div> -->
 
           <!-- Security Tab -->
           <div
@@ -385,11 +292,11 @@ import {
 } from "lucide-vue-next";
 const showToast = inject('showToast');
 // Notification status: 'success' | 'error'
-import { useAuthStore } from "../stores/auth";
-import { useGuestStore } from "../stores/guest";
-import { getMembershipLabel } from "../utils/format";
-import { useUserStore } from "../stores/user";
-import { URL_IMAGE } from "../api";
+import { useAuthStore } from "../../stores/auth";
+import { useStaffStore } from "../../stores/staff";
+import { getMembershipLabel } from "../../utils/format";
+import { useUserStore } from "../../stores/user";
+import { URL_IMAGE } from "../../api";
 const userStore = useUserStore();
 // State
 const activeTab = ref("personal");
@@ -403,25 +310,12 @@ const passwordForm = reactive({
   confirmPassword: "",
 });
 
-const securitySettings = reactive({
-  twoFactorEnabled: false,
-});
-
 // Tabs
 const tabs = [
   { id: "personal", label: "Thông tin cá nhân" },
-  { id: "membership", label: "Hội viên" },
   { id: "security", label: "Bảo mật" },
 ];
 
-function getRemainingDays(expiryDate) {
-  if (!expiryDate) return 0;
-  const today = new Date();
-  const expiry = new Date(expiryDate);
-  const diffTime = expiry - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays > 0 ? diffDays : 0;
-}
 
 function openFileUpload() {
   fileInput.value.click();
@@ -441,14 +335,6 @@ async function handleAvatarChange(event) {
   }
 }
 
-function upgradeMembership(membershipId) {
-  // In a real app, this would redirect to a payment page
-  alert(
-    `Chuyển đến trang thanh toán để nâng cấp lên ${getMembershipLabel(
-      membershipId
-    )}`
-  );
-}
 
 async function changePassword() {
   // Validate passwords
@@ -476,44 +362,13 @@ async function changePassword() {
   passwordForm.confirmPassword = "";
 }
 
-const activeSessions = ref([]);
-
-function terminateSession(sessionId) {
-  // In a real app, this would send a request to terminate the session
-  const index = activeSessions.findIndex((session) => session.id === sessionId);
-  if (index !== -1) {
-    activeSessions.splice(index, 1);
-  }
-
-  showNotification.value = true;
-  notificationMessage.value = "Phiên đăng nhập đã được kết thúc";
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-}
-
-function terminateAllSessions() {
-  // In a real app, this would send a request to terminate all sessions except the current one
-  const currentSession = activeSessions.find((session) => session.current);
-  activeSessions.length = 0;
-  if (currentSession) {
-    activeSessions.push(currentSession);
-  }
-
-  showNotification.value = true;
-  notificationMessage.value =
-    "Tất cả các phiên đăng nhập khác đã được kết thúc";
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-}
 
 const authStore = useAuthStore();
-const guestStore = useGuestStore();
+const staffStore = useStaffStore();
 // const { user } = storeToRefs(authStore);
 
 const userCurrent = ref(null);
-const userGuest = ref(null);
+const userstaff = ref(null);
 
 const userForm = reactive({
   id: "",
@@ -530,18 +385,17 @@ const userForm = reactive({
   role: "GOLFER",
 });
 
-const guestForm = reactive({
+const staffForm = reactive({
   id: "",
   fullName: "",
   email: "",
   phone: "",
   isDelete: false,
-  role: "GUEST",
+  role: "staff",
   userId: "",
   address: "",
   birthDate: "",
   gender: "",
-  totalBooking: 0,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   createdBy: authStore.userId,
@@ -550,18 +404,18 @@ const guestForm = reactive({
 async function savePersonalInfo() {
   try {
     const data = {
-      fullName: guestForm.fullName,
-      email: guestForm.email,
-      gender: guestForm.gender,
-      phone: guestForm.phone,
-      address: guestForm.address,
-      birthDate: guestForm.birthDate,
+      fullName: staffForm.fullName,
+      email: staffForm.email,
+      gender: staffForm.gender,
+      phone: staffForm.phone,
+      address: staffForm.address,
+      birthDate: staffForm.birthDate,
     };
-    const updateGuest = await guestStore.updateGuest(guestForm.id, data);
-    if (updateGuest) {
-      userForm.fullName = guestForm.fullName;
-      userForm.email = guestForm.email;
-      userForm.phone = guestForm.phone;
+    const updatestaff = await staffStore.updatestaff(staffForm.id, data);
+    if (updatestaff) {
+      userForm.fullName = staffForm.fullName;
+      userForm.email = staffForm.email;
+      userForm.phone = staffForm.phone;
       showToast("Cập nhật thông tin cá nhân thành công");
     } else {
       throw new Error("Cập nhật thông tin cá nhân thất bại");
@@ -572,13 +426,14 @@ async function savePersonalInfo() {
   }
 }
 const fetchUserData = async () => {
+  console.log("Fetching user data...");
   try {
-    const userId = authStore.userId;
+    const userId = localStorage.getItem("userId");
     // Simulate fetching user data from an API
     userCurrent.value = await authStore.fetchUser();
-    userGuest.value = await guestStore.getGuestByUserId(userId);
+    userstaff.value = await staffStore.getStaffByUserId(userId);
     console.log("userCurrent", userCurrent.value);
-    console.log("userGuest", userGuest.value);
+    console.log("userstaff", userstaff.value);
     if (userCurrent.value) {
       userForm.id = userCurrent.value.id;
       userForm.fullName = userCurrent.value.fullName;
@@ -587,16 +442,16 @@ const fetchUserData = async () => {
       userForm.avatar = URL_IMAGE + userCurrent.value.avatar;
     }
     console.log("userForm", userForm);
-    if (userGuest.value) {
-      guestForm.id = userGuest.value.id;
-      guestForm.fullName = userGuest.value.fullName;
-      guestForm.email = userGuest.value.email;
-      guestForm.phone = userGuest.value.phone;
-      guestForm.address = userGuest.value.address || "";
-      guestForm.birthDate = userGuest.value.birthDate || "";
-      guestForm.gender = userGuest.value.gender;
-      guestForm.userId = userGuest.value.userId;
-      guestForm.totalBooking = userGuest.value.totalBooking || 0;
+    if (userstaff.value) {
+      staffForm.id = userstaff.value.id;
+      staffForm.fullName = userstaff.value.fullName;
+      staffForm.email = userstaff.value.email;
+      staffForm.phone = userstaff.value.phone;
+      staffForm.address = userstaff.value.address || "";
+      staffForm.birthDate = userstaff.value.birthDate || "";
+      staffForm.gender = userstaff.value.gender;
+      staffForm.userId = userstaff.value.userId;
+      staffForm.totalBooking = userstaff.value.totalBooking || 0;
     }
   } catch (error) {
     console.error("Error fetching user data:", error);

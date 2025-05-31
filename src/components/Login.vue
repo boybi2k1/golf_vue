@@ -47,7 +47,7 @@ const handleLogin = async () => {
     isLoading.value = true;
     await authStore.login(email.value, password.value);
     const role = authStore.user.role;
-    if (role === "ADMIN") {
+    if (role === "ADMIN" || role === "STAFF") {
       router.push("/admin"); // Đăng nhập thành công → về trang admin
     } else if (role === "MEMBER") {
       console.log("Đăng nhập thành công với vai trò MEMBER");

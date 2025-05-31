@@ -9,5 +9,5 @@
 </template>
 
 <script setup>
-import Profile from '../components/ProfileMember.vue';
+import Profile from '../../components/admin/Profile.vue';
 </script>

@@ -168,7 +168,11 @@
                 <div class="flex items-center">
                   <div class="h-10 w-10 flex-shrink-0 mr-3">
                     <template v-if="member.avatar">
-                      <img :src="member.avatar" :alt="member.fullName" class="w-10 h-10 rounded-full object-cover border border-gray-300" />
+                      <img
+                        :src="member.avatar"
+                        :alt="member.fullName"
+                        class="w-10 h-10 rounded-full object-cover border border-gray-300"
+                      />
                     </template>
                     <template v-else>
                       <div
@@ -249,6 +253,7 @@
                       <EyeIcon class="w-4 h-4" /> Xem chi tiết
                     </button>
                     <button
+                      v-if="isAdmin"
                       @click="
                         editMember(member);
                         actionDropdownId = null;
@@ -258,7 +263,7 @@
                       <EditIcon class="w-4 h-4" /> Chỉnh sửa
                     </button>
                     <button
-                      v-if="member.status === 'PENDING'"
+                      v-if="member.status === 'PENDING' && isAdmin"
                       @click="
                         confirmMembership(member.id);
                         actionDropdownId = null;
@@ -268,7 +273,7 @@
                       <CheckIcon class="w-4 h-4" /> Xác nhận đăng ký
                     </button>
                     <button
-                      v-if="member.status === 'ACTIVE'"
+                      v-if="member.status === 'ACTIVE' && isAdmin"
                       @click="
                         lockMembership(member.id);
                         actionDropdownId = null;
@@ -278,7 +283,7 @@
                       <LockIcon class="w-4 h-4" /> Tạm khóa
                     </button>
                     <button
-                      v-if="member.status === 'EXPIRED'"
+                      v-if="member.status === 'EXPIRED' && isAdmin"
                       @click="
                         renewMembership(member.id);
                         actionDropdownId = null;
@@ -288,6 +293,7 @@
                       <RefreshCwIcon class="w-4 h-4" /> Gia hạn
                     </button>
                     <button
+                      v-if="isAdmin"
                       @click="
                         confirmDeleteMember(member);
                         actionDropdownId = null;
@@ -708,6 +714,7 @@ import {
 import { useMembershipStore } from "../../stores/membership";
 import { storeToRefs } from "pinia";
 import { useMembershipTypeStore } from "../../stores/membership_type";
+import { checkAdminRole } from "../../utils/format";
 
 // Store and state
 const membershipStore = useMembershipStore();
@@ -722,6 +729,7 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const actionDropdownId = ref(null);
 
+const isAdmin = checkAdminRole();
 function toggleActionDropdown(id) {
   actionDropdownId.value = actionDropdownId.value === id ? null : id;
 }

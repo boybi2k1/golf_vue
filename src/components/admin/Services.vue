@@ -14,6 +14,7 @@ import {
 } from "lucide-vue-next";
 import { useServicesStore } from "../../stores/services";
 import { storeToRefs } from "pinia";
+import { checkAdminRole } from "../../utils/format";
 
 // State
 const showServiceModal = ref(false);
@@ -22,7 +23,7 @@ const showConfirmModal = ref(false);
 const isEditMode = ref(false);
 const selectedServiceId = ref(null);
 const selectedService = ref({});
-
+const isAdmin = checkAdminRole();
 const searchQuery = reactive({
   page: 1,
   size: 10,
@@ -187,6 +188,7 @@ onMounted(() => {
       <h1 class="text-xl font-semibold text-green-800">Quản Lý Dịch Vụ</h1>
       <div class="flex gap-2">
         <button
+          v-if="isAdmin"
           @click="openNewServiceModal"
           class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-md"
         >
@@ -354,12 +356,14 @@ onMounted(() => {
                     <EyeIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="editService(service)"
                     class="text-blue-500 hover:text-blue-700"
                   >
                     <EditIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="isAdmin"
                     @click="confirmDeleteService(service)"
                     class="text-red-500 hover:text-red-700"
                   >

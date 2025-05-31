@@ -85,7 +85,6 @@ export function getPlayerTypeLabel(type) {
   return typeMap[type] || type;
 }
 
-
 export function getMembershipLabel(type) {
   const typeMap = {
     BASIC: "Cơ bản",
@@ -95,4 +94,7 @@ export function getMembershipLabel(type) {
   return typeMap[type] || type;
 }
 
-
+export function checkAdminRole() {
+  const role = localStorage.getItem("role");
+  return role === "ADMIN";
+}

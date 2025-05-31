@@ -20,7 +20,8 @@
             <div class="px-4 py-2 text-sm text-gray-700 border-b">
               <p class="font-semibold text-gray-900">Notifications</p>
             </div>
-          s</div>
+            s
+          </div>
         </div>
         <div class="relative">
           <button
@@ -84,17 +85,14 @@ const logout = (e) => {
   window.location.href = "/login";
 };
 
-
 const handleProfile = (e) => {
-  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  if (e && typeof e.preventDefault === "function") e.preventDefault();
   // Chuyển hướng đến trang hồ sơ phù hợp với vai trò
   const user = authStore.user;
-  if (user && user.role && user.role.toLowerCase() === 'admin') {
-    router.push("/admin/profile");
-  } else {
+  if (user && user.role && user.role.toLowerCase() === "member") {
     router.push("/profile");
+  } else {
+    router.push("/admin/profile");
   }
 };
-
-
 </script>
