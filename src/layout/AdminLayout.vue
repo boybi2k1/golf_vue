@@ -11,5 +11,5 @@
 
 <script setup>
 import AppHeader from "../components/AppHeader.vue";
-import SideBar from "../components/admin/SideBar.vue";
+import SideBar from "../components/SideBar.vue";
 </script>

@@ -1,3 +1,4 @@
+import GolfCourseIntroView from "../views/GolfCourseIntroView.vue";
 import UserLayout from "../layout/UserLayout.vue";
 import AdminLayout from "../layout/AdminLayout.vue";
 import LoginView from "../views/LoginView.vue";
@@ -25,6 +26,7 @@ import Oauth2Redirect from "../components/Oauth2Redirect.vue";
 import VnpayView from "../views/VnpayView.vue";
 import UserProfileView from "../views/user/UserProfileView.vue";
 import ProfileView from "../views/admin/ProfileView.vue";
+import NotificationView from "../views/NotificationView.vue";
 
 const routes = [
   { path: "/login", name: "login", component: LoginView },
@@ -35,6 +37,7 @@ const routes = [
     name: "OAuth2Redirect",
     component: Oauth2Redirect,
   },
+
   {
     path: "/admin",
     component: AdminLayout,
@@ -45,6 +48,12 @@ const routes = [
     children: [
       { path: "", name: "home", component: BookingView },
       { path: "booking", name: "booking", component: BookingView },
+      {
+        path: "booking/:id",
+        name: "booking-detail",
+        component: () => import("../views/admin/BookingDetailView.vue"),
+        meta: { requiresAuth: true, allowedRoles: ["STAFF", "ADMIN"] },
+      },
       {
         path: "course-management",
         name: "course-management",
@@ -75,6 +84,11 @@ const routes = [
       { path: "profile", name: "profile", component: ProfileView },
 
       { path: "account", name: "account", component: AccountView },
+      {
+        path: "notifications",
+        name: "notifications",
+        component: NotificationView,
+      },
     ],
   },
 
@@ -91,7 +105,7 @@ const routes = [
       { path: "booking", name: "user-booking", component: UserBookingView },
       { path: "events", name: "user-events", component: UserEventView },
       { path: "history", name: "user-history", component: UserHistory },
-      { path: "profile", name: "user-profile", component: UserProfileView},
+      { path: "profile", name: "user-profile", component: UserProfileView },
       {
         path: "memberships",
         name: "user-memberships",
@@ -101,6 +115,16 @@ const routes = [
         path: "/vnpay-return",
         name: "VNPayReturn",
         component: VnpayView,
+      },
+      {
+        path: "notifications",
+        name: "notifications",
+        component: NotificationView,
+      },
+      {
+        path: "/intro",
+        name: "golf-course-intro",
+        component: GolfCourseIntroView,
       },
     ],
   },

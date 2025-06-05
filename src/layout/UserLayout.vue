@@ -16,6 +16,6 @@
 
 <script setup>
 import AppHeader from "../components/AppHeader.vue";
-import UserSideBar from "../components/user/UserSideBar.vue";
+import UserSideBar from "../components/UserSideBar.vue";
 // Optionally, provide/inject or use Pinia for cross-component notification
 </script>

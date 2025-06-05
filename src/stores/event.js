@@ -22,10 +22,14 @@ export const useEventStore = defineStore("event", {
         this.loading = false;
       }
     },
-    async createEvent(payload) {
+    async createEvent(formData) {
       this.loading = true;
       try {
-        const res = await api.post("/event/create", payload);
+        const res = await api.post("/event/create", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         this.events.push(res.data.data);
       } catch (err) {
         this.error = err.message;
@@ -36,7 +40,11 @@ export const useEventStore = defineStore("event", {
     async updateEvent(id, payload) {
       this.loading = true;
       try {
-        await api.put(`/event/update/${id}`, payload);
+        await api.put(`/event/update/${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
       } catch (err) {
         this.error = err.message;
       } finally {

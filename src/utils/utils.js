@@ -37,7 +37,7 @@ export function getUserStatusText(status) {
   };
   return statuses[status] || status;
 }
-// src/utils/format.js
+// src/utils/utils.js
 
 export function formatDate(dateString) {
   if (!dateString) return "";
@@ -98,3 +98,27 @@ export function checkAdminRole() {
   const role = localStorage.getItem("role");
   return role === "ADMIN";
 }
+
+export function getCategoryText(type) {
+  const categories = {
+    CADDY: "Thuê caddy",
+    GOLF_CAR: "Thuê xe điện",
+    GOLF_CLUB: "Thuê gậy",
+    OTHER: "Khác",
+  };
+  return categories[type] || type;
+}
+
+export function formatDateTime(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleString("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+

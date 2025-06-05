@@ -30,7 +30,20 @@ export const useBookingStore = defineStore("booking", {
         this.loading = false;
       }
     },
-
+    async getBookingById(payload) {
+      try {
+        this.loading = true;
+        const res = await api.get(`/booking/${payload}`);
+        this.bookingDetail = res.data.data;
+        return this.bookingDetail;
+      }
+      catch (err) {
+        this.error = err.message;
+      }
+      finally {
+        this.loading = false;
+      }
+    },
     async updateBooking(bookingId, payload) {
       try {
         this.loading = true;

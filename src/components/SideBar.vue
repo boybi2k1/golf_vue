@@ -40,7 +40,7 @@ import {
   Wrench,
 } from "lucide-vue-next";
 import { useRoute, useRouter } from "vue-router";
-import { checkAdminRole } from "../../utils/format";
+import { checkAdminRole } from "../utils/utils";
 
 const activeItem = ref("dashboard");
 const emit = defineEmits(["update:activeItem"]);
