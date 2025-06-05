@@ -39,27 +39,44 @@ import {
   BarChart2,
   Wrench,
 } from "lucide-vue-next";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { checkAdminRole } from "../utils/utils";
 
 const activeItem = ref("dashboard");
 const emit = defineEmits(["update:activeItem"]);
 const router = useRouter();
 const route = useRoute();
 
-const navItems = [
-  { id: "dashboard", label: "Tổng Quan", icon: LayoutDashboard },
+const isAdmin = checkAdminRole();
+
+const navItemsAdmin = [
   { id: "booking", label: "Đặt Lịch", icon: Calendar },
-  { id: "checkin", label: "Checkin", icon: CalendarCheck },
   { id: "course-management", label: "Quản Lý Sân", icon: Map },
   { id: "event-management", label: "Quản Lý Sự Kiện", icon: Bell },
   { id: "member-management", label: "Quản Lý Hội Viên", icon: Users },
-  { id: "user-accounts", label: "Quản Lý Người Dùng", icon: Settings },
+  { id: "user", label: "Quản Lý Người Dùng", icon: Settings },
   { id: "services", label: "Quản Lý Dịch Vụ", icon: ShoppingBag },
   { id: "tools", label: "Quản Lý Trang Thiết Bị", icon: Hammer },
   { id: "payments", label: "Quản Lý Thanh Toán", icon: CreditCard },
+  { id: "tee-time", label: "Quản Lý Thời Gian Đặt", icon: CalendarCheck },
+  { id: "account", label: "Quản Lý Tài Khoản", icon: Users },
   { id: "reports", label: "Báo Cáo Thống Kê", icon: BarChart2 },
   { id: "system-settings", label: "Cài Đặt Hệ Thống", icon: Wrench },
 ];
+const navItemsStaff = [
+  { id: "booking", label: "Đặt Lịch", icon: Calendar },
+  { id: "course-management", label: "Quản Lý Sân", icon: Map },
+  { id: "event-management", label: "Quản Lý Sự Kiện", icon: Bell },
+  { id: "member-management", label: "Quản Lý Hội Viên", icon: Users },
+  { id: "user", label: "Quản Lý Người Dùng", icon: Settings },
+  { id: "services", label: "Quản Lý Dịch Vụ", icon: ShoppingBag },
+  { id: "tools", label: "Quản Lý Trang Thiết Bị", icon: Hammer },
+  { id: "payments", label: "Quản Lý Thanh Toán", icon: CreditCard },
+  { id: "tee-time", label: "Quản Lý Thời Gian Đặt", icon: CalendarCheck },
+  { id: "system-settings", label: "Cài Đặt Hệ Thống", icon: Wrench },
+];
+
+const navItems = isAdmin ? navItemsAdmin : navItemsStaff;
 
 function setActiveItem(itemId) {
   activeItem.value = itemId;
