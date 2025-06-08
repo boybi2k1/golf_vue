@@ -592,7 +592,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive, computed, inject } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useBookingStore } from "../../stores/booking";
 import {
@@ -608,7 +608,7 @@ import { useServicesStore } from "../../stores/services";
 import { useTeeTimeStore } from "../../stores/tee_time";
 import { useGolfCourseStore } from "../../stores/golf_course";
 import { watch } from "vue";
-
+const showToast = inject("showToast");
 // store
 const courseStore = useGolfCourseStore();
 const teeTimeStore = useTeeTimeStore();
@@ -776,7 +776,8 @@ watch(
 );
 
 async function saveBooking() {
-  await bookingStore.updateBooking(selectedBookingId.value, {
+  const selectedBookingId = route.params.id;
+  await bookingStore.updateBooking(selectedBookingId, {
     ...updateBookingForm,
   });
   showToast("Cập nhật đặt lịch thành công", "success");

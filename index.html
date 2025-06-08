@@ -13,21 +13,18 @@
     <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
 
     
-    <!-- <script>
-      window.addEventListener("dfMessengerLoaded", function () {
-        const dfMessenger = document.querySelector("df-messenger");
-        const shadowRoot = dfMessenger.shadowRoot;
-        const style = document.createElement("style");
-        style.textContent = `
-    #widgetIcon {
-      position: fixed !important;
-      bottom: 50px !important;
-      right: 50px !important;
-      z-index: 9999 !important;
-    }
-  `;
-        shadowRoot.appendChild(style);
-      });
-    </script> -->
+    </df-messenger>
+    <style>
+      df-messenger {
+        --df-messenger-button-titlebar-color: #2e7d32; /* Màu header */
+        --df-messenger-button-titlebar-font-color: white; /* Màu chữ header */
+        --df-messenger-chat-background-color: #f9f9f9; /* Màu nền khung chat */
+        --df-messenger-font-color: #000000; /* Màu chữ tin nhắn */
+        --df-messenger-user-message: #dcf8c6; /* Màu tin nhắn người dùng */
+        --df-messenger-bot-message: #ffffff; /* Màu tin nhắn bot */
+        --df-messenger-send-icon: #2e7d32; /* Màu nút gửi */
+      }
+
+    </style>
   </body>
 </html>

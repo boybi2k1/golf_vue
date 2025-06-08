@@ -811,119 +811,112 @@ const formatPrice = (price) => {
 
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
-                        >Sân Golf</label
-                      >
-                      <div class="relative">
-                        <select
-                          v-model="bookingForm.golfCourseId"
-                          class="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition-all duration-200"
+                      <div class="flex items-center gap-4">
+                        <label class="w-32 text-sm font-medium text-gray-700"
+                          >Sân Golf</label
                         >
-                          <option value="">Chọn sân golf</option>
-                          <option
-                            v-for="course in golfCourses"
-                            :key="course.id"
-                            :value="course.id"
+                        <div class="flex-1 relative">
+                          <select
+                            v-model="bookingForm.golfCourseId"
+                            class="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition-all duration-200"
                           >
-                            {{ course.name }}
-                          </option>
-                        </select>
-                        <div
-                          class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
-                        >
-                          <svg
-                            class="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M19 9l-7 7-7-7"
-                            ></path>
-                          </svg>
+                            <option value="">Chọn sân golf</option>
+                            <option
+                              v-for="course in golfCourses"
+                              :key="course.id"
+                              :value="course.id"
+                            >
+                              {{ course.name }}
+                            </option>
+                          </select>
                         </div>
                       </div>
                     </div>
 
                     <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
-                        >Ngày chơi</label
-                      >
-                      <input
-                        type="date"
-                        v-model="bookingForm.bookingDate"
-                        required
-                        :min="minBookingDate"
-                        :max="maxBookingDate"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
-                      />
+                      <div class="flex items-center gap-4">
+                        <label class="w-32 text-sm font-medium text-gray-700"
+                          >Ngày chơi</label
+                        >
+                        <input
+                          type="date"
+                          v-model="bookingForm.bookingDate"
+                          required
+                          :min="minBookingDate"
+                          :max="maxBookingDate"
+                          class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                        />
+                      </div>
                     </div>
 
                     <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
-                        >Số lỗ</label
-                      >
-                      <select
-                        v-model="bookingForm.numberOfHoles"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
-                      >
-                        <option
-                          v-for="hole in listHoles"
-                          :key="hole.id"
-                          :value="hole.value"
+                      <div class="flex items-center gap-4">
+                        <label class="w-32 text-sm font-medium text-gray-700"
+                          >Số lỗ</label
                         >
-                          {{ hole.label }}
-                        </option>
-                      </select>
+                        <select
+                          v-model="bookingForm.numberOfHoles"
+                          required
+                          class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                        >
+                          <option
+                            v-for="hole in listHoles"
+                            :key="hole.id"
+                            :value="hole.value"
+                          >
+                            {{ hole.label }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
 
                     <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
-                        >Tee Time</label
-                      >
-                      <select
-                        v-model="bookingForm.teeTimeId"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
-                        :class="{
-                          'border-red-300 bg-red-50':
-                            mergedTeeTimes.length === 0,
-                        }"
-                      >
-                        <option v-if="mergedTeeTimes.length === 0" disabled>
-                          Không có giờ khả dụng
-                        </option>
-                        <option
-                          v-for="time in mergedTeeTimes"
-                          :key="time.id"
-                          :value="time.id"
+                      <div class="flex items-center gap-4">
+                        <label class="w-32 text-sm font-medium text-gray-700"
+                          >Tee Time</label
                         >
-                          {{ time.startTime }}
-                        </option>
-                      </select>
-                      <p
-                        v-if="mergedTeeTimes.length === 0"
-                        class="text-sm text-red-500 flex items-center"
-                      >
-                        <svg
-                          class="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          ></path>
-                        </svg>
-                        Không có giờ khả dụng. Vui lòng thử lại sau.
-                      </p>
+                        <div class="flex-1">
+                          <select
+                            v-model="bookingForm.teeTimeId"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                            :class="{
+                              'border-red-300 bg-red-50':
+                                mergedTeeTimes.length === 0,
+                            }"
+                          >
+                            <option v-if="mergedTeeTimes.length === 0" disabled>
+                              Không có giờ khả dụng
+                            </option>
+                            <option
+                              v-for="time in mergedTeeTimes"
+                              :key="time.id"
+                              :value="time.id"
+                            >
+                              {{ time.startTime }}
+                            </option>
+                          </select>
+                          <p
+                            v-if="mergedTeeTimes.length === 0"
+                            class="text-sm text-red-500 flex items-center mt-1"
+                          >
+                            <svg
+                              class="w-4 h-4 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              ></path>
+                            </svg>
+                            Không có giờ khả dụng. Vui lòng thử lại sau.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -952,8 +945,8 @@ const formatPrice = (price) => {
                   </div>
 
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
+                    <div class="flex items-center gap-4 mb-4">
+                      <label class="w-40 text-sm font-medium text-gray-700"
                         >Tên khách hàng *</label
                       >
                       <input
@@ -961,45 +954,24 @@ const formatPrice = (price) => {
                         v-model="bookingForm.fullName"
                         required
                         placeholder="Nhập họ và tên"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
                       />
                     </div>
-
-                    <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
+                    <div class="flex items-center gap-4 mb-4">
+                      <label class="w-40 text-sm font-medium text-gray-700"
                         >Số người chơi</label
                       >
-                      <div class="relative">
-                        <input
-                          type="number"
-                          v-model="bookingForm.numPlayers"
-                          min="1"
-                          max="4"
-                          required
-                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
-                        />
-                        <div
-                          class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
-                        >
-                          <svg
-                            class="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                            ></path>
-                          </svg>
-                        </div>
-                      </div>
+                      <input
+                        type="number"
+                        v-model="bookingForm.numPlayers"
+                        min="1"
+                        max="4"
+                        required
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                      />
                     </div>
-
-                    <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
+                    <div class="flex items-center gap-4 mb-4">
+                      <label class="w-40 text-sm font-medium text-gray-700"
                         >Số điện thoại *</label
                       >
                       <input
@@ -1007,19 +979,18 @@ const formatPrice = (price) => {
                         v-model="bookingForm.phone"
                         required
                         placeholder="Nhập số điện thoại"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
                       />
                     </div>
-
-                    <div class="space-y-2">
-                      <label class="block text-sm font-medium text-gray-700"
+                    <div class="flex items-center gap-4 mb-4">
+                      <label class="w-40 text-sm font-medium text-gray-700"
                         >Email</label
                       >
                       <input
                         type="email"
                         v-model="bookingForm.email"
                         placeholder="Nhập địa chỉ email"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm transition-all duration-200"
                       />
                     </div>
                   </div>
