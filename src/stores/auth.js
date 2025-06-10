@@ -40,6 +40,7 @@ export const useAuthStore = defineStore("auth", {
       try {
         const res = await api.get("/user/me");
         this.user = res.data.data;
+        console.log("User fetched:", this.user);
         this.role = res.data.data.role;
         localStorage.setItem("role", this.role);
         localStorage.setItem("userId", this.user.id);

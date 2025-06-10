@@ -57,11 +57,11 @@
             class="flex items-center space-x-2 focus:outline-none"
           >
             <img
-              src="https://d1nhio0ox7pgb.cloudfront.net/_img/g_collection_png/standard/512x512/user.png"
+              :src="URL_IMAGE + user?.avatar"
               alt="User"
               class="w-8 h-8 rounded-full border-2 border-emerald-300"
             />
-            <span class="hidden md:inline">Admin</span>
+            <span class="hidden md:inline">{{ user?.fullName }}</span>
           </button>
           <div
             v-if="showUserMenu"
@@ -89,7 +89,9 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import { Flag, Bell } from "lucide-vue-next";
 import { useAuthStore } from "../stores/auth";
 import router from "../router";
-import { BASE_URL } from "../api";
+import { BASE_URL, URL_IMAGE } from "../api";
+import { on } from "process";
+import { storeToRefs } from "pinia";
 
 // UI state
 const showNotifications = ref(false);
@@ -101,6 +103,7 @@ const unreadCount = ref(0);
 
 // Auth
 const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 // Toggle
 const toggleNotifications = () => {
@@ -160,6 +163,10 @@ onBeforeUnmount(() => {
   if (eventSource) {
     eventSource.close();
   }
+});
+
+onMounted(() => {
+  authStore.fetchUser();
 });
 
 // Logout

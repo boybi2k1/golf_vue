@@ -36,11 +36,9 @@ export const useBookingStore = defineStore("booking", {
         const res = await api.get(`/booking/${payload}`);
         this.bookingDetail = res.data.data;
         return this.bookingDetail;
-      }
-      catch (err) {
+      } catch (err) {
         this.error = err.message;
-      }
-      finally {
+      } finally {
         this.loading = false;
       }
     },
@@ -88,11 +86,31 @@ export const useBookingStore = defineStore("booking", {
         this.loading = false;
       }
     },
-
-    async checkOut(payload) {
+    // CHECK IN
+    async checkIn({ param }) {
+      try {
+        console.log("checkIn param", param);
+        this.loading = true;
+        const res = await api.get("/booking/check-in", {
+          params: param,
+        });
+        const updated = res.data.data;
+        const index = this.bookings.findIndex((b) => b.id === updated.id);
+        if (index !== -1) {
+          this.bookings[index] = updated;
+        }
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    async checkOut({ param }) {
       try {
         this.loading = true;
-        const res = await api.post("/booking/check-out", payload);
+        const res = await api.get("/booking/check-out", {
+          params: param,
+        });
         const updated = res.data.data;
         const index = this.bookings.findIndex((b) => b.id === updated.id);
         if (index !== -1) {
@@ -108,7 +126,10 @@ export const useBookingStore = defineStore("booking", {
     async addBookingDetailToBooking(bookingId, data) {
       try {
         this.loading = true;
-        const res = await api.post(`/booking-detail/booking/${bookingId}`, data);
+        const res = await api.post(
+          `/booking-detail/booking/${bookingId}`,
+          data
+        );
         return res.data.data;
       } catch (err) {
         this.error = err.message;

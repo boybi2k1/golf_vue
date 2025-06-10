@@ -36,8 +36,10 @@
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Tất cả loại</option>
-                <option value="GOLF_CLUB">Gậy golf</option>
-                <option value="GOLF_CART">Xe điện</option>
+                <option value="SINGLE_CLUB">Gậy lẻ</option>
+                <option value="CLUB_SET">Bộ gậy</option>
+                <option value="BAG">Túi gậy</option>
+                <option value="CAR">Xe điện</option>
                 <option value="OTHER">Khác</option>
               </select>
             </div>
@@ -108,11 +110,6 @@
                 <th
                   class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Giá thuê
-                </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
                   Trạng thái
                 </th>
                 <th
@@ -155,9 +152,6 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ tool.quantity }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ tool.rentPrice }}
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -280,11 +274,18 @@
               >
                 <div
                   v-if="toolForm.imageUrl"
-                  class="relative rounded-lg overflow-hidden border-2 border-green-200"
+                  class="relative rounded-lg overflow-hidden border-2 border-green-200 flex items-center justify-center bg-white"
+                  style="
+                    width: 100%;
+                    aspect-ratio: 4/3;
+                    min-height: 180px;
+                    max-height: 260px;
+                  "
                 >
                   <img
                     :src="toolForm.imageUrl"
-                    class="w-full h-40 object-cover"
+                    class="object-contain w-full h-full"
+                    style="max-width: 100%; max-height: 100%"
                     alt="Ảnh thiết bị"
                   />
                   <div
@@ -348,8 +349,9 @@
                   required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
-                  <option value="GOLF_CLUB">Gậy golf</option>
-                  <option value="GOLF_CART">Xe điện</option>
+                  <option value="SINGLE_CLUB">Gậy lẻ</option>
+                  <option value="CLUB_SET">Bộ gậy</option>
+                  <option value="CAR">Xe điện</option>
                   <option value="OTHER">Khác</option>
                 </select>
               </div>
@@ -381,19 +383,6 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Giá thuê (VND)</label
-                >
-                <input
-                  type="number"
-                  v-model="toolForm.rentPrice"
-                  required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
                   >Nhà cung cấp</label
                 >
                 <input
@@ -404,6 +393,7 @@
                 />
               </div>
             </div>
+
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1"
                 >Mô tả</label
@@ -460,7 +450,8 @@
                 <img
                   v-if="selectedTool.imageUrl"
                   :src="selectedTool.imageUrl"
-                  class="w-full h-full object-cover"
+                  class="w-full h-full object-contain"
+                  style="background: #fff"
                   alt="Ảnh thiết bị"
                 />
                 <div
@@ -485,9 +476,6 @@
                 </div>
                 <div class="mb-1 text-sm text-gray-500">
                   Số lượng: {{ selectedTool.quantity }}
-                </div>
-                <div class="mb-1 text-sm text-gray-500">
-                  Giá thuê: {{ selectedTool.rentPrice }} VND
                 </div>
                 <div class="mb-1 text-sm text-gray-500">
                   Trạng thái:
@@ -679,9 +667,13 @@ const totalPages = computed(() => {
 
 function getCategoryText(category) {
   switch (category) {
-    case "GOLF_CLUB":
-      return "Gậy golf";
-    case "GOLF_CART":
+    case "SINGLE_CLUB":
+      return "Gậy lẻ";
+    case "CLUB_SET":
+      return "Bộ gậy";
+    case "BAG":
+      return "Túi gậy";
+    case "CAR":
       return "Xe điện";
     case "OTHER":
       return "Khác";
@@ -747,10 +739,12 @@ function resetToolForm() {
   });
 }
 function viewToolDetail(tool) {
-  selectedTool.value = tool;
+  selectedTool.value = { ...tool };
   showDetailsModal.value = true;
   selectedToolId.value = tool.id;
-  selectedTool.value.imageUrl = URL_IMAGE + tool.imageUrl;
+  if (tool.imageUrl && !tool.imageUrl.startsWith("data:image/")) {
+    selectedTool.value.imageUrl = URL_IMAGE + tool.imageUrl;
+  }
 }
 
 function editTool(tool) {
@@ -761,7 +755,9 @@ function editTool(tool) {
   Object.assign(toolForm, {
     ...selectedTool.value,
     createdAt: selectedTool.value.createdAt.split("T")[0], // Format for date input
-    imageUrl: selectedTool.value.image ? selectedTool.value.image : "",
+    imageUrl: selectedTool.value.imageUrl
+      ? URL_IMAGE + selectedTool.value.imageUrl
+      : "",
   });
   toolFile.value = null;
   showToolModal.value = true;
@@ -772,6 +768,7 @@ function saveTool() {
   const formData = new FormData();
   formData.append("name", toolForm.name);
   formData.append("type", toolForm.type);
+  formData.append("code", toolForm.code);
   formData.append("quantity", toolForm.quantity);
   formData.append("status", toolForm.status);
   formData.append("rentPrice", toolForm.rentPrice);

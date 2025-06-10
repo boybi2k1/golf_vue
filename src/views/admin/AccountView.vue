@@ -332,12 +332,11 @@ const saveUser = () => {
   if (showEditUserModal.value && selectedUserId.value) {
     accountStore.updateUser(selectedUserId.value, userData);
   } else {
-    if (userData.role === "STAFF") accountStore.createStaff(userData);
+     accountStore.createStaff(userData);
   }
-
   closeModal();
 };
-
+  
 //viet ham update
 const refreshData = async () => {
   searchQuery.page = currentPage.value;

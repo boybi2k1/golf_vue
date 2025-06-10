@@ -37,7 +37,7 @@ const paginationStaff = computed(() => {
 const paginationGolfer = computed(() => {
   guestStore.pagination;
 });
-console.log(guests.value);
+
 const data = computed(() => {
   return activeTab.value === "staff" ? staffList.value : guests.value;
 });

@@ -35,6 +35,29 @@
 
         <!-- Status Badge -->
         <div class="px-8 py-4 border-b border-gray-100">
+          <div class="flex items-center space-x-4 mb-4">
+            <button
+              v-if="booking?.status === 'CONFIRMED'"
+              @click="handleCheckIn"
+              class="bg-green-500 text-white hover:bg-green-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
+            >
+              Check-in
+            </button>
+            <button
+              v-if="booking?.status === 'PENDING'"
+              @click="handleConfirm"
+              class="bg-green-500 text-white hover:bg-green-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
+            >
+              Xác nhận
+            </button>
+            <button
+              v-if="booking?.status === 'PLAYING'"
+              @click="handleCheckOut"
+              class="bg-blue-500 text-white hover:bg-blue-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
+            >
+              Check-out
+            </button>
+          </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <span class="text-sm font-medium text-gray-500">Status:</span>
@@ -592,6 +615,51 @@
 </template>
 
 <script setup>
+// Check-in/Check-out handlers
+async function handleCheckIn() {
+  if (!booking.value.id) return;
+  const param = {
+    bookingCode: booking.value.bookingCode,
+  };
+  try {
+    await bookingStore.checkIn({ param });
+    showToast("Check-in thành công", "success");
+    await fetchData();
+    isEditMode.value = false;
+  } catch (e) {
+    showToast("Check-in thất bại", "error");
+  }
+}
+async function handleConfirm() {
+  if (!booking.value.id) return;
+  try {
+    const data = {
+      bookingId: booking.value.id,
+      status: "CONFIRMED",
+    };
+    await bookingStore.changeStatus(data);
+    showToast("Xác nhận thành công", "success");
+    await fetchData();
+    isEditMode.value = false;
+  } catch (e) {
+    showToast("Xác nhận thất bại", "error");
+  }
+}
+
+async function handleCheckOut() {
+  if (!booking.value.id) return;
+  try {
+    const param = {
+      bookingCode: booking.value.bookingCode,
+    };
+    await bookingStore.checkOut({ param });
+    showToast("Check-out thành công", "success");
+    await fetchData();
+    isEditMode.value = false;
+  } catch (e) {
+    showToast("Check-out thất bại", "error");
+  }
+}
 import { ref, onMounted, reactive, computed, inject } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useBookingStore } from "../../stores/booking";
@@ -599,7 +667,6 @@ import {
   formatDate,
   formatDateTime,
   formatPrice,
-  getCategoryText,
   getStatusBookingText,
 } from "../../utils/utils";
 import { storeToRefs } from "pinia";
@@ -734,6 +801,7 @@ setInterval(() => {
     );
   }
 }, 30000);
+
 watch(
   () => [updateBookingForm.golfCourseId, updateBookingForm.bookingDate],
   ([courseId, date], [oldCourseId, oldDate]) => {

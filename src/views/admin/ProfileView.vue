@@ -403,6 +403,7 @@ const staffForm = reactive({
 async function savePersonalInfo() {
   try {
     const data = {
+      id: staffForm.id,
       fullName: staffForm.fullName,
       email: staffForm.email,
       gender: staffForm.gender,
@@ -410,7 +411,7 @@ async function savePersonalInfo() {
       address: staffForm.address,
       birthDate: staffForm.birthDate,
     };
-    const updatestaff = await staffStore.updatestaff(staffForm.id, data);
+    const updatestaff = await staffStore.updateStaff(staffForm.id, data);
     if (updatestaff) {
       userForm.fullName = staffForm.fullName;
       userForm.email = staffForm.email;

@@ -38,6 +38,7 @@ export const useStaffStore = defineStore('staff', {
         if (index !== -1) {
           this.staffList[index] = updatedStaff  // Cập nhật thông tin staff trong danh sách
         }
+        return updatedStaff  // Trả về thông tin staff đã cập nhật
       } catch (err) {
         this.error = err.message
       } finally {
