@@ -583,7 +583,8 @@
     <div
       v-if="showConfirmModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+      style="background-color: rgba(0, 0, 0, 0.5)"
+      >
       <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div class="flex justify-between items-center border-b px-6 py-4">
           <h2 class="text-xl font-semibold text-gray-900">Xác nhận</h2>
@@ -624,7 +625,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch, inject } from "vue";
 import {
   PlusIcon,
   RefreshCwIcon,
@@ -642,7 +643,7 @@ import { useEventStore } from "../../stores/event";
 import { storeToRefs } from "pinia";
 import { checkAdminRole } from "../../utils/utils";
 import { URL_IMAGE } from "../../api";
-
+const showToast = inject("showToast")
 const isAdmin = checkAdminRole();
 const eventStore = useEventStore();
 const { events, pagination } = storeToRefs(eventStore);
@@ -747,7 +748,6 @@ function getTargetUserTypeText(targetUserType) {
 }
 
 function refreshData() {
-  filfil;
   searchEvent();
 }
 
@@ -811,15 +811,14 @@ async function saveEvent() {
   formData.append("status", eventForm.status);
   if (eventFile.value) {
     formData.append("image", eventFile.value);
-    console.log("Uploading image:", eventFile.value);
   }
   if (!isEditMode.value) {
     await eventStore.createEvent(formData);
   } else {
+    console.log("Updating event with ID:", selectedEventId.value);
     await eventStore.updateEvent(selectedEventId.value, formData);
   }
   closeEventModal();
-  searchEvent();
 }
 
 function confirmDeleteEvent(event) {
@@ -830,7 +829,7 @@ function confirmDeleteEvent(event) {
 async function deleteEvent() {
   await eventStore.deleteEvent(selectedEventId.value);
   showConfirmModal.value = false;
-  searchEvent();
+  showToast("Xóa sự kiện thành công", "success");
 }
 
 async function searchEvent() {

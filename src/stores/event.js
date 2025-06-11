@@ -37,14 +37,20 @@ export const useEventStore = defineStore("event", {
         this.loading = false;
       }
     },
-    async updateEvent(id, payload) {
+    async updateEvent(id, formData) {
       this.loading = true;
       try {
-        await api.put(`/event/update/${id}`, formData, {
+        const res =  await api.put(`/event/update/${id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
+        const updatedEvent = res.data.data;
+        const index = this.events.findIndex((e) => e.id === updatedEvent.id);
+        if (index !== -1) {
+          this.events[index] = updatedEvent;
+        }
+        return updatedEvent;
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -55,6 +61,7 @@ export const useEventStore = defineStore("event", {
       this.loading = true;
       try {
         await api.delete(`/event/delete/${id}`);
+        this.events = this.events.filter((event) => event.id !== id);
       } catch (err) {
         this.error = err.message;
       } finally {

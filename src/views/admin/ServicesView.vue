@@ -1,6 +1,6 @@
 s
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch, inject } from "vue";
 import {
   PlusIcon,
   RefreshCwIcon,
@@ -18,6 +18,7 @@ import { storeToRefs } from "pinia";
 import { checkAdminRole } from "../../utils/utils";
 import { URL_IMAGE } from "../../api";
 
+const showToast = inject("showToast");
 // State
 const showServiceModal = ref(false);
 const showDetailsModal = ref(false);
@@ -181,13 +182,9 @@ function confirmDeleteService(service) {
   showConfirmModal.value = true;
 }
 
-function deleteService() {
-  const index = services.value.findIndex(
-    (s) => s.id === selectedServiceId.value
-  );
-  if (index !== -1) {
-    services.value.splice(index, 1);
-  }
+async function deleteService() {
+  await servicesStore.deleteService(selectedServiceId.value);
+  showToast("Xóa dịch vụ thành công", "success");
   showConfirmModal.value = false;
 }
 const searchSevice = async () => {
@@ -487,7 +484,11 @@ onMounted(() => {
                   class="relative rounded-lg overflow-hidden border-2 border-green-200"
                 >
                   <img
-                    :src="serviceForm.imageUrl.startsWith('data:image/') ? serviceForm.imageUrl : URL_IMAGE + serviceForm.imageUrl"
+                    :src="
+                      serviceForm.imageUrl.startsWith('data:image/')
+                        ? serviceForm.imageUrl
+                        : URL_IMAGE + serviceForm.imageUrl
+                    "
                     class="w-full h-40 object-cover"
                     alt="Ảnh dịch vụ"
                   />
@@ -653,7 +654,11 @@ onMounted(() => {
                   class="rounded-lg overflow-hidden border border-green-200"
                 >
                   <img
-                    :src="selectedService.imageUrl.startsWith('data:image/') ? selectedService.imageUrl : URL_IMAGE + selectedService.imageUrl"
+                    :src="
+                      selectedService.imageUrl.startsWith('data:image/')
+                        ? selectedService.imageUrl
+                        : URL_IMAGE + selectedService.imageUrl
+                    "
                     alt="Ảnh dịch vụ"
                     class="w-full h-28 object-cover"
                   />
@@ -666,14 +671,17 @@ onMounted(() => {
                 </div>
               </div>
               <div class="flex-1 w-full">
-              <div class="flex items-center">
-                <h3 class="text-lg font-medium text-gray-900">
-                  {{ selectedService.name }}
-                </h3>
-                <span v-if="selectedService.type !== 'OTHER'" class="ml-auto text-lg font-medium text-green-700">
-                  {{ formatCurrency(selectedService.price) }}
-                </span>
-              </div>
+                <div class="flex items-center">
+                  <h3 class="text-lg font-medium text-gray-900">
+                    {{ selectedService.name }}
+                  </h3>
+                  <span
+                    v-if="selectedService.type !== 'OTHER'"
+                    class="ml-auto text-lg font-medium text-green-700"
+                  >
+                    {{ formatCurrency(selectedService.price) }}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -761,7 +769,8 @@ onMounted(() => {
       <div
         v-if="showConfirmModal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      >
+        style="background-color: rgba(0, 0, 0, 0.5)"
+        >
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
           <div class="flex justify-between items-center border-b px-6 py-4">
             <h2 class="text-xl font-semibold text-gray-900">Xác nhận</h2>

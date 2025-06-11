@@ -76,5 +76,17 @@ export const useGolfCourseStore = defineStore("golfCourse", {
         this.loading = false;
       }
     },
+    async deleteGolfCourse(id) {
+      this.loading = true;
+      this.error = null;
+      try {
+        await api.delete(`/golf-course/${id}`);
+        this.golfCourses = this.golfCourses.filter((course) => course.id !== id);
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });

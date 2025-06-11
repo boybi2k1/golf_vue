@@ -28,6 +28,8 @@ const isEditMode = ref(false);
 const activeTab = ref("staff");
 const staffStore = useStaffStore();
 const guestStore = useGuestStore();
+const showUserDetailModal = ref(false);
+const selectedUser = ref({});
 
 const { staffList } = storeToRefs(staffStore);
 const { guests } = storeToRefs(guestStore);
@@ -110,6 +112,21 @@ const getStatusText = (status) => {
   return statuses[status] || status;
 };
 
+function deleteUser() {
+  if (activeTab.value === "staff") {
+    staffStore.deleteStaff(selectedUser.value.id);
+  } else {
+    guestStore.deleteGuest(selectedUser.value.id);
+  }
+  showConfirmModal.value = false;
+  closeUserModal();
+}
+
+function viewUserDetails(user) {
+  showUserDetailModal.value = true;
+  selectedUser.value = user;
+}
+
 const userForm = reactive({
   id: null,
   fullName: "",
@@ -117,33 +134,50 @@ const userForm = reactive({
   phone: "",
   role: "staff",
   status: "active",
-  avatar: "",
-  notes: "",
+  dob: "",
+  gender: "",
 });
 function openNewUserModal() {
   isEditMode.value = false;
   showUserModal.value = true;
 }
-function closeUserModal() {
-  showUserModal.value = false;
+
+const resetForm = () => {
   userForm.id = null;
   userForm.fullName = "";
   userForm.email = "";
   userForm.phone = "";
   userForm.role = "staff";
   userForm.status = "active";
-  userForm.avatar = "";
-  userForm.notes = "";
+  userForm.dob = "";
+  userForm.gender = "";
+};
+function closeUserModal() {
+  showUserModal.value = false;
+  resetForm();
 }
 function saveUser() {
   staffStore.createStaff(userForm);
-
   closeUserModal();
 }
-const onSearchGolfer = () => {
-  searchQuery.page = 1;
-  fetchGuest();
-};
+function editUser(user) {
+  isEditMode.value = true;
+  showUserModal.value = true;
+  Object.assign(userForm, user);
+}
+function saveEditUser() {
+  if (activeTab.value === "staff") {
+    staffStore.updateStaff(userForm.id, userForm);
+  } else {
+    guestStore.updateGuest(userForm.id, userForm);
+  }
+  closeUserModal();
+}
+
+function confirmDeleteUser(user) {
+  selectedUser.value.id = user.id;
+  showConfirmModal.value = true;
+}
 onMounted(() => {
   fetchStaff();
   fetchGuest();
@@ -465,130 +499,116 @@ onMounted(() => {
 
           <div class="px-6 py-4">
             <!-- Staff Form -->
-            <template v-if="activeTab === 'staff'">
-              <div class="mb-4">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Họ và tên</label
+              >
+              <input
+                type="text"
+                v-model="userForm.fullName"
+                required
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Họ và tên</label
+                  >Email</label
                 >
                 <input
-                  type="text"
-                  v-model="userForm.fullName"
+                  type="email"
+                  v-model="userForm.email"
                   required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Email</label
-                  >
-                  <input
-                    type="email"
-                    v-model="userForm.email"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Số điện thoại</label
-                  >
-                  <input
-                    type="tel"
-                    v-model="userForm.phone"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Ngày sinh</label
-                  >
-                  <input
-                    type="date"
-                    v-model="userForm.dob"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Giới tính</label
-                  >
-                  <select
-                    v-model="userForm.gender"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">Chọn giới tính</option>
-                    <option value="MALE">Nam</option>
-                    <option value="FEMALE">Nữ</option>
-                    <option value="OTHER">Khác</option>
-                  </select>
-                </div>
-              </div>
-              <div class="mb-4">
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Địa chỉ</label
+                  >Số điện thoại</label
                 >
                 <input
-                  type="text"
-                  v-model="userForm.address"
+                  type="tel"
+                  v-model="userForm.phone"
+                  required
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Vai trò</label
-                  >
-                  <select
-                    v-model="userForm.role"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="MANAGER">Quản lý</option>
-                    <option value="STAFF">Nhân viên</option>
-                    <option value="RECEPTIONIST">Lễ tân</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Trạng thái</label
-                  >
-                  <select
-                    v-model="userForm.status"
-                    required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="active">Đang hoạt động</option>
-                    <option value="inactive">Không hoạt động</option>
-                    <option value="locked">Đã khóa</option>
-                  </select>
-                </div>
-              </div>
-              <div class="mb-4">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Avatar URL</label
+                  >Ngày sinh</label
                 >
                 <input
-                  type="text"
-                  v-model="userForm.avatar"
-                  placeholder="https://example.com/avatar.jpg"
+                  type="date"
+                  v-model="userForm.dob"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
               </div>
-              <div class="mb-4">
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Ghi chú</label
+                  >Giới tính</label
                 >
-                <textarea
-                  v-model="userForm.notes"
-                  rows="3"
+                <select
+                  v-model="userForm.gender"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                ></textarea>
+                >
+                  <option value="MALE">Nam</option>
+                  <option value="FEMALE">Nữ</option>
+                  <option value="OTHER">Khác</option>
+                </select>
               </div>
-            </template>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Địa chỉ</label
+              >
+              <input
+                type="text"
+                v-model="userForm.address"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Vai trò</label
+                >
+                <select
+                  v-if="activeTab === 'staff'"
+                  v-model="userForm.role"
+                  required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="MANAGER">Quản lý</option>
+                  <option value="STAFF">Nhân viên</option>
+                  <option value="RECEPTIONIST">Lễ tân</option>
+                </select>
+                <select
+                  v-else
+                  v-model="userForm.role"
+                  required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="GUEST">Khách hàng</option>
+                  <option value="GOLFER">Golfer</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Trạng thái</label
+                >
+                <select
+                  v-model="userForm.status"
+                  required
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="active">Đang hoạt động</option>
+                  <option value="inactive">Không hoạt động</option>
+                  <option value="locked">Đã khóa</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="flex justify-end space-x-2 border-t px-6 py-4">
@@ -599,17 +619,133 @@ onMounted(() => {
               Hủy
             </button>
             <button
+              v-if="!isEditMode"
               @click="saveUser"
               class="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-md text-sm font-medium"
             >
-              {{ isEditMode ? "Cập nhật" : "Thêm mới" }}
+              Thêm mới
+            </button>
+            <button
+              v-if="isEditMode"
+              @click="saveEditUser"
+              class="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-md text-sm font-medium"
+            >
+              Cập nhật
             </button>
           </div>
         </div>
       </div>
+
+      <!-- view detail -->
+      <!-- User Detail Modal -->
+      <div
+        v-if="showUserDetailModal"
+        class="fixed inset-0 flex items-center justify-center z-50"
+        style="background-color: rgba(0, 0, 0, 0.5)"
+      >
+        <div
+          class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        >
+          <div class="flex justify-between items-center border-b px-6 py-4">
+            <h2 class="text-xl font-semibold text-blue-800">
+              Thông tin người dùng
+            </h2>
+            <button
+              @click="showUserDetailModal = false"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <XIcon class="w-5 h-5" />
+            </button>
+          </div>
+
+          <div class="px-6 py-4 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm text-gray-500">Họ và tên</label>
+                <p class="font-medium text-gray-800">
+                  {{ selectedUser?.fullName }}
+                </p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Email</label>
+                <p class="font-medium text-gray-800">
+                  {{ selectedUser?.email }}
+                </p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Số điện thoại</label>
+                <p class="font-medium text-gray-800">
+                  {{ selectedUser?.phone }}
+                </p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Ngày sinh</label>
+                <p class="font-medium text-gray-800">{{ selectedUser?.dob }}</p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Giới tính</label>
+                <p class="font-medium text-gray-800">
+                  {{
+                    selectedUser?.gender === "MALE"
+                      ? "Nam"
+                      : selectedUser?.gender === "FEMALE"
+                      ? "Nữ"
+                      : "Khác"
+                  }}
+                </p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Địa chỉ</label>
+                <p class="font-medium text-gray-800">
+                  {{ selectedUser?.address }}
+                </p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Vai trò</label>
+                <p v-if="activeTab" class="font-medium text-gray-800">
+                  {{
+                    selectedUser?.role === "MANAGER"
+                      ? "Quản lý"
+                      : selectedUser?.role === "STAFF"
+                      ? "Nhân viên"
+                      : "Lễ tân"
+                  }}
+                </p>
+                <p v-else class="font-medium text-gray-800">
+                  {{ selectedUser?.role }}
+                </p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-500">Trạng thái</label>
+                <p class="font-medium text-gray-800">
+                  {{
+                    selectedUser?.status === "active"
+                      ? "Đang hoạt động"
+                      : selectedUser?.status === "inactive"
+                      ? "Không hoạt động"
+                      : "Đã khóa"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end border-t px-6 py-4">
+            <button
+              @click="showUserDetailModal = false"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- // Confirm Delete Modal -->
       <div
         v-if="showConfirmModal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        style="background-color: rgba(0, 0, 0, 0.5)"
       >
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
           <div class="flex justify-between items-center border-b px-6 py-4">

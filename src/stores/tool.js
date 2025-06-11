@@ -73,7 +73,7 @@ export const useToolStore = defineStore("tool", {
       this.error = null;
       try {
         const res = await api.delete(`/tool/delete/${id}`);
-
+        this.toolList = this.toolList.filter((t) => t.id !== id);
         return res.data.data;
       } catch (err) {
         this.error = err.message;

@@ -539,6 +539,7 @@
       <div
         v-if="showConfirmModal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        style="background-color: rgba(0, 0, 0, 0.5)"
       >
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
           <div class="flex justify-between items-center border-b px-6 py-4">
@@ -579,7 +580,7 @@
   </main>
 </template>
 <script setup>
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, inject } from "vue";
 import {
   PlusIcon,
   RefreshCwIcon,
@@ -609,6 +610,7 @@ const selectedTool = ref({});
 const isAdmin = checkAdminRole();
 const store = useToolStore();
 
+const showToast = inject("showToast");
 // Image upload logic
 const toolFile = ref(null);
 const { toolList } = storeToRefs(store);
@@ -790,11 +792,9 @@ function confirmDeleteTool(tool) {
   showConfirmModal.value = true;
 }
 
-function deleteTool() {
-  const index = toolList.value.findIndex((t) => t.id === selectedToolId.value);
-  if (index !== -1) {
-    toolList.value.splice(index, 1);
-  }
+async function deleteTool() {
+  await store.deleteTool(selectedToolId.value);
+  showToast("Xóa thiết bị thành công", "success");
   showConfirmModal.value = false;
 }
 onMounted(async () => {

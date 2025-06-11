@@ -22,7 +22,6 @@ import { useToolStore } from "../../stores/tool";
 import {
   checkAdminRole,
   formatDate,
-  getCategoryText,
   getStatusBookingText,
 } from "../../utils/utils";
 import ToolSelectDialog from "../../components/ToolSelectDialog.vue";
@@ -117,7 +116,8 @@ watch(
 watch(
   () => bookingForm.numPlayers,
   (newVal) => {
-    bookingForm.totalCost = selectedTeeTimePrice.value * newVal;
+    bookingForm.totalCost =
+      (selectedTeeTimePrice.value * newVal * bookingForm.numberOfHoles) / 9;
   }
 );
 
@@ -204,7 +204,10 @@ function confirmDeleteBooking(booking) {
 
 function deleteBooking() {
   if (selectedBookingId.value) {
-    bookingStore.deleteBooking(selectedBookingId.value);
+    console.log(bookingStore);
+    console.log(typeof bookingStore.softDelete);
+    bookingStore.softDelete(selectedBookingId.value);
+
     showConfirmModal.value = false;
   }
 }
@@ -1371,7 +1374,8 @@ const formatPrice = (price) => {
       <div
         v-if="showConfirmModal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      >
+        style="background-color: rgba(0, 0, 0, 0.5);"
+        >
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
           <div class="flex justify-between items-center border-b px-6 py-4">
             <h2 class="text-xl font-semibold text-gray-900">Xác nhận</h2>

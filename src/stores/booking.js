@@ -122,6 +122,22 @@ export const useBookingStore = defineStore("booking", {
         this.loading = false;
       }
     },
+    //delete booking
+    async softDelete(bookingId) {
+      try {
+        this.loading = true;
+        const res = await api.delete(`/booking/${bookingId}`);
+        const index = this.bookings.findIndex((b) => b.id === bookingId);
+        if (index !== -1) {
+          this.bookings.splice(index, 1);
+        }
+        return res.data.data;
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
     // add bookingdetail to booking
     async addBookingDetailToBooking(bookingId, data) {
       try {

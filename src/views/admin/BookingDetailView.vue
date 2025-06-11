@@ -877,7 +877,7 @@ function onServiceChange(index) {
     (service) => service.id === selectedServiceId
   );
   if (selectedService.type === "GOLF_CLUB") {
-    bookingDetails[index].unitPrice = 0;
+    editBookingDetails[index].unitPrice = 0;
   }
   if (selectedService) {
     editBookingDetails[index].unitPrice = selectedService.price;
@@ -914,7 +914,6 @@ const priceByHoles = computed(() => {
   )?.holes;
   return numberHoles / holeByCourse;
 });
-
 // Tính tổng tiền dịch vụ
 const calPriceCourse = computed(() => {
   const numPlayers = updateBookingForm.numPlayers;
