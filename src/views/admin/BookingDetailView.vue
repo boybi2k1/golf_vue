@@ -348,33 +348,29 @@
                     <th
                       class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Service
+                      Dịch vụ
                     </th>
+
                     <th
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Detail
+                      Số lượng
                     </th>
                     <th
                       class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Quantity
+                      Đơn giá
                     </th>
                     <th
                       class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Unit Price
-                    </th>
-                    <th
-                      class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Total Price
+                      Thành tiền
                     </th>
                     <th
                       v-if="isEditMode"
                       class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Actions
+                      Hành động
                     </th>
                   </tr>
                 </thead>
@@ -405,33 +401,7 @@
                         </option>
                       </select>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div v-if="!isEditMode" class="text-sm text-gray-900">
-                        {{
-                          item.service?.type === "GOLF_CLUB"
-                            ? item.tool?.name
-                            : "---"
-                        }}
-                      </div>
-                      <select
-                        v-else-if="
-                          getServiceType(item.serviceId) === 'GOLF_CLUB'
-                        "
-                        v-model="item.toolId"
-                        @change="onToolChange(index)"
-                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                      >
-                        <option value="">Select Club</option>
-                        <option
-                          v-for="club in golfClubs"
-                          :key="club.id"
-                          :value="club.id"
-                        >
-                          {{ club.name }}
-                        </option>
-                      </select>
-                      <span v-else class="text-gray-400 italic">N/A</span>
-                    </td>
+
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                       <div v-if="!isEditMode" class="text-sm text-gray-900">
                         {{ item.quantity }}
@@ -860,7 +830,6 @@ const getServiceType = (serviceId) => {
 function addService() {
   editBookingDetails.push({
     serviceId: null,
-    toolId: null,
     quantity: 1,
     unitPrice: 0,
     totalPrice: 0,
@@ -876,22 +845,8 @@ function onServiceChange(index) {
   const selectedService = allServices.value.find(
     (service) => service.id === selectedServiceId
   );
-  if (selectedService.type === "GOLF_CLUB") {
-    editBookingDetails[index].unitPrice = 0;
-  }
   if (selectedService) {
     editBookingDetails[index].unitPrice = selectedService.price;
-    editBookingDetails[index].totalPrice =
-      editBookingDetails[index].unitPrice * editBookingDetails[index].quantity;
-  }
-}
-function onToolChange(index) {
-  const selectedToolId = bookingDetails[index].toolId;
-  const selectedTool = golfClubs.value.find(
-    (tool) => tool.id === selectedToolId
-  );
-  if (selectedTool) {
-    editBookingDetails[index].unitPrice = selectedTool.rentPrice;
     editBookingDetails[index].totalPrice =
       editBookingDetails[index].unitPrice * editBookingDetails[index].quantity;
   }

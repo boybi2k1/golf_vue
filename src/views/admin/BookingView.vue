@@ -186,7 +186,6 @@ async function saveBooking() {
 function addService() {
   bookingDetails.push({
     serviceId: "",
-    toolId: null,
     quantity: 1,
     unitPrice: 0,
     totalPrice: 0,
@@ -288,22 +287,8 @@ function onServiceChange(index) {
   const selectedService = allServices.value.find(
     (service) => service.id === selectedServiceId
   );
-  if (selectedService.type === "GOLF_CLUB") {
-    bookingDetails[index].unitPrice = 0;
-  }
   if (selectedService) {
     bookingDetails[index].unitPrice = selectedService.price;
-    bookingDetails[index].totalPrice =
-      bookingDetails[index].unitPrice * bookingDetails[index].quantity;
-  }
-}
-function onToolChange(index) {
-  const selectedToolId = bookingDetails[index].toolId;
-  const selectedTool = golfClubs.value.find(
-    (tool) => tool.id === selectedToolId
-  );
-  if (selectedTool) {
-    bookingDetails[index].unitPrice = selectedTool.rentPrice;
     bookingDetails[index].totalPrice =
       bookingDetails[index].unitPrice * bookingDetails[index].quantity;
   }
@@ -1059,11 +1044,6 @@ const formatPrice = (price) => {
                               Dịch vụ
                             </th>
                             <th
-                              class="px-6 py-4 text-left text-sm font-semibold text-gray-900"
-                            >
-                              Chi tiết
-                            </th>
-                            <th
                               class="px-6 py-4 text-center text-sm font-semibold text-gray-900"
                             >
                               Số lượng
@@ -1086,6 +1066,7 @@ const formatPrice = (price) => {
                           </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+
                           <tr
                             v-for="(item, index) in bookingDetailData"
                             :key="index"
@@ -1107,51 +1088,6 @@ const formatPrice = (price) => {
                                 </option>
                               </select>
                             </td>
-
-                            <td class="px-6 py-4">
-                              <div
-                                v-if="
-                                  getServiceType(item.serviceId) === 'GOLF_CLUB'
-                                "
-                              >
-                                <button
-                                  class="px-3 py-2 bg-green-100 hover:bg-green-200 rounded-lg text-green-700 text-sm font-medium flex items-center space-x-2 transition-colors"
-                                  @click="
-                                    () => {
-                                      showToolDialog = true;
-                                      toolSelectIndex = index;
-                                    }
-                                  "
-                                  type="button"
-                                >
-                                  <svg
-                                    class="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      stroke-width="2"
-                                      d="M19 9l-7 7-7-7"
-                                    ></path>
-                                  </svg>
-                                  <span v-if="item.toolId">
-                                    {{
-                                      golfClubs.find(
-                                        (t) => t.id === item.toolId
-                                      )?.name || "Chọn gậy"
-                                    }}
-                                  </span>
-                                  <span v-else>Chọn gậy</span>
-                                </button>
-                              </div>
-                              <span v-else class="text-gray-400 italic text-sm"
-                                >Không yêu cầu</span
-                              >
-                            </td>
-
                             <td class="px-6 py-4 text-center">
                               <input
                                 type="number"
@@ -1413,18 +1349,5 @@ const formatPrice = (price) => {
       </div>
     </div>
   </main>
-  <ToolSelectDialog
-    :visible="showToolDialog"
-    :tools="golfClubs"
-    @select="
-      (tool) => {
-        if (toolSelectIndex !== null) {
-          bookingDetailData[toolSelectIndex].toolId = tool.id;
-          bookingDetailData[toolSelectIndex].unitPrice = tool.price;
-          updateTotalPrice(toolSelectIndex);
-        }
-      }
-    "
-    @close="showToolDialog = false"
-  />
+
 </template>

@@ -147,7 +147,6 @@ const closeBookingModal = () => {
 const addService = () => {
   bookingDetailData.push({
     serviceId: "",
-    toolId: "",
     quantity: 1,
     unitPrice: 0,
     totalPrice: 0,
@@ -170,26 +169,8 @@ const onServiceChange = (index) => {
   const item = bookingDetailData[index];
   const service = allServices.value.find((s) => s.id === item.serviceId);
   if (service) {
-    if (service.type === "GOLF_CLUB") {
-      // Reset tool selection khi chọn dịch vụ gậy golf
-      item.toolId = "";
-      item.unitPrice = 0;
-      item.totalPrice = 0;
-    } else {
-      item.unitPrice = service.price;
-      item.totalPrice = service.price * item.quantity;
-      item.toolId = ""; // Clear tool selection for non-golf services
-    }
-  }
-};
-
-const onToolChange = (index) => {
-  const item = bookingDetailData[index];
-  const tool = golfClubs.value.find((t) => t.id === item.toolId);
-  console.log("Selected tool:", tool);
-  if (tool) {
-    item.unitPrice = tool.rentPrice;
-    item.totalPrice = tool.rentPrice * item.quantity;
+    item.unitPrice = service.price;
+    item.totalPrice = service.price * item.quantity;
   }
 };
 function updateTotalPrice(index) {
@@ -440,7 +421,7 @@ onMounted(async () => {
             >
               <div class="flex items-center">
                 <img
-                  :src="selectedCourse.image"
+                  :src="URL_IMAGE + selectedCourse.imageUrl"
                   :alt="selectedCourse.name"
                   class="w-20 h-20 object-cover rounded-xl mr-6 shadow-md"
                 />
@@ -608,9 +589,9 @@ onMounted(async () => {
                     class="bg-green-50 px-4 py-3 grid grid-cols-12 gap-2 text-sm font-semibold text-gray-700"
                   >
                     <div class="col-span-4">Dịch vụ</div>
-                    <div class="col-span-3">Gậy/Chi tiết</div>
-                    <div class="col-span-1 text-center">SL</div>
+                    <div class="col-span-2 text-center">Số lượng</div>
                     <div class="col-span-3 text-center">Đơn giá</div>
+                    <div class="col-span-2 text-center">Thành tiền</div>
                     <div class="col-span-1 text-center">Xóa</div>
                   </div>
 
@@ -636,31 +617,8 @@ onMounted(async () => {
                         </option>
                       </select>
                     </div>
-
-                    <!-- Chọn gậy nếu là GOLF_CLUB -->
-                    <div class="col-span-3">
-                      <select
-                        v-if="getServiceType(item.serviceId) === 'GOLF_CLUB'"
-                        v-model="item.toolId"
-                        @change="onToolChange(index)"
-                        class="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-green-500 focus:border-green-500"
-                      >
-                        <option value="">Chọn gậy</option>
-                        <option
-                          v-for="club in golfClubs"
-                          :key="club.id"
-                          :value="club.id"
-                        >
-                          {{ club.name }}
-                        </option>
-                      </select>
-                      <span v-else class="text-gray-400 italic text-sm"
-                        >Không yêu cầu</span
-                      >
-                    </div>
-
                     <!-- Số lượng -->
-                    <div class="col-span-1">
+                    <div class="col-span-2">
                       <input
                         type="number"
                         min="1"
@@ -669,14 +627,18 @@ onMounted(async () => {
                         class="w-full text-center border border-gray-300 rounded-md py-1 text-sm focus:ring-green-500 focus:border-green-500"
                       />
                     </div>
-
                     <!-- Đơn giá -->
                     <div class="col-span-3">
                       <div class="text-center font-medium text-green-600">
                         {{ formatPrice(item.unitPrice || 0) }}
                       </div>
                     </div>
-
+                    <!-- Thành tiền -->
+                    <div class="col-span-2">
+                      <div class="text-center font-semibold text-blue-700">
+                        {{ formatPrice(item.totalPrice || 0) }}
+                      </div>
+                    </div>
                     <!-- Nút xóa -->
                     <div class="col-span-1 text-center">
                       <button

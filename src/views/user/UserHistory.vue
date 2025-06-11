@@ -213,13 +213,19 @@
                       <div class="flex items-center">
                         <div
                           class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3"
-                        ></div>
+                        >
+                          <img
+                            :src="URL_IMAGE + booking.golfCourse.imageUrl"
+                            alt="Golf Course"
+                            class="h-8 w-8 rounded-full object-cover"
+                          />
+                        </div>
                         <div>
                           <div class="text-sm font-medium text-gray-900">
                             {{ booking.golfCourse.name }}
                           </div>
                           <div class="text-xs text-gray-500">
-                            {{ booking.golfCourse.hold }} hố
+                            {{ booking.golfCourse.holes }} hố
                           </div>
                         </div>
                       </div>
@@ -532,6 +538,7 @@ import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
 import { on } from "process";
 import { getStatusBookingText } from "../../utils/utils";
+import { URL_IMAGE } from "../../api";
 
 const authStore = useAuthStore();
 const bookingStore = useBookingStore();
