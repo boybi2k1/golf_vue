@@ -40,7 +40,7 @@ export const useEventStore = defineStore("event", {
     async updateEvent(id, formData) {
       this.loading = true;
       try {
-        const res =  await api.put(`/event/update/${id}`, formData, {
+        const res = await api.put(`/event/update/${id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -76,6 +76,21 @@ export const useEventStore = defineStore("event", {
         this.eventForUser = res.data.data;
       } catch (err) {
         this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // promotionforBooking
+    async getPromotionForBookingByUserId(userId) {
+      this.loading = true;
+      try {
+        const res = await api.get(`/event/promotion-for-booking/${userId}`);
+        console.log("----------", res.data.data);
+        return res.data.data;
+      } catch (err) {
+        this.error = err.message;
+        throw err;
       } finally {
         this.loading = false;
       }

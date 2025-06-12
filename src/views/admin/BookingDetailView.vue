@@ -393,7 +393,7 @@
                       >
                         <option value="">Select Service</option>
                         <option
-                          v-for="service in allServices"
+                          v-for="service in servicesForBooking"
                           :key="service.id"
                           :value="service.id"
                         >
@@ -757,7 +757,7 @@ watch(
 
 const { golfCourses } = storeToRefs(courseStore);
 const { availableTeeTimes } = storeToRefs(teeTimeStore);
-const { allServices } = storeToRefs(serviceStore);
+const { servicesForBooking } = storeToRefs(serviceStore);
 const { golfClubs } = storeToRefs(toolStore);
 
 function goBack() {
@@ -821,10 +821,6 @@ async function saveBooking() {
   showToast("Cập nhật đặt lịch thành công", "success");
 }
 
-const getServiceType = (serviceId) => {
-  const service = allServices.value.find((s) => s.id === serviceId);
-  return service ? service.type : null;
-};
 
 // Thêm dịch vụ mới vào booking
 function addService() {
@@ -842,7 +838,7 @@ function removeService(index) {
 // Cập nhật giá dịch vụ khi thay đổi
 function onServiceChange(index) {
   const selectedServiceId = editBookingDetails[index].serviceId;
-  const selectedService = allServices.value.find(
+  const selectedService = servicesForBooking.value.find(
     (service) => service.id === selectedServiceId
   );
   if (selectedService) {
@@ -896,8 +892,7 @@ onMounted(async () => {
   fetchData();
   await Promise.all([
     courseStore.getAllGolfCourses(),
-    serviceStore.getAllServices(),
-    toolStore.getAllGolfClub(),
+    serviceStore.getServiceForBooking("OTHER"),
   ]);
 });
 </script>

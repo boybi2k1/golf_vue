@@ -110,19 +110,5 @@ export const useToolStore = defineStore("tool", {
         this.loading = false;
       }
     },
-    // Lấy danh sách tất cả golf club
-    async getAllGolfClub() {
-      this.loading = true;
-      this.error = null;
-      try {
-        const res = await api.get("/tool/golf_club");
-        console.log(res.data.data);
-        this.golfClubs = res.data.data;
-      } catch (err) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
   },
 });

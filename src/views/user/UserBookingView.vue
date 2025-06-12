@@ -140,7 +140,22 @@ const openBookingModal = (course) => {
 };
 const closeBookingModal = () => {
   showBookingModal.value = false;
-  selectedCourse.value = {};
+  Object.assign(bookingForm, {
+    golfCourseId: "",
+    bookingDate: new Date().toISOString().split("T")[0],
+    teeTimeId: "",
+    golferId: "",
+    fullName: "",
+    userId: "",
+    numPlayers: 2,
+    numberOfHoles: 9,
+    phone: "",
+    email: "",
+    depositAmount: 0,
+    totalCost: 0,
+    priceByTeeTime: 0,
+    note: "",
+  });
   bookingDetailData.length = 0; // Xóa dịch vụ khi đóng modal
 };
 
@@ -158,11 +173,6 @@ async function addBookingDetailToBooking(bookingId) {
 }
 const removeService = (index) => {
   bookingDetailData.splice(index, 1);
-};
-
-const getServiceType = (serviceId) => {
-  const service = allServices.value.find((s) => s.id === serviceId);
-  return service ? service.type : null;
 };
 
 const onServiceChange = (index) => {
@@ -274,7 +284,6 @@ onMounted(async () => {
   await Promise.all([
     courseStore.getAllGolfCourses(),
     serviceStore.getAllServices(),
-    toolStore.getAllGolfClub(),
     fetchUserCurrent(),
   ]);
   bookingForm.bookingDate = minBookingDate; // Đặt ngày tối thiểu

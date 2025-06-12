@@ -24,7 +24,8 @@ import {
   formatDate,
   getStatusBookingText,
 } from "../../utils/utils";
-import ToolSelectDialog from "../../components/ToolSelectDialog.vue";
+import { useEventStore } from "../../stores/event";
+import { useAuthStore } from "../../stores/auth";
 const showToast = inject("showToast");
 const isAdmin = checkAdminRole();
 // Stores
@@ -32,8 +33,10 @@ const bookingStore = useBookingStore();
 const courseStore = useGolfCourseStore();
 const teeTimeStore = useTeeTimeStore();
 const serviceStore = useServicesStore();
-const toolStore = useToolStore();
+const eventStore = useEventStore();
+const authStore = useAuthStore();
 
+const { user } = storeToRefs(authStore);
 // State
 const itemsPerPage = ref(10);
 const currentPage = ref(1);
@@ -44,10 +47,8 @@ const isEditMode = ref(false);
 const selectedBookingId = ref(null);
 const bookingDetails = reactive([]);
 const teeTimeSelected = ref(null);
-
-// Tool selection dialog
-const showToolDialog = ref(false);
-const toolSelectIndex = ref(null);
+const promotion = ref(null);
+const discountPromotion = ref(0); // Giảm giá từ sự kiện khuyến mãi
 
 // Form and filters
 const filters = reactive({
@@ -61,7 +62,7 @@ const filters = reactive({
 const minBookingDate = new Date().toISOString().split("T")[0];
 const maxBookingDate = computed(() => {
   const today = new Date();
-  today.setDate(today.getDate() + 3); // Thay đổi số ngày theo yêu cầu
+  today.setDate(today.getDate() + 10); // Thay đổi số ngày theo yêu cầu
   return today.toISOString().split("T")[0];
 });
 const searchQuery = reactive({
@@ -123,8 +124,7 @@ watch(
 
 const { golfCourses } = storeToRefs(courseStore);
 const { availableTeeTimes } = storeToRefs(teeTimeStore);
-const { allServices } = storeToRefs(serviceStore);
-const { golfClubs } = storeToRefs(toolStore);
+const { servicesForBooking } = storeToRefs(serviceStore);
 const { bookings, pagination } = storeToRefs(bookingStore);
 
 const bookingDetailData = computed(() => {
@@ -160,6 +160,7 @@ function resetBookingForm() {
     fullName: "",
     email: "",
     golferId: null,
+    userId: null,
     teeTimeId: "",
     golfCourseId: "",
     golfCourse: null,
@@ -177,6 +178,7 @@ function resetBookingForm() {
 }
 
 async function saveBooking() {
+  console.log("Saving booking with form data:", bookingForm);
   const newBooking = await bookingStore.createBooking(bookingForm);
   addBookingDetailToBooking(newBooking.id);
   showToast("Đặt lịch thành công!", "success");
@@ -203,10 +205,7 @@ function confirmDeleteBooking(booking) {
 
 function deleteBooking() {
   if (selectedBookingId.value) {
-    console.log(bookingStore);
-    console.log(typeof bookingStore.softDelete);
     bookingStore.softDelete(selectedBookingId.value);
-
     showConfirmModal.value = false;
   }
 }
@@ -250,11 +249,6 @@ function refreshData() {
   bookingStore.searchBooking(searchQuery);
 }
 
-const getServiceType = (serviceId) => {
-  const service = allServices.value.find((s) => s.id === serviceId);
-  return service ? service.type : null;
-};
-
 function addBookingDetailToBooking(bookingId) {
   bookingStore.addBookingDetailToBooking(bookingId, bookingDetails);
 }
@@ -284,7 +278,7 @@ const onSearch = () => {
 
 function onServiceChange(index) {
   const selectedServiceId = bookingDetails[index].serviceId;
-  const selectedService = allServices.value.find(
+  const selectedService = servicesForBooking.value.find(
     (service) => service.id === selectedServiceId
   );
   if (selectedService) {
@@ -303,8 +297,8 @@ function updateTotalPrice(index) {
 onMounted(async () => {
   await Promise.all([
     courseStore.getAllGolfCourses(),
-    serviceStore.getAllServices(),
-    toolStore.getAllGolfClub(),
+    serviceStore.getServiceForBooking("OTHER"),
+    authStore.fetchUser(),
   ]);
   refreshData();
   bookingForm.bookingDate = minBookingDate;
@@ -318,6 +312,21 @@ setInterval(() => {
     );
   }
 }, 30000);
+// neu co user goi ham poromotinforuser
+watch(
+  user,
+  async (newUser) => {
+    if (newUser && newUser.id) {
+      promotion.value = await eventStore.getPromotionForBookingByUserId(
+        "STAFF" + newUser.id
+      );
+      discountPromotion.value = promotion.value
+        ? promotion.value.discountPercent
+        : 0;
+    }
+  },
+  { immediate: true }
+);
 
 const mergedTeeTimes = computed(() => {
   // Nếu chưa hold tee time thì trả về danh sách gốc
@@ -332,7 +341,7 @@ const mergedTeeTimes = computed(() => {
   return [...availableTeeTimes.value, teeTimeSelected.value];
 });
 
-const priceByHoles = computed(() => {
+const roundHoles = computed(() => {
   // Lấy giá theo số lỗ đã chọn
   const numberHoles = bookingForm.numberOfHoles || 9; // Mặc định là 9 lỗ nếu không có giá trị
   const holeByCourse = golfCourses.value.find(
@@ -346,10 +355,13 @@ const calPriceCourse = computed(() => {
   const numPlayers = bookingForm.numPlayers;
   const priceByCourse = bookingForm.priceByTeeTime;
   // Mặc định là 9 lỗ nếu không có giá trị
-  return priceByCourse * numPlayers * priceByHoles.value;
+  return priceByCourse * numPlayers * roundHoles.value;
 });
 const totalPrice = computed(() => {
-  return calPriceCourse.value + servicesTotal.value;
+  return (
+    (calPriceCourse.value + servicesTotal.value) *
+    (1 - discountPromotion.value / 100)
+  );
 });
 const depositAmount = computed(() => {
   const total = totalPrice.value || 0;
@@ -714,7 +726,8 @@ const formatPrice = (price) => {
           class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
         >
           <div
-            class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity"
+            class="fixed inset-0 backdrop-blur-sm transition-opacity"
+            style="background-color: rgba(0, 0, 0, 0.5)"
             @click="closeBookingModal"
           ></div>
 
@@ -1066,7 +1079,6 @@ const formatPrice = (price) => {
                           </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-
                           <tr
                             v-for="(item, index) in bookingDetailData"
                             :key="index"
@@ -1080,7 +1092,7 @@ const formatPrice = (price) => {
                               >
                                 <option value="">Chọn dịch vụ</option>
                                 <option
-                                  v-for="service in allServices"
+                                  v-for="service in servicesForBooking"
                                   :key="service.id"
                                   :value="service.id"
                                 >
@@ -1233,6 +1245,16 @@ const formatPrice = (price) => {
                         formatPrice(servicesTotal || 0)
                       }}</span>
                     </div>
+                    <div
+                      v-if="discountPromotion > 0"
+                      class="flex justify-between items-center py-2"
+                    >
+                      <span class="text-gray-600">Giảm giá sự kiện:</span>
+                      <span class="font-semibold text-red-600">
+                        {{ promotion.discountPercent }} %
+                      </span>
+                    </div>
+
                     <div class="flex justify-between items-center py-2">
                       <span class="text-orange-600"
                         >Thanh toán trước (50%):</span
@@ -1310,8 +1332,8 @@ const formatPrice = (price) => {
       <div
         v-if="showConfirmModal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        style="background-color: rgba(0, 0, 0, 0.5);"
-        >
+        style="background-color: rgba(0, 0, 0, 0.5)"
+      >
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
           <div class="flex justify-between items-center border-b px-6 py-4">
             <h2 class="text-xl font-semibold text-gray-900">Xác nhận</h2>
@@ -1349,5 +1371,4 @@ const formatPrice = (price) => {
       </div>
     </div>
   </main>
-
 </template>

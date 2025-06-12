@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import api from "../api";
 
+
 export const useServicesStore = defineStore("services", {
   state: () => ({
     services: [],
@@ -11,6 +12,7 @@ export const useServicesStore = defineStore("services", {
       totalPages: 0,
     },
     allServices: [],
+    servicesForBooking: [],
     loading: false,
     error: null,
   }),
@@ -94,5 +96,19 @@ export const useServicesStore = defineStore("services", {
         this.loading = false;
       }
     },
+
+    // service for booking
+    async getServiceForBooking(type) {
+      try {
+        this.loading = true;
+        const res = await api.get(`/services/not-type?type=${type}`);
+        this.servicesForBooking = res.data.data; // Cập nhật danh sách dịch vụ cho booking
+        return this.servicesForBooking;
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    }
   },
 });
