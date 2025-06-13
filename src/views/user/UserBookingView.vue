@@ -221,7 +221,7 @@ const processVNPayBooking = async () => {
     status: "PENDING",
     paymentMethod: "VNPay",
   };
-  const response = await paymentStore.createPayment(data);
+  const response = await paymentStore.createPaymentVnpay(data);
   window.location.href = response.paymentUrl;
 };
 // Gọi API lấy available tee times khi thay đổi sân hoặc ngày

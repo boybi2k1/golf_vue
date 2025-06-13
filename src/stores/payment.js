@@ -30,7 +30,7 @@ export const usePaymentStore = defineStore("payment", {
     },
 
     // create payment
-    async createPayment(payload) {
+    async createPaymentVnpay(payload) {
       try {
         this.loading = true;
         const res = await api.post("/payment/vn-pay", payload);
@@ -41,6 +41,18 @@ export const usePaymentStore = defineStore("payment", {
       } finally {
         this.loading = false;
       }
-    }
+    },
+   async createPayment(payload) {
+      try {
+        this.loading = true;
+        const res = await api.post("/payment/create", payload);
+        return res.data.data;
+      } catch (err) {
+        this.error = err.message;
+        throw new Error("Tạo thanh toán thất bại");
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });

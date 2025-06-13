@@ -9,10 +9,12 @@
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-2xl font-semibold">
-                {{ isEditMode ? "Edit Booking Details" : "Booking Details" }}
+                {{
+                  isEditMode ? "Chỉnh Sửa Chi Tiết Đặt Sân" : "Chi Tiết Đặt Sân"
+                }}
               </h2>
               <p class="text-gray-100">
-                Booking Code: {{ booking?.bookingCode || "N/A" }}
+                Mã Đặt Sân: {{ booking?.bookingCode || "N/A" }}
               </p>
             </div>
             <div class="space-x-3">
@@ -21,13 +23,13 @@
                 @click="handleEditMode"
                 class="bg-white text-green-500 hover:bg-green-50 hover:text-green-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
               >
-                Edit
+                Chỉnh Sửa
               </button>
               <button
                 @click="goBack"
                 class="bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
               >
-                Back
+                Quay Lại
               </button>
             </div>
           </div>
@@ -41,26 +43,26 @@
               @click="handleCheckIn"
               class="bg-green-500 text-white hover:bg-green-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
             >
-              Check-in
+              Nhận Sân
             </button>
             <button
               v-if="booking?.status === 'PENDING'"
               @click="handleConfirm"
               class="bg-green-500 text-white hover:bg-green-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
             >
-              Xác nhận
+              Xác Nhận
             </button>
             <button
               v-if="booking?.status === 'PLAYING'"
-              @click="handleCheckOut"
+              @click="openCheckoutModal"
               class="bg-blue-500 text-white hover:bg-blue-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
             >
-              Check-out
+              Trả Sân
             </button>
           </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <span class="text-sm font-medium text-gray-500">Status:</span>
+              <span class="text-sm font-medium text-gray-500">Trạng Thái:</span>
               <span
                 :class="getStatusBadgeClass(booking?.status)"
                 class="px-4 py-2 rounded-full text-sm font-semibold"
@@ -69,7 +71,7 @@
               </span>
             </div>
             <div class="text-sm text-gray-500">
-              Updated at: {{ formatDateTime(booking?.updatedAt) }}
+              Cập nhật lúc: {{ formatDateTime(booking?.updatedAt) }}
             </div>
           </div>
         </div>
@@ -81,7 +83,7 @@
             <label
               for="golfCourse"
               class="block text-sm font-medium text-gray-700"
-              >Golf Course</label
+              >Sân Golf</label
             >
             <div
               v-if="!isEditMode"
@@ -95,7 +97,7 @@
               v-model="updateBookingForm.golfCourseId"
               class="border border-gray-300 mt-1 block w-full pl-3 pr-10 py-2 text-base focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
-              <option value="">Select Golf Course</option>
+              <option value="">Chọn Sân Golf</option>
               <option
                 v-for="course in golfCourses"
                 :key="course.id"
@@ -111,7 +113,7 @@
             <label
               for="bookingDate"
               class="block text-sm font-medium text-gray-700"
-              >Booking Date</label
+              >Ngày Đặt Sân</label
             >
             <div
               v-if="!isEditMode"
@@ -133,7 +135,7 @@
           <!-- Tee Time -->
           <div class="mb-4">
             <label for="teeTime" class="block text-sm font-medium text-gray-700"
-              >Tee Time</label
+              >Giờ Tee Off</label
             >
             <div
               v-if="!isEditMode"
@@ -147,7 +149,7 @@
               v-model="updateBookingForm.teeTimeId"
               class="border border-gray-300 mt-1 block w-full pl-3 pr-10 py-2 text-base focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
-              <option value="">Select Tee Time</option>
+              <option value="">Chọn Giờ Tee Off</option>
               <option
                 v-for="time in mergedTeeTimes"
                 :key="time.id"
@@ -161,13 +163,13 @@
           <!-- Number of Holes -->
           <div class="mb-4">
             <label for="holes" class="block text-sm font-medium text-gray-700"
-              >Number of Holes</label
+              >Số Hố</label
             >
             <div
               v-if="!isEditMode"
               class="mt-1 p-3 border rounded-md bg-gray-50"
             >
-              {{ booking?.numberOfHoles }} holes
+              {{ booking?.numberOfHoles }} hố
             </div>
             <select
               v-else
@@ -190,7 +192,7 @@
             <label
               for="customerName"
               class="block text-sm font-medium text-gray-700"
-              >Customer Name</label
+              >Tên Khách Hàng</label
             >
             <div
               v-if="!isEditMode"
@@ -212,13 +214,13 @@
             <label
               for="numPlayers"
               class="block text-sm font-medium text-gray-700"
-              >Number of Players</label
+              >Số Người Chơi</label
             >
             <div
               v-if="!isEditMode"
               class="mt-1 p-3 border rounded-md bg-gray-50"
             >
-              {{ booking?.numPlayers }} players
+              {{ booking?.numPlayers }} người
             </div>
             <input
               v-else
@@ -234,7 +236,7 @@
           <!-- Phone -->
           <div class="mb-4">
             <label for="phone" class="block text-sm font-medium text-gray-700"
-              >Phone</label
+              >Số Điện Thoại</label
             >
             <div
               v-if="!isEditMode"
@@ -279,12 +281,12 @@
             class="lg:col-span-3"
           >
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-              Check-in/out Times
+              Thời Gian Nhận/Trả Sân
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-if="booking?.checkInTime" class="mb-4">
                 <label class="block text-sm font-medium text-gray-700"
-                  >Check-in</label
+                  >Nhận Sân</label
                 >
                 <div class="mt-1 p-3 border rounded-md bg-green-50">
                   {{ formatDateTime(booking?.checkInTime) }}
@@ -292,7 +294,7 @@
               </div>
               <div v-if="booking?.checkOutTime" class="mb-4">
                 <label class="block text-sm font-medium text-gray-700"
-                  >Check-out</label
+                  >Trả Sân</label
                 >
                 <div class="mt-1 p-3 border rounded-md bg-blue-50">
                   {{ formatDateTime(booking?.checkOutTime) }}
@@ -300,7 +302,7 @@
                     v-if="booking?.checkOutBy"
                     class="text-sm text-blue-700 mt-1"
                   >
-                    By: {{ booking?.checkOutBy }}
+                    Bởi: {{ booking?.checkOutBy }}
                   </div>
                 </div>
               </div>
@@ -310,13 +312,13 @@
           <!-- Notes -->
           <div class="mb-4 lg:col-span-3">
             <label for="notes" class="block text-sm font-medium text-gray-700"
-              >Notes</label
+              >Ghi Chú</label
             >
             <div
               v-if="!isEditMode"
               class="mt-1 p-3 border rounded-md bg-gray-50 min-h-[50px]"
             >
-              {{ booking?.note || "N/A" }}
+              {{ booking?.note }}
             </div>
             <textarea
               v-else
@@ -331,14 +333,14 @@
           <div class="mb-4 lg:col-span-3">
             <div class="flex items-center justify-between mb-2">
               <label class="block text-sm font-medium text-gray-700"
-                >Services</label
+                >Dịch Vụ</label
               >
               <button
                 v-if="isEditMode"
                 @click="addService"
                 class="bg-green-500 text-white hover:bg-green-600 font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none"
               >
-                Add Service
+                Thêm Dịch Vụ
               </button>
             </div>
             <div class="overflow-x-auto">
@@ -391,7 +393,7 @@
                         @change="onServiceChange(index)"
                         class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                       >
-                        <option value="">Select Service</option>
+                        <option value="">Chọn Dịch Vụ</option>
                         <option
                           v-for="service in servicesForBooking"
                           :key="service.id"
@@ -474,7 +476,7 @@
                       colspan="6"
                       class="px-6 py-4 whitespace-nowrap text-center text-gray-500"
                     >
-                      No services booked
+                      Không có dịch vụ nào được đặt
                     </td>
                   </tr>
                 </tbody>
@@ -486,15 +488,15 @@
         <!-- Payment Summary -->
         <div class="bg-gray-100 p-8 border-t border-gray-200">
           <h3 class="text-xl font-semibold text-gray-700 mb-4">
-            Payment Summary
+            Tổng Kết Thanh Toán
           </h3>
 
           <div class="flex justify-between py-2">
             <span
-              >Course Fee ({{
+              >Phí Sân Golf ({{
                 booking?.numPlayers || updateBookingForm.numPlayers
               }}
-              players):</span
+              người):</span
             >
             <span class="font-semibold">{{
               formatPrice(
@@ -504,7 +506,7 @@
           </div>
 
           <div class="flex justify-between py-2">
-            <span>Service Fee:</span>
+            <span>Phí Dịch Vụ:</span>
             <span class="font-semibold">{{
               formatPrice(
                 isEditMode ? servicesTotal : booking?.priceByService || 0
@@ -512,8 +514,19 @@
             }}</span>
           </div>
 
+          <div
+            v-if="booking.discountPromotion > 0"
+            class="flex justify-between py-2"
+          >
+            <span>Khuyễn mãi sự kiện:</span>
+
+            <span class="font-semibold text-red-500"
+              >{{ booking.discountPromotion }} %</span
+            >
+          </div>
+
           <div class="flex justify-between py-2">
-            <span>Deposit:</span>
+            <span>Đặt Cọc:</span>
             <span class="font-semibold text-orange-600">{{
               formatPrice(
                 isEditMode ? depositAmount : booking?.depositAmount || 0
@@ -524,7 +537,7 @@
           <div
             class="border-t border-gray-300 mt-4 pt-4 flex justify-between font-bold text-lg"
           >
-            <span>Total:</span>
+            <span>Tổng Cộng:</span>
             <span class="text-green-600">{{
               formatPrice(isEditMode ? totalPrice : booking?.totalCost || 0)
             }}</span>
@@ -548,7 +561,9 @@
                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                 ></path>
               </svg>
-              <span class="font-medium text-blue-800">Paid via VNPay</span>
+              <span class="font-medium text-blue-800"
+                >Đã thanh toán qua VNPay</span
+              >
             </div>
           </div>
 
@@ -569,15 +584,69 @@
                   : 'bg-green-500 text-white hover:bg-green-600 focus:outline-none',
               ]"
             >
-              Save Changes
+              Lưu Thay Đổi
             </button>
             <button
               @click="isEditMode = false"
               class="w-full mt-3 py-3 rounded-md shadow-sm font-semibold border border-gray-400 hover:bg-gray-100 focus:outline-none"
             >
-              Cancel
+              Hủy Bỏ
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showCheckoutModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
+      style="background-color: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <h2 class="text-xl font-bold mb-4">Thanh toán khi hoàn thành</h2>
+        <div class="mb-3 flex justify-between">
+          <span>Tổng tiền:</span>
+          <span class="font-semibold text-green-700">{{
+            formatPrice(booking.totalCost)
+          }}</span>
+        </div>
+        <div class="mb-3 flex justify-between">
+          <span>Đã thanh toán trước:</span>
+          <span class="font-semibold text-blue-700">{{
+            formatPrice(booking.depositAmount || 0)
+          }}</span>
+        </div>
+        <div class="mb-3 flex justify-between">
+          <span>Số tiền còn lại:</span>
+          <span class="font-bold text-red-600">{{
+            formatPrice(booking.totalCost - booking.depositAmount)
+          }}</span>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1 font-medium">Phương thức thanh toán</label>
+          <select
+            v-model="checkoutForm.paymentMethod"
+            class="w-full border rounded px-3 py-2"
+          >
+            <option value="">Chọn phương thức</option>
+            <option value="cash">Tiền mặt</option>
+            <option value="bank">Chuyển khoản</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button
+            @click="showCheckoutModal = false"
+            class="px-4 py-2 border rounded"
+          >
+            Hủy
+          </button>
+          <button
+            :disabled="!checkoutForm.paymentMethod"
+            @click="handleCheckOut"
+            class="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+          >
+            Xác nhận & Checkout
+          </button>
         </div>
       </div>
     </div>
@@ -601,13 +670,15 @@ async function handleCheckIn() {
   }
 }
 async function handleConfirm() {
+
+
   if (!booking.value.id) return;
   try {
     const data = {
       bookingId: booking.value.id,
       status: "CONFIRMED",
     };
-    await bookingStore.changeStatus(data);
+    await bookingStore.confirm(data);
     showToast("Xác nhận thành công", "success");
     await fetchData();
     isEditMode.value = false;
@@ -616,15 +687,26 @@ async function handleConfirm() {
   }
 }
 
+const showCheckoutModal = ref(false);
+const checkoutForm = reactive({
+  paymentMethod: "",
+});
+
+function openCheckoutModal() {
+  showCheckoutModal.value = true;
+  checkoutForm.paymentMethod = "";
+}
 async function handleCheckOut() {
   if (!booking.value.id) return;
   try {
     const param = {
       bookingCode: booking.value.bookingCode,
+      paymentMethod: checkoutForm.paymentMethod,
     };
     await bookingStore.checkOut({ param });
     showToast("Check-out thành công", "success");
     await fetchData();
+    showCheckoutModal.value = false;
     isEditMode.value = false;
   } catch (e) {
     showToast("Check-out thất bại", "error");
@@ -645,13 +727,13 @@ import { useServicesStore } from "../../stores/services";
 import { useTeeTimeStore } from "../../stores/tee_time";
 import { useGolfCourseStore } from "../../stores/golf_course";
 import { watch } from "vue";
+import { usePaymentStore } from "../../stores/payment";
 const showToast = inject("showToast");
 // store
 const courseStore = useGolfCourseStore();
 const teeTimeStore = useTeeTimeStore();
 const serviceStore = useServicesStore();
-const toolStore = useToolStore();
-
+const pyamentStore = usePaymentStore();
 const route = useRoute();
 const router = useRouter();
 const bookingStore = useBookingStore();
@@ -758,7 +840,6 @@ watch(
 const { golfCourses } = storeToRefs(courseStore);
 const { availableTeeTimes } = storeToRefs(teeTimeStore);
 const { servicesForBooking } = storeToRefs(serviceStore);
-const { golfClubs } = storeToRefs(toolStore);
 
 function goBack() {
   router.back();
@@ -821,7 +902,6 @@ async function saveBooking() {
   showToast("Cập nhật đặt lịch thành công", "success");
 }
 
-
 // Thêm dịch vụ mới vào booking
 function addService() {
   editBookingDetails.push({
@@ -881,8 +961,9 @@ const depositAmount = computed(() => {
   updateBookingForm.depositAmount = depositAmount;
   return depositAmount || 0;
 });
-
+console.log(booking);
 const servicesTotal = computed(() => {
+  console.log("check", editBookingDetails);
   return editBookingDetails.reduce(
     (total, item) => total + (item.totalPrice || 0),
     0

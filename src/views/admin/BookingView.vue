@@ -91,6 +91,8 @@ const bookingForm = reactive({
   golfCourse: null,
   status: "PENDING",
   depositAmount: 0,
+  discountPromotion: 0, // Giảm giá từ sự kiện khuyến mãi
+  discountMembership: 0, // Giảm giá từ thẻ thành viên
   priceByCourse: 0,
   priceByService: 0,
   priceByTeeTime: 0, // Giá giờ chơi theo teeTime đã chọn
@@ -182,6 +184,7 @@ async function saveBooking() {
   const newBooking = await bookingStore.createBooking(bookingForm);
   addBookingDetailToBooking(newBooking.id);
   showToast("Đặt lịch thành công!", "success");
+  console.log("Booking created:", newBooking);
   closeBookingModal();
 }
 
@@ -323,6 +326,8 @@ watch(
       discountPromotion.value = promotion.value
         ? promotion.value.discountPercent
         : 0;
+      
+      bookingForm.discountPromotion = discountPromotion.value;
     }
   },
   { immediate: true }
@@ -358,10 +363,9 @@ const calPriceCourse = computed(() => {
   return priceByCourse * numPlayers * roundHoles.value;
 });
 const totalPrice = computed(() => {
-  return (
-    (calPriceCourse.value + servicesTotal.value) *
-    (1 - discountPromotion.value / 100)
-  );
+  const total = (calPriceCourse.value + servicesTotal.value) *(1 - discountPromotion.value / 100)
+  bookingForm.totalCost = total;
+  return total || 0;
 });
 const depositAmount = computed(() => {
   const total = totalPrice.value || 0;

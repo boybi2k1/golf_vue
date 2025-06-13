@@ -86,6 +86,22 @@ export const useBookingStore = defineStore("booking", {
         this.loading = false;
       }
     },
+    async confirm(payload) {
+      try {
+        this.loading = true;
+        const res = await api.post("/booking/confirm", payload);
+        const updated = res.data.data;
+        const index = this.bookings.findIndex((b) => b.id === updated.id);
+        if (index !== -1) {
+          this.bookings[index] = updated;
+        }
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     // CHECK IN
     async checkIn({ param }) {
       try {

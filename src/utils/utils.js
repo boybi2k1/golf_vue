@@ -11,6 +11,8 @@ export function getStatusBookingText(status) {
       return "Hoàn thành";
     case "CHECKED_OUT":
       return "Đã check-out";
+    case "CANCELED":
+      return "Đã hủy"
     default:
       return status;
   }

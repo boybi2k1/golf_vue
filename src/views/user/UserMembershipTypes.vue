@@ -260,7 +260,7 @@ async function handleConfirmRegistration() {
       paymentMethod: "VNPay",
     };
     // Nếu backend trả về paymentUrl, chuyển hướng
-    const paymentResponse = await paymentStore.createPayment(paymentData);
+    const paymentResponse = await paymentStore.createPaymentVnpay(paymentData);
     if (paymentResponse && paymentResponse.paymentUrl) {
       window.location.href = paymentResponse.paymentUrl;
     } else {
