@@ -5,8 +5,8 @@ export const useReportStore = defineStore("report", {
   state: () => ({
     totalBookings: 0,
     totalRevenue: 0,
-    numberBookingByDate: [], // [ [date, số booking], ... ]
-    revenueByDate: [],       // [ [date, doanh thu], ... ]
+    numberBookingByDate: [], 
+    revenueByDate: [],       
     bookingCountAndRevenueByGolfCourse: [],
     loading: false,
     error: null,
